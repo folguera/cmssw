@@ -51,12 +51,11 @@ class TH1D;
 class TH2;
 class TProfile;
 
-//------------------------------------------
+//--------------------------------------
 //  Class Declaration: MuIsoValidation
 //--------------------------------------
-//class MuIsoValidation : public edm::EDAnalyzer {
-
-class MuIsoValidation : public thread_unsafe::DQMEDAnalyzer {
+class MuIsoValidation : public DQMEDAnalyzer {
+  
   //---------namespace and typedefs--------------
   typedef edm::View<reco::Muon>::const_iterator MuonIterator;
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
@@ -65,16 +64,16 @@ class MuIsoValidation : public thread_unsafe::DQMEDAnalyzer {
   
 public:
   //---------methods----------------------------
-  explicit MuIsoValidation(const edm::ParameterSet&);
-  ~MuIsoValidation();
+  MuIsoValidation(const edm::ParameterSet&);
+  virtual ~MuIsoValidation();
   
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
   
 private:
   //---------methods----------------------------
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void InitStatics();
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
   void FillHistos();//Fills histograms with data
@@ -82,7 +81,6 @@ private:
   TH1* GetTH1FromMonitorElement(MonitorElement* me);
   TH2* GetTH2FromMonitorElement(MonitorElement* me);
   TProfile* GetTProfileFromMonitorElement(MonitorElement* me);
-  
   
   //----------Static Variables---------------
   
@@ -123,10 +121,6 @@ private:
   std::vector<int> cdCompNeeded;//[NUM_VARS]
   
   //---------------Dynamic Variables---------------------
-  
-  //MonitorElement
-  DQMStore* dbe;
-
   edm::ParameterSet iConfig;  
   //The Data
   int theMuonData;//[number of muons]
@@ -136,7 +130,6 @@ private:
   MonitorElement* h_nMuons;
   std::vector<MonitorElement*> h_1D;//[NUM_VARS]
   std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
-  //  std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
   std::vector< std::vector<MonitorElement*> > p_2D;//[NUM_VARS][NUM_VARS]
   
   //Counters

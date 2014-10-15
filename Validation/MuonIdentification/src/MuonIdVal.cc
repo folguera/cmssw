@@ -35,12 +35,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& ps)
 
 MuonIdVal::~MuonIdVal() {}
 
-void MuonIdVal::beginJob()
-{
-}
-
-void MuonIdVal::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run&, const edm::EventSetup&)
-{
+void MuonIdVal::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run&, const edm::EventSetup&){
    char name[100], title[200];
    ibooker.setCurrentFolder(baseFolder_) ;
 
@@ -294,9 +289,7 @@ void MuonIdVal::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run&, con
    }
 }
 
-void
-MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
    using namespace edm;
    using namespace reco;
 
@@ -643,9 +636,6 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }// csc segment
 }
-
-void 
-MuonIdVal::endJob() {}
 
 void MuonIdVal::Fill(MonitorElement* me, float f) {
    if (fabs(f) > 900000) return;

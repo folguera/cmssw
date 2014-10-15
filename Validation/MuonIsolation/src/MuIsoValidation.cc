@@ -60,16 +60,11 @@ using std::string;
 //
 //-----------------Constructors---------------------
 //
-MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
-{
+MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps) {
   iConfig=ps;
   
-  //  rootfilename = iConfig.getUntrackedParameter<string>("rootfilename"); // comment out for inclusion
   requireCombinedMuon = iConfig.getUntrackedParameter<bool>("requireCombinedMuon");
   dirName = iConfig.getUntrackedParameter<std::string>("directory");
-  //subDirName = iConfig.getParameter<std::string>("@module_label");
-  
-  //dirName += subDirName;
   
   //--------Initialize tags-------
   Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
@@ -83,8 +78,6 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
   InitStatics();
   
   //Set up DAQ
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
   subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   
   //------"allocate" space for the data vectors-------
