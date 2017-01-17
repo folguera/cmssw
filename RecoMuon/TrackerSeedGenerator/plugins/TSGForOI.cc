@@ -58,7 +58,8 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);
   iEvent.getByToken(measurementTrackerTag_, measurementTracker_);
-  edm::Handle<reco::TrackCollection> l2TrackCol;					iEvent.getByToken(src_, l2TrackCol);
+  edm::Handle<reco::TrackCollection> l2TrackCol;					
+  iEvent.getByToken(src_, l2TrackCol);
 
   //	The product:
   std::auto_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
@@ -124,7 +125,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	findSeedsOnLayer(**it, tsosAtIP, tsosAtMuonSystem, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
-
+    
     //		Reset Number of seeds if in overlap region:
     if (std::abs(l2->eta())>minEtaForTEC_ && std::abs(l2->eta())<maxEtaForTOB_){
       numSeedsMade_=0;
@@ -202,7 +203,8 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
       numSeedsMade_=out->size();
     }
   }
-  
+  //  numSeedsMade_=out->size();
+
   // Hits:
   if (layerCount_>numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
