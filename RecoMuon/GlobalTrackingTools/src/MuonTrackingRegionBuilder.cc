@@ -261,7 +261,7 @@ void MuonTrackingRegionBuilder::fillDescriptions(edm::ConfigurationDescriptions&
   {
     edm::ParameterSetDescription desc;
     fillDescriptionsHLT(desc);
-    descriptions.add("MuonTrackingRegionBuilderHLT",desc);
+    descriptions.add("MuonTrackingRegionBuilderEDProducer",desc);
   }
   descriptions.setComment("Build a TrackingRegion around a standalone muon. Options to define region around beamspot or primary vertex and dynamic regions are included.");
 }
