@@ -39,6 +39,7 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
   tsosDiff_(iConfig.getParameter<double>("tsosDiff")),
+  propagatorName_(iConfig.getParameter<std::string>("propagatorName")),
   theCategory(string("Muon|RecoMuon|TSGForOI"))
 {
   produces<std::vector<TrajectorySeed> >();
@@ -70,8 +71,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<GlobalTrackingGeometry>         geometryH;
 
   iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorOppositeH);
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorAlongH);
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
@@ -206,7 +207,8 @@ void TSGForOI::findSeedsOnLayer(
   
   double errorSFHits=1.0;
   double errorSFHitless=1.0;
-  if (!adjustErrorsDynamicallyForHits_)    errorSFHits = fixedErrorRescalingForHits_;
+  if (!adjustErrorsDynamicallyForHits_) errorSFHits = fixedErrorRescalingForHits_;
+  else                                  errorSFHits = calculateSFFromL2(l2);
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
 
   // Hitless:

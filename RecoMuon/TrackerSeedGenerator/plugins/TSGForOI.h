@@ -87,6 +87,7 @@ private:
 	const double tsosDiff_;
 
 	/// Counters and flags for the implementation
+	const std::string propagatorName_;
 	const std::string theCategory;
 
 	/// Function to find seeds on a given layer
