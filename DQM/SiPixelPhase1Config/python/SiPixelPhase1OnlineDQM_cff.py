@@ -71,6 +71,12 @@ DefaultHistoDigiCluster.perLumiHarvesting = True
 DefaultHistoSummary.perLumiHarvesting = True
 DefaultHistoTrack.perLumiHarvesting = True
 
+##SF # Turn on 'online' trend plots. This has to be set before other configs are
+##SF # loaded (due to how the DefaultHisto PSet is later cloned).
+##SF DefaultHisto.perLumiSectionTrend = True
+##SF DefaultHistoDigiCluster.perLumiSectionTrend = True 
+##SF DefaultHistoSummary.perLumiSectionTrend = True
+##SF DefaultHistoTrack.perLumiSectionTrend = True
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
@@ -95,20 +101,21 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
-   SiPixelPhase1DigisAnalyzer
- + SiPixelPhase1ClustersAnalyzer
+   SiPixelPhase1DigisAnalyzer_Online
+ + SiPixelPhase1ClustersAnalyzer_Online
  + SiPixelPhase1RawDataAnalyzer
 # + SiPixelPhase1GeometryDebugAnalyzer
 )
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
-   SiPixelPhase1DigisHarvester 
- + SiPixelPhase1ClustersHarvester
+   SiPixelPhase1DigisHarvester_Online
+ + SiPixelPhase1ClustersHarvester_Online
  + SiPixelPhase1RawDataHarvester
  + RunQTests_online
  + SiPixelPhase1Summary_Online
 # + SiPixelPhase1GeometryDebugHarvester
 )
+
 
 siPixelPhase1OnlineDQM_timing_harvesting = siPixelPhase1OnlineDQM_harvesting.copyAndExclude([
  RunQTests_online,
