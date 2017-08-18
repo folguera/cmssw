@@ -71,12 +71,6 @@ DefaultHistoDigiCluster.perLumiHarvesting = True
 DefaultHistoSummary.perLumiHarvesting = True
 DefaultHistoTrack.perLumiHarvesting = True
 
-##SF # Turn on 'online' trend plots. This has to be set before other configs are
-##SF # loaded (due to how the DefaultHisto PSet is later cloned).
-##SF DefaultHisto.perLumiSectionTrend = True
-##SF DefaultHistoDigiCluster.perLumiSectionTrend = True 
-##SF DefaultHistoSummary.perLumiSectionTrend = True
-##SF DefaultHistoTrack.perLumiSectionTrend = True
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
