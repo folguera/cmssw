@@ -91,6 +91,13 @@ private:
 	const std::string theCategory;
 
 	/// Function to find seeds on a given layer
+	bool findHitlessSeeds(const TrajectoryStateOnSurface &outer,
+			      const Propagator& propagatorOpposite,
+			      const reco::TrackRef l2,
+			      edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+			      edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+			      std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
+
 	void findSeedsOnLayer(
 				const TrackerTopology* tTopo,
 				const GeometricSearchDet &layer,
@@ -117,8 +124,10 @@ private:
 				const TrajectoryStateOnSurface &tsosAtIP,
 				std::vector<TrajectorySeed> &out,
 				const Propagator& propagatorAlong,
+				const Propagator& propagatorOpposite,
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator_,
+				unsigned int& numSeedsMade,
 				const double errorSF) const;
 
 

@@ -2,7 +2,7 @@
   \class    TSGForOI
   \brief    Create L3MuonTrajectorySeeds from L2 Muons updated at vertex in an outside in manner
   \author   Benjamin Radburn-Smith, Santiago Folgueras
- */
+*/
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOI.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -85,7 +85,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
 
   //	Get vector of Detector layers once:
-  std::vector<BarrelDetLayer const*> const& tob = measurementTrackerH->geometricSearchTracker()->tobLayers();
+  std::vector<BarrelDetLayer const*> const& tob          = measurementTrackerH->geometricSearchTracker()->tobLayers();
   std::vector<ForwardDetLayer const*> const& tecPositive = measurementTrackerH->geometricSearchTracker()->posTecLayers();
   std::vector<ForwardDetLayer const*> const& tecNegative = measurementTrackerH->geometricSearchTracker()->negTecLayers();
   edm::ESHandle<TrackerTopology> tTopo_handle;
@@ -93,14 +93,16 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   const TrackerTopology* tTopo = tTopo_handle.product();
 
   //	Get the suitable propagators:
-  std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH,alongMomentum);
-  std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH,oppositeToMomentum);
-
   edm::ESHandle<Propagator> SmartOpposite;
   edm::ESHandle<Propagator> SHPOpposite;
   iSetup.get<TrackingComponentsRecord>().get("hltESPSmartPropagatorAnyOpposite", SmartOpposite);
   iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
 
+  std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH,alongMomentum);
+  std::unique_ptr<Propagator> propagatorOpposite= SetPropagationDirection(*propagatorOppositeH,oppositeToMomentum);
+  //  std::unique_ptr<Propagator> propagatorOpposite= SetPropagationDirection(*SmartOpposite,alongMomentum);
+  
+  
   //	Loop over the L2's and make seeds for all of them:
   LogTrace(theCategory) << "TSGForOI::produce: Number of L2's: " << l2TrackCol->size();
   for (unsigned int l2TrackColIndex(0);l2TrackColIndex!=l2TrackCol->size();++l2TrackColIndex){
@@ -113,35 +115,25 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     TrajectoryStateOnSurface tsosAtIP = TrajectoryStateOnSurface(fts, *dummyPlane);
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatIP: " << tsosAtIP << std::endl;
     
-    // get the TSOS on the innermost layer of the L2. 
-    TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometryH, magfieldH.product());
-    LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
-    
-    if (useHitLessSeeds_){  // 
-      LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
-      StateOnTrackerBound fromInside(propagatorAlong.get());
-      TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
-      
-      StateOnTrackerBound fromOutside(&*SmartOpposite);
-      TrajectoryStateOnSurface outerTkStateOutside = fromOutside(tsosAtMuonSystem);
-
-      // for now only checking if the two positions (using updated and not-updated) agree withing certain extent, 
-      // will probably have to design something fancier for the future. 
-      auto dist=0.0;
-      if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()){
-        float deta = outerTkStateInside.globalPosition().eta() - outerTkStateOutside.globalPosition().eta();
-        float dphi = outerTkStateInside.globalPosition().phi() - outerTkStateOutside.globalPosition().phi();
-	dist = sqrt(deta*deta+dphi*dphi);
-      }
-      if (dist>tsosDiff_){
-	++numOfMaxSeeds;	// add a hit-based seed
-      }
-    } 
-
     numSeedsMade=0;
     analysedL2 = false;
-    foundHitlessSeed = false; 
-
+    
+    if (useHitLessSeeds_){  //  
+      StateOnTrackerBound onBounds(propagatorAlong.get());
+      TrajectoryStateOnSurface outer = onBounds(fts);
+      if (outer.isValid()){
+	double errorSFHitless=1.0;
+	if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
+	else                                     errorSFHitless = calculateSFFromL2(l2);
+	outer.rescaleError(errorSFHitless);
+	
+	if (findHitlessSeeds(outer, *(propagatorOpposite.get()), l2, estimatorH, measurementTrackerH, out)) {
+	  numSeedsMade++;
+	  foundHitlessSeed = true;
+	}
+      }
+    }
+    //   
     //		BARREL
     if (std::abs(l2->eta()) < maxEtaForTOB_) {
       layerCount = 0;
@@ -153,10 +145,10 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     }
     
     //		Reset Number of seeds if in overlap region:
-    if (std::abs(l2->eta())>minEtaForTEC_ && std::abs(l2->eta())<maxEtaForTOB_){
+    if (std::abs(l2->eta()) > minEtaForTEC_ && std::abs(l2->eta()) < maxEtaForTOB_){
       numSeedsMade=0;
     }
-
+    
     //		ENDCAP+
     if (l2->eta() > minEtaForTEC_) {
       layerCount = 0;
@@ -182,8 +174,98 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     }
   } //L2Collection
   edm::LogInfo(theCategory) << "TSGForOI::produce: number of seeds made: " << result->size();
-
+  
   iEvent.put(std::move(result));
+}
+bool TSGForOI::findHitlessSeeds(const TrajectoryStateOnSurface &outer,
+				const Propagator& propagatorOpposite,	
+				const reco::TrackRef l2,
+				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+				edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+				std::unique_ptr<std::vector<TrajectorySeed> >& out
+				) const{
+  
+  bool found = false;
+  if (!outer.isValid()) return false;
+  
+  std::vector<BarrelDetLayer const*> const& tob          = measurementTrackerH->geometricSearchTracker()->tobLayers();
+  std::vector<ForwardDetLayer const*> const& tecPositive = measurementTrackerH->geometricSearchTracker()->posTecLayers();
+  std::vector<ForwardDetLayer const*> const& tecNegative = measurementTrackerH->geometricSearchTracker()->negTecLayers();
+  
+  double z = outer.globalPosition().z();	
+  unsigned int layerShift=0;
+  const DetLayer *inLayer = 0;
+  if (fabs(z) < tecPositive.front()->surface().position().z()  ){
+    inLayer = *(tob.rbegin()+layerShift);
+    LogTrace(theCategory)<<"choosing TOB layer with shift: "<<layerShift;
+  } 
+  else {
+    unsigned int tecIt=1;
+    for (; tecIt!=tecPositive.size();tecIt++){
+      LogTrace("TSGForOI")<<"checking surface with shift: "<<tecIt
+			  <<"z: "<<tecPositive[tecIt]->surface().position().z();
+      if (fabs(z) < tecPositive[tecIt]->surface().position().z()){
+	inLayer = ( z < 0 ) ? tecNegative[tecIt-1] : tecPositive[tecIt-1] ; 
+	layerShift=tecIt-1;
+	LogTrace("TSGForOI")<<"choosing TEC layer with shift: "<<layerShift
+			    <<" and z: "<<inLayer->surface().position().z();
+	break;
+      }
+    }
+    if (!inLayer) {
+      inLayer = ( z < 0 ) ? tecNegative.back() : tecPositive.back();
+      LogTrace(theCategory)<<"choosing last TEC layer with z: "<<inLayer->surface().position().z();
+    }
+  }
+  
+  //find out at least one compatible detector reached
+  std::vector< DetLayer::DetWithState > compatible;
+  compatible.reserve(10);
+  inLayer->compatibleDetsV(outer,propagatorOpposite,*estimatorH,compatible);
+  
+  //loop the parts until at least a compatible is found
+  while (compatible.size()==0) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
+    case GeomDetEnumerators::PixelBarrel:
+    case GeomDetEnumerators::PixelEndcap:
+    case GeomDetEnumerators::TIB:
+    case GeomDetEnumerators::TID:
+    case GeomDetEnumerators::TOB:
+      layerShift++;
+      if (layerShift>=tob.size()){
+	LogDebug(theCategory) <<"all barrel layers are exhausted to find starting state. no seed,";
+	return false;
+      }
+      inLayer = *(tob.rbegin()+layerShift);
+      break;
+    case GeomDetEnumerators::TEC:
+      if (layerShift==0){
+	LogDebug(theCategory) <<"failed to get a compatible module on a TEC layer, using the last TOB layer.";
+	inLayer = *(tob.rbegin()+layerShift);
+      }
+      else{
+	layerShift--;
+	LogDebug(theCategory) <<"reaching more in with layer "<<layerShift<<" in TEC";
+	inLayer = ( z < 0 ) ? tecNegative[layerShift] : tecPositive[layerShift] ;
+      }
+      break;
+    default:
+      edm::LogError(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";
+      return false;
+    }
+    inLayer->compatibleDetsV(outer,propagatorOpposite,*estimatorH,compatible);
+  }
+  if (!compatible.empty()){
+    // STORE ONE HITLESS PER L2: 
+    auto const& detOnLayer  = compatible.front().first;
+    auto const& tsosOnLayer = compatible.front().second;
+    //      dets.front().second.rescaleError(errorSFHitless);
+    PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
+    TrajectorySeed::recHitContainer rHC;
+    out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
+    found = true; // do we need this? 
+  }
+  return found;
 }
 
 void TSGForOI::findSeedsOnLayer(
@@ -211,7 +293,7 @@ void TSGForOI::findSeedsOnLayer(
   else                                  errorSFHits = calculateSFFromL2(l2);
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
 
-  // Hitless:
+  // Hitless:  TO-BE  DISCARDED.
   if (useHitLessSeeds_ && !foundHitlessSeed) {
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
@@ -236,17 +318,17 @@ void TSGForOI::findSeedsOnLayer(
 	out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
 	LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
 	foundHitlessSeed=true;
+	numSeedsMade++;
       }
-      numSeedsMade=out->size();
     }
   }
   //  numSeedsMade=out->size();
+  
 
   // Hits:
   if (layerCount>numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
-  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, errorSFHits))  ++layerCount; 
-  numSeedsMade=out->size();
+  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, propagatorOpposite, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits))  ++layerCount; 
 }
 
 double TSGForOI::calculateSFFromL2(const reco::TrackRef track) const{
@@ -280,16 +362,18 @@ int TSGForOI::makeSeedsFromHits(
 				const TrajectoryStateOnSurface &tsosAtIP,
 				std::vector<TrajectorySeed> &out,
 				const Propagator& propagatorAlong,
+				const Propagator& propagatorOpposite,
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+				unsigned int& numSeedsMade,
 				const double errorSF)  const{
 
   //		Error Rescaling:
   TrajectoryStateOnSurface onLayer(tsosAtIP);
   onLayer.rescaleError(errorSF);    
-
+  
   std::vector< GeometricSearchDet::DetWithState > dets;
-  layer.compatibleDetsV(onLayer, propagatorAlong, *estimatorH, dets);
+  layer.compatibleDetsV(onLayer, propagatorOpposite, *estimatorH, dets);
   
   //	Find Measurements on each DetWithState:
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: find measurements on each detWithState  " << dets.size() << endl;
@@ -321,17 +405,18 @@ int TSGForOI::makeSeedsFromHits(
     if (useStereoLayersInTEC_) { 
       DetId detid = ((*it).recHit()->hit())->geographicalId();
       if (detid.subdetId() == StripSubdetector::TEC) {
-		if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
+	if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
       }
     }
     
     edm::OwnVector<TrackingRecHit> seedHits;
     seedHits.push_back(*it->recHit()->hit());
     PTrajectoryStateOnDet const& pstate = trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
-    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
+    TrajectorySeed seed(pstate, std::move(seedHits), alongMomentum);
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: number of seedHits: " << seedHits.size() << endl;
     out.push_back(seed);
     found++;
+    numSeedsMade++;
     if (found == numOfHitsToTry_) break;
   }
   return found;
@@ -366,6 +451,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF4",7.0);
   desc.add<double>("SF5",10.0);
   desc.add<double>("tsosDiff",0.03);
+  desc.add<std::string>("propagatorName","PropagatorWithMaterial");
   descriptions.add("TSGForOI",desc);
 }
 
