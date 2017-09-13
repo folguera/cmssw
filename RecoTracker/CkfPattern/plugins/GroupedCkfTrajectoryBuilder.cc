@@ -454,8 +454,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const
 {
-  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
-
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(seed,traj);
 
   if(maxPt2ForLooperReconstruction>0){
     if(
@@ -471,12 +470,11 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 
   auto layerBegin = stateAndLayers.second.begin();
   auto layerEnd   = stateAndLayers.second.end();
-
+  
   //   if (nl.empty()) {
   //     addToResult(traj,result,inOut);
   //     return false;
   //   }
-  
 #ifdef EDM_ML_DEBUG
   LogDebug("CkfPattern")<<whatIsTheNextStep(traj, stateAndLayers);
 #endif
@@ -488,7 +486,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     TSOS stateToUse = stateAndLayers.first;
     
     double dPhiCacheForLoopersReconstruction(0);
-    if unlikely((*il)==traj.lastLayer()){
+    if unlikely(!traj.empty() && (*il)==traj.lastLayer()){ //added here!
 	
 	if(maxPt2ForLooperReconstruction>0){
 	  // ------ For loopers reconstruction
@@ -512,13 +510,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	    float length = 0.5f*bounds.length();
 	    
 	    /*
-	      cout << "starting: " << starting << endl;
-	      cout << "target1: " << target1 << endl;
-	      cout << "target2: " << target2 << endl;
-	      cout << "dphi: " << (target1.phi()-target2.phi()) << endl;
+	    cout << "starting: " << starting << endl;
+	    cout << "target1: " << target1 << endl;
+	    cout << "target2: " << target2 << endl;
+	    cout << "dphi: " << (target1.phi()-target2.phi()) << endl;
 	    cout << "length: " << length << endl;
 	    */
-	    
 	    /*
 	      float deltaZ = bounds.thickness()/2.f/fabs(tan(stateToUse.globalDirection().theta()) ) ;
 	      if(stateToUse.hasError())
@@ -530,7 +527,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 	    Geom::Phi<float> tmpDphi = target1.phi()-target2.phi();
 	    if(std::abs(tmpDphi)>maxDPhiForLooperReconstruction) continue;
 	    GlobalPoint target(0.5f*(target1.basicVector()+target2.basicVector()));
-	    //cout << "target: " << target << endl;
+	    //	    cout << "target: " << target << endl;
 	    
 
 	    
