@@ -33,9 +33,9 @@
 class TSGForOI : public edm::global::EDProducer<> {
 public:
 	explicit TSGForOI(const edm::ParameterSet & iConfig);
-	virtual ~TSGForOI();
+	~TSGForOI() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	virtual void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+	void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 private:
 	/// Labels for input collections
 	const edm::EDGetTokenT<reco::TrackCollection> src_;
@@ -89,6 +89,12 @@ private:
 	/// Counters and flags for the implementation
 	const std::string propagatorName_;
 	const std::string theCategory;
+	bool findHitlessSeeds(const TrajectoryStateOnSurface &outer,
+			      const Propagator& propagatorOpposite,
+			      const reco::TrackRef l2,
+			      edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+			      edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+			      std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
 	/// Function to find seeds on a given layer
 	void findSeedsOnLayer(
