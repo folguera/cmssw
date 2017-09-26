@@ -109,8 +109,6 @@ private:
 				unsigned int& numSeedsMade,
 				unsigned int& numOfMaxSeeds,
 				unsigned int& layerCount,
-				bool& foundHitlessSeed,
-				bool& analysedL2,
 				std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
 	/// Function used to calculate the dynamic error SF by analysing the L2

@@ -54,8 +54,6 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   /// Init variables
   unsigned int numOfMaxSeeds = numOfMaxSeedsParam_;
   unsigned int numSeedsMade=0;
-  bool analysedL2 = false;
-  bool foundHitlessSeed = false; 
   unsigned int layerCount = 0;
 
 
@@ -125,7 +123,6 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 	
 	if (findHitlessSeeds(outer, *(propagatorOpposite.get()), l2, estimatorH, measurementTrackerH, out)) {
 	  numSeedsMade++;
-	  foundHitlessSeed = true;
 	}
       }
     }
@@ -137,7 +134,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl; 
 	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, out);
       }
     }
     
@@ -152,7 +149,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl; 
 	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, out);
       }
     }
 
@@ -162,7 +159,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl; 
 	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, out);
       }
     }
 
@@ -256,7 +253,6 @@ bool TSGForOI::findHitlessSeeds(const TrajectoryStateOnSurface &outer,
     // STORE ONE HITLESS PER L2: 
     auto const& detOnLayer  = compatible.front().first;
     auto const& tsosOnLayer = compatible.front().second;
-    //      dets.front().second.rescaleError(errorSFHitless);
     PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
     TrajectorySeed::recHitContainer rHC;
     out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
@@ -277,48 +273,14 @@ void TSGForOI::findSeedsOnLayer(
 				unsigned int& numSeedsMade,
 				unsigned int& numOfMaxSeeds,
 				unsigned int& layerCount,
-				bool& foundHitlessSeed,
-				bool& analysedL2,
 				std::unique_ptr<std::vector<TrajectorySeed> >& out)  const{
   
   if (numSeedsMade>numOfMaxSeeds) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: numSeedsMade = " << numSeedsMade << " , layerCount = " <<  layerCount << endl;
   
   double errorSFHits=1.0;
-  double errorSFHitless=1.0;
   if (!adjustErrorsDynamicallyForHits_) errorSFHits = fixedErrorRescalingForHits_;
   else                                  errorSFHits = calculateSFFromL2(l2);
-  if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
-
-  // Hitless:  TO Be discarded from here at some point. 
-  if (useHitLessSeeds_ && !foundHitlessSeed) {
-    LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
-    std::vector< GeometricSearchDet::DetWithState > dets;
-    layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
-    if (!dets.empty()) {  
-      auto const& detOnLayer = dets.front().first;
-      auto const& tsosOnLayer = dets.front().second;
-      LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: tsosOnLayer " << tsosOnLayer << endl;
-      if (!tsosOnLayer.isValid()){
-	edm::LogInfo(theCategory) << "ERROR!: Hitless TSOS is not valid!";
-      }
-      else{
-	// calculate SF from L2 (only once -- if needed)
-	if (!analysedL2 && adjustErrorsDynamicallyForHitless_) {
-	  errorSFHitless=calculateSFFromL2(l2);
-	  analysedL2=true;
-	}
-	
-	dets.front().second.rescaleError(errorSFHitless);
-	PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
-	TrajectorySeed::recHitContainer rHC;
-	out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
-	LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
-	foundHitlessSeed=true;
-        numSeedsMade++;
-      }
-    }
-  }
 
   // Hits:
   if (layerCount>numOfLayersToTry_) return;
