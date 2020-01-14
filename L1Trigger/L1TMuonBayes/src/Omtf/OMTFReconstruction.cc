@@ -19,6 +19,10 @@
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/XMLConfigWriter.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/XMLEventWriter.h>
 #include <L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/PatternOptimizer.h>
+#include <L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/DataROOTDumper.h>
+#include "L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/DataROOTDumper2.h"
+#include "L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/EventCapture.h"
+#include "L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/PatternGenerator.h"
 
 /*OMTFReconstruction::OMTFReconstruction() :
   m_OMTFConfig(nullptr), m_OMTF(nullptr), aTopElement(nullptr), m_OMTFConfigMaker(nullptr), m_Writer(nullptr){}*/
@@ -28,7 +32,12 @@ OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig, MuStu
   m_Config(theConfig), muStubsInputTokens(muStubsInputTokens), m_OMTFConfig(nullptr), m_OMTF(nullptr), m_OMTFConfigMaker(nullptr) {
 
   dumpResultToXML = m_Config.getParameter<bool>("dumpResultToXML");
+  dumpResultToROOT = m_Config.getParameter<bool>("dumpResultToROOT");
   dumpDetailedResultToXML = m_Config.getParameter<bool>("dumpDetailedResultToXML");
+
+  if(m_Config.exists("eventCaptureDebug"))
+    eventCaptureDebug = m_Config.getParameter<bool>("eventCaptureDebug");
+
   //m_Config.getParameter<std::string>("XMLDumpFileName");  
   bxMin = m_Config.exists("bxMin") ? m_Config.getParameter<int>("bxMin") : 0;
   bxMax = m_Config.exists("bxMax") ? m_Config.getParameter<int>("bxMax") : 0;
@@ -72,6 +81,8 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
     processorType = m_Config.getParameter<std::string>("processorType");
   }
 
+  bool firstRun = (m_OMTF == 0);
+
   if(m_OMTF == 0 || m_Config.exists("patternsXMLFile") == false) {
     edm::LogImportant("OMTFReconstruction") << "retrieving parameters from Event Setup" << std::endl;
 
@@ -83,6 +94,22 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       edm::LogError("OMTFReconstruction") << "Could not retrieve parameters from Event Setup" << std::endl;
     }
     m_OMTFConfig->configure(omtfParams);
+
+
+    if(m_Config.exists("rpcMaxClusterSize") )
+      m_OMTFConfig->setRpcMaxClusterSize(m_Config.getParameter<int>("rpcMaxClusterSize"));
+
+    if(m_Config.exists("rpcMaxClusterCnt") )
+      m_OMTFConfig->setRpcMaxClusterCnt(m_Config.getParameter<int>("rpcMaxClusterCnt"));
+
+    if(m_Config.exists("rpcDropAllClustersIfMoreThanMax") )
+      m_OMTFConfig->setRpcDropAllClustersIfMoreThanMax(m_Config.getParameter<bool>("rpcDropAllClustersIfMoreThanMax"));
+
+    if(m_Config.exists("lctCentralBx")) {
+      int lctCentralBx  = m_Config.getParameter<int>("lctCentralBx");
+      m_OMTFConfig->setCscLctCentralBx(lctCentralBx);
+    }
+
     //patterns from the L1TMuonBayesOmtfParamsESProducer, are reloaded every run begin
     if(m_OMTF == 0 && m_Config.exists("patternsXMLFile") == false) {
       edm::LogImportant("OMTFReconstruction") << "getting patterns from L1TMuonBayesOmtfParamsESProducer" << std::endl;
@@ -91,11 +118,11 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
         m_OMTF.reset(new OMTFProcessor<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, omtfParams, muStubsInputTokens) );
     }
   }
+
   if(m_OMTF == 0 && m_Config.exists("patternsXMLFile") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
     std::string patternsXMLFile = m_Config.getParameter<edm::FileInPath>("patternsXMLFile").fullPath();
     edm::LogImportant("OMTFReconstruction") << "reading patterns from "<<patternsXMLFile << std::endl;
     XMLConfigReader xmlReader;
-    xmlReader.setPatternsFile(patternsXMLFile);
 
     std::string patternType = "GoldenPattern"; //GoldenPatternParametrised GoldenPatternWithStat GoldenPattern
     if(m_Config.exists("patternType") ){
@@ -104,7 +131,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 
     std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
     if(patternType == "GoldenPattern") {
-      auto const& gps = xmlReader.readPatterns<GoldenPattern>(*omtfParams);
+      auto gps = xmlReader.readPatterns<GoldenPattern>(*omtfParams, patternsXMLFile);
 
       if(processorType == "OMTFProcessor") {
         m_OMTF.reset(new OMTFProcessor<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, gps, muStubsInputTokens) );
@@ -121,12 +148,21 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
     else if(patternType == "GoldenPatternWithStat") {
       std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
 
-      auto gps = xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams);
+      auto gps = xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams, patternsXMLFile);
 
       if(processorType == "OMTFProcessor") {
-        std::unique_ptr<IOMTFEmulationObserver> obs(new PatternOptimizer(m_Config, m_OMTFConfig, gps));
+        if(m_Config.exists("optimizePatterns") && m_Config.getParameter<bool>("optimizePatterns") ) {
+          std::unique_ptr<IOMTFEmulationObserver> obs(new PatternOptimizer(m_Config, m_OMTFConfig, gps));
+          observers.emplace_back(std::move(obs));
+        }
+       
+        if(m_Config.exists("generatePatterns") && m_Config.getParameter<bool>("generatePatterns") ) {
+          std::unique_ptr<IOMTFEmulationObserver> obs(new PatternGenerator(m_Config, m_OMTFConfig, gps));
+          observers.emplace_back(std::move(obs));
+          edm::LogImportant("OMTFReconstruction") << "generatePatterns: true " << std::endl;
+        }
+        
         m_OMTF.reset(new OMTFProcessor<GoldenPatternWithStat>(m_OMTFConfig, m_Config, iSetup, gps, muStubsInputTokens) );
-        observers.emplace_back(std::move(obs));
       }
 
       edm::LogImportant("OMTFReconstruction") << "OMTFProcessor constructed. GoldenPattern type: "<<patternType<<" size: "<<gps.size() << std::endl;
@@ -139,7 +175,8 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
     }
     else if(patternType == "GoldenPatternWithThresh") {
       std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
-      auto gps = xmlReader.readPatterns<GoldenPatternWithThresh>(*omtfParams);
+      auto gps = xmlReader.readPatterns<GoldenPatternWithThresh>(*omtfParams, patternsXMLFile);
+      
       m_OMTF.reset(new OMTFProcessor<GoldenPatternWithThresh>(m_OMTFConfig, m_Config, iSetup, gps, muStubsInputTokens) );
       edm::LogImportant("OMTFReconstruction") << "OMTFProcessor constructed. GoldenPattern type: "<<patternType<<" size: "<<gps.size() << std::endl;
 
@@ -175,9 +212,27 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 
   }
 
-  if(dumpResultToXML){
-    std::unique_ptr<IOMTFEmulationObserver> obs(new XMLEventWriter(m_OMTFConfig, m_Config.getParameter<std::string>("XMLDumpFileName")));
-    observers.emplace_back(std::move(obs));
+  if(firstRun) { //TODO check if this is correct,
+    if(dumpResultToXML){
+      std::unique_ptr<IOMTFEmulationObserver> obs(new XMLEventWriter(m_OMTFConfig, m_Config.getParameter<std::string>("XMLDumpFileName")));
+      observers.emplace_back(std::move(obs));
+    }
+    if(eventCaptureDebug){
+      std::unique_ptr<IOMTFEmulationObserver> obs1(new EventCapture(m_Config, m_OMTFConfig));
+      observers.emplace_back(std::move(obs1));
+    }
+    if(dumpResultToROOT){
+      std::vector<std::shared_ptr<GoldenPatternWithStat> > dummyGPs;
+      std::unique_ptr<IOMTFEmulationObserver> obs = std::make_unique<DataROOTDumper>(m_Config, m_OMTFConfig, dummyGPs);
+      observers.emplace_back(std::move(obs));
+    }
+
+    if(m_Config.exists("dumpHitsToROOT") && m_Config.getParameter<bool>("dumpHitsToROOT")) {
+      std::string rootFileName = m_Config.getParameter<std::string>("dumpHitsFileName");
+      std::vector<std::shared_ptr<GoldenPatternWithStat> > dummyGPs;
+      std::unique_ptr<IOMTFEmulationObserver> obs = std::make_unique<DataROOTDumper2>(m_Config, m_OMTFConfig, dummyGPs, rootFileName);
+      observers.emplace_back(std::move(obs));
+    }
   }
 }
 /////////////////////////////////////////////////////
@@ -218,11 +273,11 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
       }
     }
 
-    edm::LogInfo("OMTFReconstruction") <<"OMTF:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;  
+    //edm::LogInfo("OMTFReconstruction") <<"OMTF:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;
   }
   
   for(auto& obs : observers) {
-    obs->observeEventEnd(iEvent);
+    obs->observeEventEnd(iEvent, candidates);
   }
 
   return candidates;
