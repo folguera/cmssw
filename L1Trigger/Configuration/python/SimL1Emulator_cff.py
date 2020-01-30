@@ -44,7 +44,9 @@ SimL1EmulatorCore = cms.Sequence(
     SimL1TGlobal
     )
 
+
 SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
+
 
 #
 # Emulators are configured from DB (GlobalTags)
@@ -121,7 +123,7 @@ phase2_SimL1Emulator += l1KBmtfStubMatchedMuons
 # ########################################################################
 from L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi import *
 l1TkMuonStubOverlap = simBayesMuCorrelatorTrackProducer.clone()
-phase2_SimL1Emulator += l1TkMuonStubOverlap
+#phase2_SimL1Emulator += l1TkMuonStubOverlap
 
 # EndCap L1Tk + Stub
 # ########################################################################
@@ -223,3 +225,5 @@ phase2_SimL1Emulator += l1TkBsCandidatesTightWP
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
+
+

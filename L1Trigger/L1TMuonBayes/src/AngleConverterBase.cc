@@ -13,6 +13,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
@@ -86,6 +87,34 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, const L1M
   //std::cout<<__FUNCTION__<<":"<<__LINE__<<" phiZero "<<phiZero<<" phiDT "<<phiDT<<" sector "<<sector<<" ichamber "<<ichamber<<" offsetGlobal "<<offsetGlobal<<" phi "<<phi<<" foldPhi(phi) "<<omtfConfig->foldPhi(phi)<<std::endl;
   return config->foldPhi(phi);
 }
+int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, const L1Phase2MuDTPhDigi &digi) const
+{
+  int dtPhiBins = 65536./0.8;
+
+  double hsPhiPitch = 2*M_PI/nPhiBins; // width of phi Pitch, related to halfStrip at CSC station 2
+
+  int sector  = digi.scNum()+1;   //NOTE: there is a inconsistency in DT sector numb. Thus +1 needed to get detector numb.
+  //int wheel   = digi.whNum();
+  //int station = digi.stNum();
+  int phiDT   = digi.phi();
+
+  //int offsetLoc = lround( ((ichamber-1)*M_PI/6+M_PI/12.)/hsPhiPitch );
+  double scale = 1./dtPhiBins/hsPhiPitch;
+  int scale_coeff = lround(scale* pow(2,11));
+//  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+
+  int ichamber = sector-1;
+  if(ichamber > 6)
+    ichamber = ichamber - 12;
+
+  int offsetGlobal = (int)nPhiBins  * ichamber / 12;
+
+  int phi = floor(phiDT*scale_coeff/pow(2,11)) + offsetGlobal - phiZero;
+
+  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" phiZero "<<phiZero<<" phiDT "<<phiDT<<" sector "<<sector<<" ichamber "<<ichamber<<" offsetGlobal "<<offsetGlobal<<" phi "<<phi<<" foldPhi(phi) "<<omtfConfig->foldPhi(phi)<<std::endl;
+  return config->foldPhi(phi);
+}
+
 ///////////////////////////////////////
 ///////////////////////////////////////
 int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const

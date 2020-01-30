@@ -287,6 +287,60 @@ void OMTFinputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1MuD
   addStub(muonStubsInLayers, iLayer, iInput, stub);
 }
 
+void OMTFinputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhDigi& digi,
+    const L1MuDTChambThContainer *dtThDigis,
+    unsigned int iProcessor, l1t::tftype procTyp)
+{
+
+  DTChamberId detid(digi.whNum(), digi.stNum(), digi.scNum()+1);
+
+  //LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" OMTFinputMaker "<<" detid "<<detid<<endl;
+  ///Check Trigger primitive quality
+  ///Ts2Tag() == 0 - take only first track from DT Trigger Server
+  ///BxCnt()  == 0 - ??
+  ///code()>=3     - take only double layer hits, HH, HL and LL
+  // FIXME (MK): at least Ts2Tag selection is not correct! Check it
+  //    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
+
+  /*if (config->fwVersion() <= 4) {
+    if (digi.code() != 4 && digi.code() != 5 && digi.code() != 6)
+      return;
+  } else {
+    if (digi.code() != 2 && digi.code() != 3 && digi.code() != 4 && digi.code() != 5 && digi.code() != 6)
+      return;
+      }
+*/
+/*  if (digi.code() != 4 && digi.code() != 5 && digi.code() != 6)
+    return;*/
+  //if (digiIt.code() != 2 && digiIt.code() != 3 && digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+
+  unsigned int hwNumber = config->getLayerNumber(detid.rawId());
+  if(config->getHwToLogicLayer().find(hwNumber) == config->getHwToLogicLayer().end())
+    return;
+
+  auto iter = config->getHwToLogicLayer().find(hwNumber);
+  unsigned int iLayer = iter->second;
+  unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, procTyp);
+  //MuonStub& stub = muonStubsInLayers[iLayer][iInput];
+  MuonStub stub;
+
+  stub.type = MuonStub::DT_PHI_ETA;
+  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
+  stub.phiHw  =  angleConverter.getProcessorPhi(getProcessorPhiZero(iProcessor), procTyp, digi);
+  stub.etaHw  =  angleConverter.getGlobalEta(digi, dtThDigis);
+  stub.phiBHw = digi.phiBend();
+  stub.qualityHw = digi.quality();
+
+  stub.bx = digi.bxNum(); //TODO sholdn't  it be BxCnt()?
+  //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+
+  //stub.etaType = ?? TODO
+  stub.logicLayer = iLayer;
+  stub.detId = detid;
+
+  addStub(muonStubsInLayers, iLayer, iInput, stub);
+}
+
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 

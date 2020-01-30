@@ -107,6 +107,35 @@ void MuonStubMakerBase::processDT(MuonStubPtrs2D& muonStubsInLayers, const L1MuD
   //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);
 }
 
+void MuonStubMakerBase::processDT(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhContainer *dtPhDigis,
+    const L1MuDTChambThContainer *dtThDigis,
+    unsigned int iProcessor, l1t::tftype procTyp, bool mergePhiAndTheta, int bxFrom, int bxTo)
+{
+  if(!dtPhDigis)
+    return;
+
+  for (const auto& digiIt: *dtPhDigis->getContainer()) {
+    DTChamberId detid(digiIt.whNum(),digiIt.stNum(),digiIt.scNum()+1);
+
+    ///Check it the data fits into given processor input range
+    if(!acceptDigi(detid.rawId(), iProcessor, procTyp))
+      continue;
+
+    if (digiIt.bxNum() >= bxFrom && digiIt.bxNum() <= bxTo )
+      addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis, iProcessor, procTyp);
+  }
+
+  if(!mergePhiAndTheta) {
+    for(auto& thetaDigi: (*(dtThDigis->getContainer()) ) ) {
+      if(thetaDigi.bxNum() >= bxFrom && thetaDigi.bxNum() <= bxTo) {
+        addDTetaStubs(muonStubsInLayers, thetaDigi, iProcessor, procTyp);
+      }
+    }
+  }
+  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
+  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);
+}
+
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 void MuonStubMakerBase::processCSC(MuonStubPtrs2D& muonStubsInLayers, const CSCCorrelatedLCTDigiCollection *cscDigis,
@@ -207,7 +236,7 @@ void MuonStubMakerBase::processGEM(MuonStubPtrs2D& muonStubsInLayers, const GEMP
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////
-/*OMTFinput MuonStubMakerBase::buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
+/*OMTFinput MuonStubMakerBase::buildInputForProcessor(const L1Phase2MuDTPhContainer *dtPhDigis,
     const L1MuDTChambThContainer *dtThDigis,
     const CSCCorrelatedLCTDigiCollection *cscDigis,
     const RPCDigiCollection *rpcDigis,

@@ -48,6 +48,11 @@ private:
      unsigned int iProcessor,
      l1t::tftype procTyp);
 
+  virtual void addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhDigi& digi,
+     const L1MuDTChambThContainer *dtThDigis,
+     unsigned int iProcessor,
+     l1t::tftype procTyp);
+
   virtual void addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers, const L1MuDTChambThDigi& thetaDigi,
        unsigned int iProcessor, l1t::tftype procTyp);
 

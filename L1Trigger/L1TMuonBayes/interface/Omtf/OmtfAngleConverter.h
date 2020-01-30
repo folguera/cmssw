@@ -20,6 +20,7 @@ public:
   ///Convert local eta coordinate to global digital microGMT scale.
   ///theta is  returned only if in the dtThDigis is only one hit, otherwise eta = 95 or middle of the chamber
   virtual int getGlobalEta(const L1MuDTChambPhDigi &aDigi, const L1MuDTChambThContainer *dtThDigis) const;
+  virtual int getGlobalEta(const L1Phase2MuDTPhDigi &aDigi, const L1MuDTChambThContainer *dtThDigis) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
   virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi) const;

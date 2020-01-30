@@ -33,8 +33,8 @@ L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(con
 
   produces<l1t::BayesMuCorrTrackBxCollection >(muonTracksProductName); //"fast" tracks, i.e. with at least two muon stubs in the same bx as ttRack (i.e. not HSCPs) and passing some cuts
   produces<l1t::BayesMuCorrTrackBxCollection >(hscpTracksProductName); //"slow" tracks, i.e. exclusive versus the "fast" tracks and passing some cuts
-
-  muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh"));
+  
+  muStubsInputTokens.inputTokenDTPh = consumes<L1Phase2MuDTPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh"));
   muStubsInputTokens.inputTokenDTTh = consumes<L1MuDTChambThContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTTh"));
   muStubsInputTokens.inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(edmParameterSet.getParameter<edm::InputTag>("srcCSC"));
   muStubsInputTokens.inputTokenRPC = consumes<RPCDigiCollection>(edmParameterSet.getParameter<edm::InputTag>("srcRPC"));
