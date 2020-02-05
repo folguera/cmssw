@@ -71,6 +71,56 @@ void MuCorrelatorInputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, con
 }
 
 
+void MuCorrelatorInputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhDigi& digi,
+    const L1MuDTChambThContainer *dtThDigis,
+    unsigned int iProcessor, l1t::tftype procTyp)
+{
+
+  DTChamberId detid(digi.whNum(), digi.stNum(), digi.scNum()+1);
+
+  ///Check Trigger primitive quality
+  ///Ts2Tag() == 0 - take only first track from DT Trigger Server
+  ///BxCnt()  == 0 - ??
+  ///code()>=3     - take only double layer hits, HH, HL and LL
+  // FIXME (MK): at least Ts2Tag selection is not correct! Check it
+  //    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
+
+  //if (digi.code() != 4 && digi.code() != 5 && digi.code() != 6) return; //TODO onluy for the pdf generation
+  //if (digi.code() != 2 && digi.code() != 3 && digi.code() != 4 && digi.code() != 5 && digi.code() != 6) return;
+//SF  if(digi.code() ==  7 || digi.code() < minDtPhQuality) //7 is empty digi, TODO update if the definition of the quality is changed
+//SF    return;
+
+  unsigned int iLayer = getLayerNumber(detid);
+
+  MuonStub stub;
+
+  stub.type = MuonStub::DT_PHI;
+  stub.phiHw  =  angleConverter.getProcessorPhi(0, procTyp, digi);
+
+  EtaValue etaVal = angleConverter.getGlobalEtaDt(detid);
+  stub.etaHw  = etaVal.eta;
+  stub.etaSigmaHw = etaVal.etaSigma;
+
+  stub.phiBHw = digi.phiBend();
+  stub.qualityHw = digi.quality();
+
+  stub.bx = digi.bxNum(); //TODO sholdn't  it be BxCnt()?
+  //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+  stub.timing = digi.bxNum() * 2; //TODO temporary solution untill the real sub-bx timing is provided
+
+  stub.roll = abs(digi.whNum());
+  //if(roll.ring() == 0 && roll.sector() %2) {//in wheel zero in the odd sectors the chambers are placed from the other side than in even, thus the rolls have to be swapped
+    //not so easy - the cells are also readout from the other side. separate rolls are needed
+
+  //stub.etaType = ?? TODO
+
+  stub.logicLayer = iLayer;
+  stub.detId = detid;
+
+  addStub(muonStubsInLayers, iLayer, stub);
+}
+
+
 void MuCorrelatorInputMaker::addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers, const L1MuDTChambThDigi& thetaDigi,
     unsigned int iProcessor, l1t::tftype procTyp)
 {

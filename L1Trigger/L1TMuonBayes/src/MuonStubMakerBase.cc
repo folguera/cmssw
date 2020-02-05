@@ -35,6 +35,8 @@ void MuonStubMakerBase::initialize(const edm::ParameterSet& edmCfg, const edm::E
   dropDTPrimitives = edmCfg.getParameter<bool>("dropDTPrimitives");
   dropRPCPrimitives = edmCfg.getParameter<bool>("dropRPCPrimitives");
   dropCSCPrimitives = edmCfg.getParameter<bool>("dropCSCPrimitives");
+  
+  usePhase2TPs = edmCfg.getParameter<bool>("usePhase2TPs");
 
   if(edmCfg.exists("minDtPhQuality") ) {
     minDtPhQuality = edmCfg.getParameter<int>("minDtPhQuality");
@@ -50,7 +52,10 @@ MuonStubMakerBase::~MuonStubMakerBase(){ }
 void MuonStubMakerBase::loadAndFilterDigis(const edm::Event& event) {
   // Filter digis by dropping digis from selected (by cfg.py) subsystems
   if(!dropDTPrimitives){
-    event.getByToken(muStubsInputTokens.inputTokenDTPh, dtPhDigis);
+    if (usePhase2TPs)     
+      event.getByToken(muStubsInputTokens.inputTokenDTP2Ph, dtP2PhDigis);
+    else     
+      event.getByToken(muStubsInputTokens.inputTokenDTPh, dtPhDigis);
     event.getByToken(muStubsInputTokens.inputTokenDTTh, dtThDigis);
   }
   if(!dropRPCPrimitives) event.getByToken(muStubsInputTokens.inputTokenRPC, rpcDigis);
@@ -61,7 +66,10 @@ void MuonStubMakerBase::loadAndFilterDigis(const edm::Event& event) {
 void MuonStubMakerBase::buildInputForProcessor(MuonStubPtrs2D& muonStubsInLayers, unsigned int iProcessor,
     l1t::tftype type, int bxFrom, int bxTo) {
   LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<" preocType "<<type<<std::endl;
-  processDT( muonStubsInLayers, dtPhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
+  if (usePhase2TPs) 
+    processDT( muonStubsInLayers, dtP2PhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
+  else 
+    processDT( muonStubsInLayers, dtPhDigis.product(), dtThDigis.product(), iProcessor, type, false, bxFrom, bxTo);
   processCSC(muonStubsInLayers, cscDigis.product(), iProcessor, type, bxFrom, bxTo);
   processRPC(muonStubsInLayers, rpcDigis.product(), iProcessor, type, bxFrom, bxTo);
   //cout<<result<<endl;
@@ -77,6 +85,35 @@ void MuonStubMakerBase::buildInputForProcessor(MuonStubPtrs2D& muonStubsInLayers
   return config->foldPhi(phiZero);
 
 }*/
+
+void MuonStubMakerBase::processDT(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhContainer *dtPhDigis,
+    const L1MuDTChambThContainer *dtThDigis,
+    unsigned int iProcessor, l1t::tftype procTyp, bool mergePhiAndTheta, int bxFrom, int bxTo)
+{
+  if(!dtPhDigis)
+    return;
+
+  for (const auto& digiIt: *dtPhDigis->getContainer()) {
+    DTChamberId detid(digiIt.whNum(),digiIt.stNum(),digiIt.scNum()+1);
+
+    ///Check it the data fits into given processor input range
+    if(!acceptDigi(detid.rawId(), iProcessor, procTyp))
+      continue;
+
+    if (digiIt.bxNum() >= bxFrom && digiIt.bxNum() <= bxTo )
+      addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis, iProcessor, procTyp);
+  }
+
+  if(!mergePhiAndTheta) {
+    for(auto& thetaDigi: (*(dtThDigis->getContainer()) ) ) {
+      if(thetaDigi.bxNum() >= bxFrom && thetaDigi.bxNum() <= bxTo) {
+        addDTetaStubs(muonStubsInLayers, thetaDigi, iProcessor, procTyp);
+      }
+    }
+  }
+  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
+  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);
+}
 
 void MuonStubMakerBase::processDT(MuonStubPtrs2D& muonStubsInLayers, const L1MuDTChambPhContainer *dtPhDigis,
     const L1MuDTChambThContainer *dtThDigis,

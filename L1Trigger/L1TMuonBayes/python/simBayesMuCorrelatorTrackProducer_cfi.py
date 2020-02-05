@@ -4,11 +4,13 @@ simBayesMuCorrelatorTrackProducer = cms.EDProducer("L1TMuonBayesMuCorrelatorTrac
                               
   srcDTPh = cms.InputTag('simDtTriggerPrimitiveDigis'),
   srcDTTh = cms.InputTag('simDtTriggerPrimitiveDigis'),
+  srcDTP2Ph = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
   srcCSC = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
   srcRPC = cms.InputTag('simMuonRPCDigis'), 
   dropRPCPrimitives = cms.bool(False),                                    
   dropDTPrimitives = cms.bool(False),                                    
   dropCSCPrimitives = cms.bool(False),
+  usePhase2TPs = cms.bool(False),                              
   processorType = cms.string("MuCorrelatorProcessor"),
   ttTracksSource = cms.string("L1_TRACKER"), #"TRACKING_PARTICLES"
   L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),  ## TTTrack input

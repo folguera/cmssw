@@ -19,6 +19,7 @@ class CSCGeometry;
 class CSCLayer;
 class DTGeometry;
 
+class L1Phase2MuDTPhDigi;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 class L1MuDTChambThContainer;
@@ -52,6 +53,7 @@ class AngleConverterBase {
     /// in case of wrong phi returns OMTFConfiguration::instance()->nPhiBins
     /// phiZero - desired phi where the scale should start, should be in the desired scale, use getProcessorPhiZero to obtain it
     virtual int getProcessorPhi(int phiZero, l1t::tftype part, const L1MuDTChambPhDigi& digi) const;
+    virtual int getProcessorPhi(int phiZero, l1t::tftype part, const L1Phase2MuDTPhDigi& digi) const;
     virtual int getProcessorPhi(int phiZero, l1t::tftype part, const CSCDetId& csc, const CSCCorrelatedLCTDigi& digi) const;
 
     virtual int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId& rollId, const unsigned int& digi) const;

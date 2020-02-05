@@ -19,6 +19,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
@@ -102,6 +103,61 @@ OmtfAngleConverter::~OmtfAngleConverter() {
 ///////////////////////////////////////
 ///////////////////////////////////////
 int OmtfAngleConverter::getGlobalEta(const L1MuDTChambPhDigi &aDigi, const L1MuDTChambThContainer* dtThDigis) const {
+  const DTChamberId baseid(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
+
+  // do not use this pointer for anything other than creating a trig geom
+  std::unique_ptr<DTChamber> chamb(const_cast<DTChamber*>(_geodt->chamber(baseid)));
+
+  std::unique_ptr<DTTrigGeom> trig_geom( new DTTrigGeom(chamb.get(),false) );
+  chamb.release(); // release it here so no one gets funny ideas
+  // super layer one is the theta superlayer in a DT chamber
+  // station 4 does not have a theta super layer
+  // the BTI index from the theta trigger is an OR of some BTI outputs
+  // so, we choose the BTI that's in the middle of the group
+  // as the BTI that we get theta from
+  // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
+  const int NBTI_theta = ( (baseid.station() != 4) ?  trig_geom->nCell(2) : trig_geom->nCell(3) );
+
+//  const int bti_group = findBTIgroup(aDigi,dtThDigis);
+//  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
+//  DTBtiId thetaBTI;
+//  if ( baseid.station() != 4 && bti_group != -1) {
+//    thetaBTI = DTBtiId(baseid,2,bti_actual);
+//  } else {
+//    // since this is phi oriented it'll give us theta in the middle
+//    // of the chamber
+//    thetaBTI = DTBtiId(baseid,3,1);
+//  }
+//  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+//  int iEta = theta_gp.eta()/2.61*240;
+//  return iEta;
+
+  const L1MuDTChambThDigi *theta_segm = dtThDigis->chThetaSegm(aDigi.whNum(), aDigi.stNum(), aDigi.scNum(), aDigi.bxNum());
+  int bti_group = -1;
+  if (theta_segm) {
+    for(unsigned int i = 0; i < 7; ++i ) if(theta_segm->position(i) && bti_group<0) bti_group = i;
+    else if(theta_segm->position(i) && bti_group>-1) bti_group = 511;
+  }
+
+  int iEta = 0;
+  if (bti_group == 511) iEta = 95;
+  else if (  bti_group == -1 && aDigi.stNum() == 1)  iEta = 92;
+  else if (  bti_group == -1 && aDigi.stNum() == 2)  iEta = 79;
+  else if (  bti_group == -1 && aDigi.stNum() == 3)  iEta = 75;
+  else if (baseid.station() != 4 && bti_group >= 0) {
+//    bti_group = 6-bti_group;
+    unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
+    DTBtiId thetaBTI = DTBtiId(baseid,2,bti_actual);
+    GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+    iEta = etaVal2Code( fabs(theta_gp.eta()) );
+  }
+  int signEta = sgn(aDigi.whNum());
+  iEta  *= signEta;
+  return iEta;
+}
+///////////////////////////////////////
+///////////////////////////////////////
+int OmtfAngleConverter::getGlobalEta(const L1Phase2MuDTPhDigi &aDigi, const L1MuDTChambThContainer* dtThDigis) const {
   const DTChamberId baseid(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
 
   // do not use this pointer for anything other than creating a trig geom

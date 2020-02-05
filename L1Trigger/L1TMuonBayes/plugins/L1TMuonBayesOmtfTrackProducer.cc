@@ -22,7 +22,8 @@ L1TMuonBayesOmtfTrackProducer::L1TMuonBayesOmtfTrackProducer(const edm::Paramete
 
   produces<l1t::RegionalMuonCandBxCollection >("OMTF");
 
-  muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
+  muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));  //TODO remove eventually
+  muStubsInputTokens.inputTokenDTP2Ph = consumes<L1Phase2MuDTPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTP2Ph"));
   muStubsInputTokens.inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
   muStubsInputTokens.inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
   muStubsInputTokens.inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));

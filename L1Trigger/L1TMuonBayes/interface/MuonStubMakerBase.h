@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -28,6 +29,7 @@ namespace edm {
 
 struct MuStubsInputTokens {
   edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
+  edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDTP2Ph;
   edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
   edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
@@ -77,6 +79,11 @@ protected:
      unsigned int iProcessor,
      l1t::tftype procTyp) = 0;
 
+  virtual void addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhDigi& digi,
+     const L1MuDTChambThContainer *dtThDigis,
+     unsigned int iProcessor,
+     l1t::tftype procTyp) = 0;
+
   virtual void addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers, const L1MuDTChambThDigi& thetaDigi,
      unsigned int iProcessor, l1t::tftype procTyp) = 0;
 
@@ -94,6 +101,11 @@ protected:
   ///processor, convers logal angles to global scale.
   ///For DT take also the bending angle.
   virtual void processDT(MuonStubPtrs2D& muonStubsInLayers, const L1MuDTChambPhContainer *dtPhDigis,
+		 const L1MuDTChambThContainer *dtThDigis,
+		 unsigned int iProcessor,
+		 l1t::tftype procType, bool mergePhiAndTheta, int bxFrom = 0, int bxTo = 0);
+
+  virtual void processDT(MuonStubPtrs2D& muonStubsInLayers, const L1Phase2MuDTPhContainer *dtPhDigis,
 		 const L1MuDTChambThContainer *dtThDigis,
 		 unsigned int iProcessor,
 		 l1t::tftype procType, bool mergePhiAndTheta, int bxFrom = 0, int bxTo = 0);
@@ -128,6 +140,7 @@ protected:
   const ProcConfigurationBase* config = nullptr;
 
   edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
+  edm::Handle<L1Phase2MuDTPhContainer> dtP2PhDigis;
   edm::Handle<L1MuDTChambThContainer> dtThDigis;
   edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
   edm::Handle<RPCDigiCollection> rpcDigis;
@@ -138,6 +151,7 @@ protected:
   bool dropRPCPrimitives = false;
   bool dropCSCPrimitives = false;
 
+  bool usePhase2TPs = false; 
   int minDtPhQuality = 2;
 };
 

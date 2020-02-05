@@ -25,11 +25,11 @@ options.register('addAging',
                  VarParsing.VarParsing.varType.bool,
                  "Run re-emulation")
 
-options.register('redoPrimitives',
+options.register('doPhase2TPs',
                  False, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
-                 "Redo the primitives")
+                 "do Phase2 Trigger primitives")
 
 
 options.parseArguments()
@@ -129,10 +129,42 @@ process.simBayesOmtfDigis.rpcMaxClusterSize = cms.int32(3)
 process.simBayesOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
 process.simBayesOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(False)
 
+#### load Phase-2 TPs
+if options.doPhase2TPs:
+    print 'Using Phase-2 Trigger primitives'
 
-process.L1TMuonSeq = cms.Sequence( process.esProd          
-                                   + process.simBayesOmtfDigis 
-)
+    process.load("Phase2L1Trigger.CalibratedDigis.CalibratedDigis_cfi") 
+    process.load("L1Trigger.DTPhase2Trigger.dtTriggerPhase2PrimitiveDigis_cfi")
+
+    process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
+    process.CalibratedDigis.scenario = 0
+    process.dtTriggerPhase2PrimitiveDigis.scenario = 0
+
+    #Produce RPC clusters from RPCDigi
+    process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
+    process.rpcRecHits.rpcDigiLabel = cms.InputTag('simMuonRPCDigis')
+    ##    # Use RPC
+    ##    process.load('Configuration.Geometry.GeometryExtended2023D38Reco_cff')
+    ##    process.load('Configuration.Geometry.GeometryExtended2023D38_cff')
+    ##    process.dtTriggerPhase2PrimitiveDigis.useRPC = False
+  
+    process.dtTriggerPhase2PrimitiveDigis.max_quality_to_overwrite_t0 = 10 # strict inequality
+    process.dtTriggerPhase2PrimitiveDigis.scenario = 0 # 0 for mc, 1 for data, 2 for slice test
+
+    process.simBayesOmtfDigis.usePhase2TPs = cms.bool(False)
+    process.simBayesOmtfDigis.srcDTP2Ph = cms.InputTag("dtTriggerPhase2PrimitiveDigis")
+    
+    
+    process.L1TMuonSeq = cms.Sequence( process.esProd +      
+                                       process.CalibratedDigis + 
+                                       process.dtTriggerPhase2PrimitiveDigis + 
+                                       process.simBayesOmtfDigis 
+    )
+else:
+    process.L1TMuonSeq = cms.Sequence( process.esProd +      
+                                       process.simBayesOmtfDigis 
+    )
+
 
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
