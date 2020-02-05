@@ -1,28 +1,111 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("L1TMuonEmulation")
+
+# General config options
+import FWCore.ParameterSet.VarParsing as VarParsing
+import sys
+
+options = VarParsing.VarParsing()
+
+options.register('globalTag',
+                 '106X_upgrade2023_realistic_v2', #default value 
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Global Tag")
+
+options.register('Verbose',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Dump logs")
+
+options.register('addAging',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Run re-emulation")
+
+options.register('redoPrimitives',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Redo the primitives")
+
+
+options.parseArguments()
+
 import os
 import sys
 import commands
 
+process = cms.Process("L1TMuonEmulation")
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
+verbose = False
+
+if options.Verbose:
+    process.MessageLogger = cms.Service("MessageLogger",
+                                        #suppressInfo       = cms.untracked.vstring('AfterSource', 'PostModule'),
+                                        destinations   = cms.untracked.vstring(
+                                            #'detailedInfo',
+                                            #'critical',
+                                            'cout',
+                                            #'cerr',
+                                            'omtfEventPrint'
+                                        ),
+                                        categories        = cms.untracked.vstring('l1tMuBayesEventPrint', 'OMTFReconstruction'),
+                                        omtfEventPrint = cms.untracked.PSet(    
+                                            extension = cms.untracked.string('.txt'),                
+                                            threshold = cms.untracked.string('INFO'),
+                                            default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+                                            #INFO   =  cms.untracked.int32(0),
+                                            #DEBUG   = cms.untracked.int32(0),
+                                            l1tMuBayesEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
+                                            OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+                                        ),
+                                        debugModules = cms.untracked.vstring(
+                                            'L1TMuonBayesMuCorrelatorTrackProducer', 
+                                            'OmtfTTAnalyzer',
+                                            'simBayesOmtfDigis', 
+                                            'omtfTTAnalyzer', 
+                                            'simBayesMuCorrelatorTrackProducer'),
+                                        
+    )
+
+#if not options.Verbose:
+#    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(-1)
+#    process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False)) 
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+#process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+
 
 process.source = cms.Source('PoolSource',
- #fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
- fileNames = cms.untracked.vstring('file:///afs/cern.ch/work/k/kbunkow/private/omtf_data/SingleMu_15_p_1_1_qtl.root')                           )
+                            fileNames = cms.untracked.vstring(
+                                '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/FFCFF986-ED0B-B74F-B253-C511D19B8249.root'),          
+                            inputCommands = cms.untracked.vstring(
+                                'keep *',
+                                'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
+                                'drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT',
+                                'drop l1tEMTFHit2016s_simEmtfDigis__HLT',
+                                'drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT',
+                                'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
+                        )
 	                    
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
-
-# PostLS1 geometry used
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
-############################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
 ####Event Setup Producer
@@ -35,29 +118,33 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(False)
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1.root'), closeFileFast = cms.untracked.bool(True) )
-								
+                                   
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonBayes.simOmtfDigis_cfi')
+process.load('L1Trigger.L1TMuonBayes.simBayesOmtfDigis_cfi')
 
-process.simOmtfDigis.dumpResultToXML = cms.bool(True)
-process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(False)
+process.simBayesOmtfDigis.dumpResultToXML = cms.bool(True)
+process.simBayesOmtfDigis.dumpResultToROOT = cms.bool(False)
 
-process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
+process.simBayesOmtfDigis.rpcMaxClusterSize = cms.int32(3)
+process.simBayesOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
+process.simBayesOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(False)
+
 
 process.L1TMuonSeq = cms.Sequence( process.esProd          
-                                   + process.simOmtfDigis 
-                                   #+ process.dumpED
-                                   #+ process.dumpES
+                                   + process.simBayesOmtfDigis 
 )
+
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("l1tomtf_superprimitives1.root")
+                               fileName = cms.untracked.string("l1tomtf.root"),
+                               outputCommands=cms.untracked.vstring(
+                                   'drop *',
+                                   "keep *_simBayesOmtfDigis_OMTF_L1TMuonEmulation",
+                                   "keep *_genParticles_*_*", 
+                                   )
+                               
 )
 
 process.output_step = cms.EndPath(process.out)
