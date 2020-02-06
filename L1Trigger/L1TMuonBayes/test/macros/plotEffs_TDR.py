@@ -1,17 +1,24 @@
-import pickle 
+import pickle, os 
 import math 
 import ROOT 
 
 pileups = [200,]#200]#,300]
-aging  = [""]
+aging  = ["_P2"]
 qualities = ['_q12'] 
 
-outFile = ROOT.TFile("tdr_eff_moreetabins_PU200.root","RECREATE")
+outpath = "/afs/cern.ch/user/f/folguera/www/private/L1TPhase2/OMTF/2002_AdaptingToP2TPs/P2TPs/"
+
+if not os.path.exists(outpath):
+    os.mkdir(outpath)
+    print "cp ~folguera/public/utils/index.php %s/" %outpath
+    os.system("cp ~folguera/public/utils/index.php %s/" %outpath)
+
+outFile = ROOT.TFile("tdr_eff_moreetabins_PU200_P2.root","RECREATE")
 outFile.cd()
 
 ROOT.gROOT.ProcessLine('.L PlotTemplate.C+')
 ROOT.gROOT.SetBatch(True)
-with open('tdr_eff_moreetabins_PU200.pickle', 'rb') as handle:
+with open('tdr_eff_moreetabins_PU200_P2.pickle', 'rb') as handle:
     b = pickle.load(handle)
 
 for puValue in pileups:
@@ -65,7 +72,7 @@ for puValue in pileups:
             ROOT.DrawLumiLabel(canvas,'%i PU'%puValue)
             leg.Draw("same")
 
-            ROOT.SaveCanvas(canvas,'tdr_pt_eff'+ q + str(puHandle)+ "_" + charge)
+            ROOT.SaveCanvas(canvas, outpath + 'tdr_pt_eff'+ q + str(puHandle)+ "_" + charge)
 
       canvas2 = ROOT.CreateCanvas('name2',False,True)
       canvas2.cd()
@@ -115,7 +122,7 @@ for puValue in pileups:
 
       ROOT.DrawPrelimLabel(canvas2)
       ROOT.DrawLumiLabel(canvas2,'%i PU'%puValue)
-      ROOT.SaveCanvas(canvas2,'tdr_eta25_eff06'+ q+ str(puHandle))
+      ROOT.SaveCanvas(canvas2, outpath + 'tdr_eta25_eff06'+ q+ str(puHandle))
 
       canvas8 = ROOT.CreateCanvas('name8',False,True)
       canvas8.cd()
@@ -167,7 +174,9 @@ for puValue in pileups:
 
       ROOT.DrawPrelimLabel(canvas8)
       ROOT.DrawLumiLabel(canvas8,'%i PU'%puValue)
-      ROOT.SaveCanvas(canvas8,'tdr_eta7_15_c5_eff'+ q + str(puHandle))
+      ROOT.SaveCanvas(canvas8, outpath + 'tdr_eta7_15_c5_eff'+ q + str(puHandle))
 
 
 outFile.Close()
+
+

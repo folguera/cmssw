@@ -4,19 +4,19 @@ config = Configuration()
 
 config.section_('General')
 config.General.transferOutputs = True
-config.General.workArea = 'crab_projects_v2/samples_MC_omtf_P1TP/'
+config.General.workArea = 'crab_projects_P2TP_v2/'
 
 config.section_('JobType')
 config.JobType.psetName = '../runMuonOverlap.py'
 config.JobType.pluginName = 'Analysis'
 config.JobType.outputFiles = ['l1tomtf.root']
-#config.JobType.pyCfgParams = ['doPhase2Emul=True']
+config.JobType.pyCfgParams = ['doPhase2TPs=True']
 config.JobType.allowUndistributedCMSSW = True
 
 config.section_('Data')
 config.Data.splitting = 'FileBased'
 config.JobType.maxMemoryMB = 2500
-config.Data.outLFNDirBase = '/store/user/folguera/OMTF/Feb20_P1TP/'
+config.Data.outLFNDirBase = '/store/user/folguera/OMTF/Feb20_P2TP_v2/'
 config.Data.publication = False
 
 config.section_('Site')
@@ -41,14 +41,14 @@ if __name__ == '__main__':
     ## From now on that's what users should modify: this is the a-la-CRAB2 configuration part. ##
     #############################################################################################
     #############################################################################    
-    MUONGUN=False
+    MUONGUN=True
     NUGUN=True
     DISPLACED=False
 
     #### Muon Guns
     if MUONGUN:
         config.General.requestName = 'L1MuPhase2Ntuples_Mu_FlatPt2to100_PU200'    
-        config.Data.unitsPerJob = 5
+        config.Data.unitsPerJob = 5 #180 #minutes
         config.Data.inputDataset = '/Mu_FlatPt2to100-pythia8-gun/PhaseIITDRSpring19DR-PU200_106X_upgrade2023_realistic_v3-v2/GEN-SIM-DIGI-RAW'
         p = Process(target=submit, args=(config,))
         p.start()
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     #### Nu Guns
     if NUGUN:
         config.General.requestName = 'L1MuPhase2Ntuples_Nu_E10_PU200'    
-        config.Data.unitsPerJob = 5
+        config.Data.unitsPerJob = 5 #180 #minutes
         config.Data.inputDataset = '/Nu_E10-pythia8-gun/PhaseIITDRSpring19DR-PU200_106X_upgrade2023_realistic_v3-v3/GEN-SIM-DIGI-RAW'
         p = Process(target=submit, args=(config,))
         p.start()

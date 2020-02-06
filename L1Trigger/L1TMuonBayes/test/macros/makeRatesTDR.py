@@ -11,9 +11,9 @@ import numpy as np
 
 datasets = { 
     #'Nu_PU140'       : { 'path' : '/eos/cms/store/group/phys_muon/sesanche/overlap_sep20/Nu_E10-pythia8-gun/Nu_PU140/', 'total':0              },
-    'Nu_PU200'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_sep20/Nu_E10-pythia8-gun/Nu_PU200/190926_174539/', 'total':0              },
-    'Nu_PU200_aged1000'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_oct22/Nu_E10-pythia8-gun/Nu_PU200/191103_163451/', 'total':0              },
-    'Nu_PU200_aged3000'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_oct22/Nu_E10-pythia8-gun/Nu_PU200/191104_095521/', 'total':0              },
+    'Nu_PU200'       : { 'path' : '/eos/cms/store/user/folguera/OMTF/Feb20_P1TP/Mu_FlatPt2to100-pythia8-gun/crab_L1MuPhase2Ntuples_Mu_FlatPt2to100_PU200/200204_162831/0000/', 'total':0},   
+#    'Nu_PU200_aged1000'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_oct22/Nu_E10-pythia8-gun/Nu_PU200/191103_163451/', 'total':0              },
+#    'Nu_PU200_aged3000'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_oct22/Nu_E10-pythia8-gun/Nu_PU200/191104_095521/', 'total':0              },
     #'Nu_PU250'       : { 'path' : '/eos/cms/store/group/phys_muon/sesanche/overlap_sep20/Nu_E10-pythia8-gun/Nu_PU250/', 'total':0              },    
     #'Nu_PU300'       : { 'path' : '/eos/cms/store/group/phys_muon/cericeci/overlap_sep20/Nu_E10-pythia8-gun/Nu_PU300/', 'total':0              },  
 }
@@ -60,7 +60,7 @@ for dataset in datasets:
     thefiles = [] 
     outputDict[dataset] = {}
     for subdir, dirs, files in os.walk(datasets[dataset]['path']):
-        fil = filter( lambda x : '.root' in x and "super" in x, files)
+        fil = filter( lambda x : '.root' in x and "l1tomtf" in x, files)
         for f in fil: thefiles.append( subdir + '/' + f)
     datasets[dataset]['files'] = thefiles
     outputDict[dataset]['total'] = 0 
@@ -70,7 +70,7 @@ for dataset in datasets:
         outputDict[dataset]['fired' + str(b) + "_q0"] = 0
 
         
-muonHandle, muonLabel = Handle("BXVector<l1t::RegionalMuonCand>"), ("simOmtfDigis", "OMTF", "L1TMuonEmulation" )
+muonHandle, muonLabel = Handle("BXVector<l1t::RegionalMuonCand>"), ("simBayesOmtfDigis", "OMTF", "L1TMuonEmulation" )
 
 
 maxEvents = -1

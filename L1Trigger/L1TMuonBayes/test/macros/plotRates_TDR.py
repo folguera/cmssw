@@ -1,11 +1,14 @@
-import pickle 
+import pickle, os
 import math 
 import ROOT 
 
 pileups = [200]
-ss = ["Nu_PU200_aged3000","Nu_PU200_aged1000","Nu_PU200"]
-samples = {"Nu_PU200_aged3000":ROOT.kBlue,"Nu_PU200_aged1000":ROOT.kRed,"Nu_PU200":ROOT.kBlack}
-tags = {"Nu_PU200_aged1000":"1000 fb^{-1} Aging","Nu_PU200_aged3000":"3000 fb^{-1} Aging","Nu_PU200":"No Aging"}
+#ss = ["Nu_PU200_aged3000","Nu_PU200_aged1000","Nu_PU200"]
+ss = ["Nu_PU200"]
+#samples = {"Nu_PU200_aged3000":ROOT.kBlue,"Nu_PU200_aged1000":ROOT.kRed,"Nu_PU200":ROOT.kBlack}
+samples = {"Nu_PU200":ROOT.kBlack}
+#tags = {"Nu_PU200_aged1000":"1000 fb^{-1} Aging","Nu_PU200_aged3000":"3000 fb^{-1} Aging","Nu_PU200":"No Aging"}
+tags = {"Nu_PU200":"No Aging"}
 qualities = ['_q12'] 
 ROOT.gROOT.SetBatch(True)
 
@@ -13,6 +16,13 @@ ROOT.gROOT.ProcessLine('.L PlotTemplate.C+')
 
 with open('tdr_rates_aged_all.pickle', 'rb') as handle:
     bb = pickle.load(handle)
+
+outpath = "/afs/cern.ch/user/f/folguera/www/private/L1TPhase2/OMTF/2001_AdaptingToP2TPs/P1TPs/"
+
+if not os.path.exists(outpath):
+    os.mkdir(outpath)
+    print "cp ~folguera/public/utils/index.php %s/" %outpath
+    os.system("cp ~folguera/public/utils/index.php %s/" %outpath)
 
 outFile = ROOT.TFile("tdr_rates.root","RECREATE")
 outFile.cd()
@@ -70,6 +80,6 @@ for puValue in pileups:
  leg.Draw("same")
  ROOT.DrawPrelimLabel(canvas)
  ROOT.DrawLumiLabel(canvas,'14 TeV, %i PU'%puValue)
- ROOT.SaveCanvas(canvas,'tdr_pt_rate'+ q + '_PU_log' + str(puValue))
+ ROOT.SaveCanvas(canvas, outpath + 'tdr_pt_rate'+ q + '_PU_log' + str(puValue))
 
 outFile.Close()
