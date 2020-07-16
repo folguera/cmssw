@@ -36,9 +36,9 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::Consumes
 PseudoBayesGrouping::~PseudoBayesGrouping() {
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping:: destructor";
-  for (std::vector<DTPattern*>::iterator pat_it = allPatterns_.begin(); pat_it != allPatterns_.end(); pat_it++) {
-    delete (*pat_it);
-  }
+//  for (std::vector<DTPattern*>::iterator pat_it = allPatterns_.begin(); pat_it != allPatterns_.end(); pat_it++) {
+//    delete (*pat_it);
+//  }
 }
 
 // ============================================================================
