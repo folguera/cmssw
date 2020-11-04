@@ -178,7 +178,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   algo_ = pset.getParameter<int>("algo");
 
   edm::ConsumesCollector consumesColl(consumesCollector());
-
+  
   if (algo_ == PseudoBayes) {
     grouping_obj_ =
         std::make_unique<PseudoBayesGrouping>(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"), consumesColl);
@@ -313,6 +313,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   }
   digiMap.clear();
 
+
   if (dump_) {
     for (unsigned int i = 0; i < muonpaths.size(); i++) {
       stringstream ss;
@@ -427,33 +428,35 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
                                             muonpath->phiB(),
                                             muonpath->chiSquare(),
                                             (int)muonpath->quality(),
-                                            muonpath->primitive(0)->channelId(),
-                                            muonpath->primitive(0)->tdcTimeStamp(),
-                                            muonpath->primitive(0)->laterality(),
-                                            muonpath->primitive(1)->channelId(),
-                                            muonpath->primitive(1)->tdcTimeStamp(),
-                                            muonpath->primitive(1)->laterality(),
-                                            muonpath->primitive(2)->channelId(),
-                                            muonpath->primitive(2)->tdcTimeStamp(),
-                                            muonpath->primitive(2)->laterality(),
-                                            muonpath->primitive(3)->channelId(),
-                                            muonpath->primitive(3)->tdcTimeStamp(),
-                                            muonpath->primitive(3)->laterality(),
-                                            muonpath->primitive(4)->channelId(),
-                                            muonpath->primitive(4)->tdcTimeStamp(),
-                                            muonpath->primitive(4)->laterality(),
-                                            muonpath->primitive(5)->channelId(),
-                                            muonpath->primitive(5)->tdcTimeStamp(),
-                                            muonpath->primitive(5)->laterality(),
-                                            muonpath->primitive(6)->channelId(),
-                                            muonpath->primitive(6)->tdcTimeStamp(),
-                                            muonpath->primitive(6)->laterality(),
-                                            muonpath->primitive(7)->channelId(),
-                                            muonpath->primitive(7)->tdcTimeStamp(),
-                                            muonpath->primitive(7)->laterality());
+					    (muonpath->primitive(0) == 0) ? -1 : muonpath->primitive(0)->channelId(), 
+					    (muonpath->primitive(0) == 0) ? -1 : muonpath->primitive(0)->tdcTimeStamp(), 
+					    (muonpath->primitive(0) == 0) ? NONE : muonpath->primitive(0)->laterality(), 
+					    (muonpath->primitive(1) == 0) ? -1 : muonpath->primitive(1)->channelId(), 
+					    (muonpath->primitive(1) == 0) ? -1 : muonpath->primitive(1)->tdcTimeStamp(), 
+					    (muonpath->primitive(1) == 0) ? NONE : muonpath->primitive(1)->laterality(), 
+					    (muonpath->primitive(2) == 0) ? -1 : muonpath->primitive(2)->channelId(), 
+					    (muonpath->primitive(2) == 0) ? -1 : muonpath->primitive(2)->tdcTimeStamp(), 
+					    (muonpath->primitive(2) == 0) ? NONE : muonpath->primitive(2)->laterality(), 
+					    (muonpath->primitive(3) == 0) ? -1 : muonpath->primitive(3)->channelId(), 
+					    (muonpath->primitive(3) == 0) ? -1 : muonpath->primitive(3)->tdcTimeStamp(), 
+					    (muonpath->primitive(3) == 0) ? NONE : muonpath->primitive(3)->laterality(), 
+					    (muonpath->primitive(4) == 0) ? -1 : muonpath->primitive(0)->channelId(), 
+					    (muonpath->primitive(4) == 0) ? -1 : muonpath->primitive(0)->tdcTimeStamp(), 
+					    (muonpath->primitive(4) == 0) ? NONE : muonpath->primitive(0)->laterality(), 
+					    (muonpath->primitive(5) == 0) ? -1 : muonpath->primitive(1)->channelId(), 
+					    (muonpath->primitive(5) == 0) ? -1 : muonpath->primitive(1)->tdcTimeStamp(), 
+					    (muonpath->primitive(5) == 0) ? NONE : muonpath->primitive(1)->laterality(), 
+					    (muonpath->primitive(6) == 0) ? -1 : muonpath->primitive(2)->channelId(), 
+					    (muonpath->primitive(6) == 0) ? -1 : muonpath->primitive(2)->tdcTimeStamp(), 
+					    (muonpath->primitive(6) == 0) ? NONE : muonpath->primitive(2)->laterality(), 
+					    (muonpath->primitive(7) == 0) ? -1 : muonpath->primitive(3)->channelId(), 
+					    (muonpath->primitive(7) == 0) ? -1 : muonpath->primitive(3)->tdcTimeStamp(), 
+					    (muonpath->primitive(7) == 0) ? NONE : muonpath->primitive(3)->laterality());
     }
   }
   filteredMetaPrimitives.clear();
+  
+
 
   if (debug_)
     LogDebug("DTTrigPhase2Prod") << "DTp2 in event:" << iEvent.id().event() << " we found "

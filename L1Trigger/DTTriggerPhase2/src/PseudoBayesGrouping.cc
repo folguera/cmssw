@@ -76,7 +76,7 @@ void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: "
                                     << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
                                     << itPattern->at(0).at(2) << ", ";
-
+  
   auto p = std::make_shared<DTPattern>();
   bool is_seed = true;
   for (const auto& itHits : *itPattern) {

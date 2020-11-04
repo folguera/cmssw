@@ -202,3 +202,4 @@ void MuonPath::setLateralComb(const LATERAL_CASES *latComb) {
   for (int i = 0; i < NUM_LAYERS; i++)
     lateralComb_[i] = latComb[i];
 }
+

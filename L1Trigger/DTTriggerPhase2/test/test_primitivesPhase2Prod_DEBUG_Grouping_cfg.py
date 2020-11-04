@@ -14,17 +14,18 @@ process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
 process.dtTriggerPhase2PrimitiveDigis.dump = False
-process.dtTriggerPhase2PrimitiveDigis.debug = False
+process.dtTriggerPhase2PrimitiveDigis.debug = True
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
-##process.load("FWCore.MessageLogger.MessageLogger_cfi")
-##process.MessageLogger = cms.Service("MessageLogger",
-##        destinations = cms.untracked.vstring("detailedInfo"),
-##        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
-##        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
-##        extension = cms.untracked.string(".txt")),
-###        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
-##)
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#
+#process.MessageLogger = cms.Service("MessageLogger",
+#                                    destinations = cms.untracked.vstring("detailedInfo"),
+#                                    detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
+#                                                                      default = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+#                                                                      extension = cms.untracked.string(".txt")),
+#                                    debugModules = cms.untracked.vstring("dtTriggerPhase2BayesPrimitiveDigis","DTTrigPhase2Prod"),
+#                                )
 
 #scenario
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0 #0 is mc, 1 is data, 2 is slice test
@@ -74,9 +75,10 @@ process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('DTTriggerPhase2Primitives.root')
 )
 
-process.p = cms.Path(process.CalibratedDigis*
-                     process.dtTriggerPhase2BayesPrimitiveDigis*
-                     process.dtTriggerPhase2StdPrimitiveDigis)
+process.p = cms.Path(process.CalibratedDigis *
+                     process.dtTriggerPhase2BayesPrimitiveDigis *
+                     process.dtTriggerPhase2StdPrimitiveDigis
+)
 process.this_is_the_end = cms.EndPath(process.out)
 
 
