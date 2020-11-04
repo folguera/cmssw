@@ -36,8 +36,7 @@ def IsMatched(muon1,muon2,sharedFrac=0.5):
     totMuon1=0.
     for ly in range(0,7):
         if (muon1.pathWireId(ly)>=0): totMuon1=totMuon1+1. 
-    else:                         continue
-
+    else:                         
         if (muon1.pathWireId(ly)!=muon2.pathWireId(ly)): continue
         if (muon1.pathTDC(ly)!=muon2.pathTDC(ly)): continue
         
@@ -57,7 +56,7 @@ ROOT.gROOT.SetBatch(True)
 ##
 ## Main part
 ##
-files = ['/afs/cern.ch/user/f/folguera/workdir/Upgrade/DTTP/CMSSW_11_1_0_pre4_DTTPdev_Bayes/src/L1Trigger/DTTriggerPhase2/test/DTTriggerPhase2Primitives.root']
+files = ['/afs/cern.ch/user/f/folguera/workdir/Upgrade/DTTP/CMSSW_11_2_0_pre2/src/DTTriggerPhase2Primitives.root']
 
 print "Number of files: %d" % len(files)
 

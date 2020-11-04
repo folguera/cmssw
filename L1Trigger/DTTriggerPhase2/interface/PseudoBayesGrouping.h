@@ -8,6 +8,8 @@
 // ===============================================================================
 // Class declarations
 // ===============================================================================
+using namespace dtbayesam;
+
 class PseudoBayesGrouping : public MotherGrouping {
 public:
   // Constructors and destructor
@@ -34,7 +36,7 @@ private:
   void RecognisePatternsByLayerPairs();
   void RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                          std::vector<DTPrimitive> digisinLUp,
-                         std::vector<DTPattern*> patterns);
+                         DTPatternPtrs patterns);
   void ReCleanPatternsAndDigis();
   void FillMuonPaths(MuonPathPtrs& mpaths);
 
@@ -77,42 +79,42 @@ private:
 
   //Pattern related info
   int nPatterns_;
-  std::vector<DTPattern*> allPatterns_;
+  DTPatternPtrs allPatterns_;
 
-  std::vector<DTPattern*> L0L7Patterns_;
-  std::vector<DTPattern*> L1L7Patterns_;
-  std::vector<DTPattern*> L2L7Patterns_;
-  std::vector<DTPattern*> L3L7Patterns_;
-  std::vector<DTPattern*> L4L7Patterns_;
-  std::vector<DTPattern*> L5L7Patterns_;
-  std::vector<DTPattern*> L6L7Patterns_;
+  DTPatternPtrs L0L7Patterns_;
+  DTPatternPtrs L1L7Patterns_;
+  DTPatternPtrs L2L7Patterns_;
+  DTPatternPtrs L3L7Patterns_;
+  DTPatternPtrs L4L7Patterns_;
+  DTPatternPtrs L5L7Patterns_;
+  DTPatternPtrs L6L7Patterns_;
 
-  std::vector<DTPattern*> L0L6Patterns_;
-  std::vector<DTPattern*> L1L6Patterns_;
-  std::vector<DTPattern*> L2L6Patterns_;
-  std::vector<DTPattern*> L3L6Patterns_;
-  std::vector<DTPattern*> L4L6Patterns_;
-  std::vector<DTPattern*> L5L6Patterns_;
+  DTPatternPtrs L0L6Patterns_;
+  DTPatternPtrs L1L6Patterns_;
+  DTPatternPtrs L2L6Patterns_;
+  DTPatternPtrs L3L6Patterns_;
+  DTPatternPtrs L4L6Patterns_;
+  DTPatternPtrs L5L6Patterns_;
 
-  std::vector<DTPattern*> L0L5Patterns_;
-  std::vector<DTPattern*> L1L5Patterns_;
-  std::vector<DTPattern*> L2L5Patterns_;
-  std::vector<DTPattern*> L3L5Patterns_;
-  std::vector<DTPattern*> L4L5Patterns_;
+  DTPatternPtrs L0L5Patterns_;
+  DTPatternPtrs L1L5Patterns_;
+  DTPatternPtrs L2L5Patterns_;
+  DTPatternPtrs L3L5Patterns_;
+  DTPatternPtrs L4L5Patterns_;
 
-  std::vector<DTPattern*> L0L4Patterns_;
-  std::vector<DTPattern*> L1L4Patterns_;
-  std::vector<DTPattern*> L2L4Patterns_;
-  std::vector<DTPattern*> L3L4Patterns_;
+  DTPatternPtrs L0L4Patterns_;
+  DTPatternPtrs L1L4Patterns_;
+  DTPatternPtrs L2L4Patterns_;
+  DTPatternPtrs L3L4Patterns_;
 
-  std::vector<DTPattern*> L0L3Patterns_;
-  std::vector<DTPattern*> L1L3Patterns_;
-  std::vector<DTPattern*> L2L3Patterns_;
+  DTPatternPtrs L0L3Patterns_;
+  DTPatternPtrs L1L3Patterns_;
+  DTPatternPtrs L2L3Patterns_;
 
-  std::vector<DTPattern*> L0L2Patterns_;
-  std::vector<DTPattern*> L1L2Patterns_;
+  DTPatternPtrs L0L2Patterns_;
+  DTPatternPtrs L1L2Patterns_;
 
-  std::vector<DTPattern*> L0L1Patterns_;
+  DTPatternPtrs L0L1Patterns_;
 };
 
 #endif

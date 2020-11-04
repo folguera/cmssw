@@ -58,6 +58,9 @@ private:
   int recoseedUp_;
   int recoseedDown_;
   bool debug_ = false;
+
 };
+
+
 
 #endif

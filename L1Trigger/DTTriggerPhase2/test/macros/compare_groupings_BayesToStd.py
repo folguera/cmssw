@@ -35,9 +35,10 @@ def IsMatched(muon1,muon2,sharedFrac=0.5):
     numShared=0.
     totMuon1=0.
     for ly in range(0,7):
-        if (muon1.pathWireId(ly)>=0): totMuon1=totMuon1+1. 
-    else:                         continue
-
+        if (muon1.pathWireId(ly)>=0): 
+            totMuon1=totMuon1+1. 
+        else:  
+            continue
         if (muon1.pathWireId(ly)!=muon2.pathWireId(ly)): continue
         if (muon1.pathTDC(ly)!=muon2.pathTDC(ly)): continue
         
@@ -58,14 +59,14 @@ ROOT.gROOT.SetBatch(True)
 ##
 ## Main part
 ##
-files = ['/afs/cern.ch/user/f/folguera/workdir/Upgrade/DTTP/CMSSW_11_1_0_pre4_DTTPdev_Bayes/src/L1Trigger/DTTriggerPhase2/test/DTTriggerPhase2Primitives.root']
+files = ['/afs/cern.ch/user/f/folguera/workdir/Upgrade/DTTP/CMSSW_11_2_0_pre2/src/DTTriggerPhase2Primitives.root']
 
 print "Number of files: %d" % len(files)
 events = Events(files)    
 print "we got the events" 
 ## load some histograms (and efficiencies): 
 outputDict = {} 
-dumpToFile = False
+dumpToFile = True
 
 for frac in [0.25,0.5,0.75,1.00]:
     print "shared fraction is %0.2f" %(frac)
@@ -217,5 +218,5 @@ for frac in [0.25,0.5,0.75,1.00]:
 
 
 import pickle 
-with open('GroupingComparison_BayesToStd_Apr21.pickle', 'wb') as handle:
+with open('GroupingComparison_BayesToStd_Nov4.pickle', 'wb') as handle:
     pickle.dump(outputDict, handle, protocol=pickle.HIGHEST_PROTOCOL)
