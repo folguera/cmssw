@@ -14,7 +14,7 @@ process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
 process.dtTriggerPhase2PrimitiveDigis.dump = False
-process.dtTriggerPhase2PrimitiveDigis.debug = True
+process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -38,6 +38,7 @@ process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 4
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 2 
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 2 
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minUncorrelatedHits = 3
+process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(26)
 
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping

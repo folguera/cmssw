@@ -54,7 +54,7 @@ DTPrimitive::~DTPrimitive() {}
 //------------------------------------------------------------------
 //--- Public Methods
 //------------------------------------------------------------------
-bool DTPrimitive::isValidTime(void) { return (tdcTimeStamp_ >= 0 ? true : false); }
+bool DTPrimitive::isValidTime(void) { return ( (tdcTimeStamp_ >= 0) ? true : false); }
 
 float DTPrimitive::wireHorizPos(void) {
   // For layers with odd-number

@@ -33,6 +33,7 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPCleanHitsFilter.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -129,6 +130,7 @@ private:
   std::unique_ptr<MuonPathAnalyzer> mpathanalyzer_;
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
+  std::unique_ptr<MPFilter> mpathhitsfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
 
   // Buffering
@@ -206,6 +208,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   mpathqualityenhancer_ = std::make_unique<MPQualityEnhancerFilter>(pset);
   mpathredundantfilter_ = std::make_unique<MPRedundantFilter>(pset);
+  mpathhitsfilter_ = std::make_unique<MPCleanHitsFilter>(pset);
   mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
@@ -227,6 +230,7 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathanalyzer_->initialise(iEventSetup);         // Analyzer object initialisation
   mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
+  mpathhitsfilter_->initialise(iEventSetup);
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
   const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
@@ -327,11 +331,14 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       LogInfo("DTTrigPhase2Prod") << ss.str();
     }
   }
-
+  
   // FILTER GROUPING
   MuonPathPtrs filteredmuonpaths;
   if (algo_ == Standard) {
     mpathredundantfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
+  }
+  else {
+    mpathhitsfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
   }
 
   if (dump_) {
@@ -364,7 +371,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     // implementation for advanced (2SL) grouping, no filter required..
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "Fitting 2SL at once ";
-    mpathanalyzer_->run(iEvent, iEventSetup, muonpaths, outmpaths);
+    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, outmpaths);
   }
 
   if (dump_) {
@@ -428,30 +435,30 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
                                             muonpath->phiB(),
                                             muonpath->chiSquare(),
                                             (int)muonpath->quality(),
-					    (muonpath->primitive(0) == 0) ? -1 : muonpath->primitive(0)->channelId(), 
-					    (muonpath->primitive(0) == 0) ? -1 : muonpath->primitive(0)->tdcTimeStamp(), 
-					    (muonpath->primitive(0) == 0) ? NONE : muonpath->primitive(0)->laterality(), 
-					    (muonpath->primitive(1) == 0) ? -1 : muonpath->primitive(1)->channelId(), 
-					    (muonpath->primitive(1) == 0) ? -1 : muonpath->primitive(1)->tdcTimeStamp(), 
-					    (muonpath->primitive(1) == 0) ? NONE : muonpath->primitive(1)->laterality(), 
-					    (muonpath->primitive(2) == 0) ? -1 : muonpath->primitive(2)->channelId(), 
-					    (muonpath->primitive(2) == 0) ? -1 : muonpath->primitive(2)->tdcTimeStamp(), 
-					    (muonpath->primitive(2) == 0) ? NONE : muonpath->primitive(2)->laterality(), 
-					    (muonpath->primitive(3) == 0) ? -1 : muonpath->primitive(3)->channelId(), 
-					    (muonpath->primitive(3) == 0) ? -1 : muonpath->primitive(3)->tdcTimeStamp(), 
-					    (muonpath->primitive(3) == 0) ? NONE : muonpath->primitive(3)->laterality(), 
-					    (muonpath->primitive(4) == 0) ? -1 : muonpath->primitive(0)->channelId(), 
-					    (muonpath->primitive(4) == 0) ? -1 : muonpath->primitive(0)->tdcTimeStamp(), 
-					    (muonpath->primitive(4) == 0) ? NONE : muonpath->primitive(0)->laterality(), 
-					    (muonpath->primitive(5) == 0) ? -1 : muonpath->primitive(1)->channelId(), 
-					    (muonpath->primitive(5) == 0) ? -1 : muonpath->primitive(1)->tdcTimeStamp(), 
-					    (muonpath->primitive(5) == 0) ? NONE : muonpath->primitive(1)->laterality(), 
-					    (muonpath->primitive(6) == 0) ? -1 : muonpath->primitive(2)->channelId(), 
-					    (muonpath->primitive(6) == 0) ? -1 : muonpath->primitive(2)->tdcTimeStamp(), 
-					    (muonpath->primitive(6) == 0) ? NONE : muonpath->primitive(2)->laterality(), 
-					    (muonpath->primitive(7) == 0) ? -1 : muonpath->primitive(3)->channelId(), 
-					    (muonpath->primitive(7) == 0) ? -1 : muonpath->primitive(3)->tdcTimeStamp(), 
-					    (muonpath->primitive(7) == 0) ? NONE : muonpath->primitive(3)->laterality());
+					    muonpath->primitive(0)->channelId(), 
+					    muonpath->primitive(0)->tdcTimeStamp(), 
+					    muonpath->primitive(0)->laterality(), 
+					    muonpath->primitive(1)->channelId(), 
+					    muonpath->primitive(1)->tdcTimeStamp(), 
+					    muonpath->primitive(1)->laterality(), 
+					    muonpath->primitive(2)->channelId(), 
+					    muonpath->primitive(2)->tdcTimeStamp(), 
+					    muonpath->primitive(2)->laterality(), 
+					    muonpath->primitive(3)->channelId(), 
+					    muonpath->primitive(3)->tdcTimeStamp(), 
+					    muonpath->primitive(3)->laterality(), 
+					    muonpath->primitive(4)->channelId(), 
+					    muonpath->primitive(4)->tdcTimeStamp(), 
+					    muonpath->primitive(4)->laterality(), 
+					    muonpath->primitive(5)->channelId(), 
+					    muonpath->primitive(5)->tdcTimeStamp(), 
+					    muonpath->primitive(5)->laterality(), 
+					    muonpath->primitive(6)->channelId(), 
+					    muonpath->primitive(6)->tdcTimeStamp(), 
+					    muonpath->primitive(6)->laterality(), 
+					    muonpath->primitive(7)->channelId(), 
+					    muonpath->primitive(7)->tdcTimeStamp(), 
+					    muonpath->primitive(7)->laterality());
     }
   }
   filteredMetaPrimitives.clear();
