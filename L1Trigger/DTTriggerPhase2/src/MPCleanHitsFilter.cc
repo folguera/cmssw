@@ -19,7 +19,7 @@ void MPCleanHitsFilter::run(edm::Event &iEvent,
   
   for (const auto& mpath : inMPaths) {
     auto mpAux = std::make_shared<MuonPath>(*mpath);  
-    removeOutliers(mpAux);  // remove hits that are more than 1 bX from the meantime. 
+    //    removeOutliers(mpAux);  // remove hits that are more than 1 bX from the meantime. 
     
     outMPaths.emplace_back(mpAux); 
   } 
