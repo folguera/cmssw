@@ -10,7 +10,7 @@ MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet& pset) : MPFilter(pset) 
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
   
-  timeTolerance_ = pset.exists("timeTolerance") ? pset.getParameter<int>("timeTolerance") : 26;
+  timeTolerance_ = pset.exists("timeTolerance") ? pset.getParameter<int>("timeTolerance") : 999999;
 }
 void MPCleanHitsFilter::run(edm::Event &iEvent,
 			    const edm::EventSetup &iEventSetup,
@@ -19,7 +19,7 @@ void MPCleanHitsFilter::run(edm::Event &iEvent,
   
   for (const auto& mpath : inMPaths) {
     auto mpAux = std::make_shared<MuonPath>(*mpath);  
-    //    removeOutliers(mpAux);  // remove hits that are more than 1 bX from the meantime. 
+    removeOutliers(mpAux);  // remove hits that are more than 1 bX from the meantime. 
     
     outMPaths.emplace_back(mpAux); 
   } 

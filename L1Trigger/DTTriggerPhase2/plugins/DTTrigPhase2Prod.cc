@@ -349,6 +349,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
         ss << filteredmuonpaths.at(i)->primitive(lay)->channelId() << " ";
       for (int lay = 0; lay < filteredmuonpaths.at(i)->nprimitives(); lay++)
         ss << filteredmuonpaths.at(i)->primitive(lay)->tdcTimeStamp() << " ";
+      ss << " | quality: " << filteredmuonpaths.at(i)->quality();
       LogInfo("DTTrigPhase2Prod") << ss.str();
     }
   }
@@ -380,6 +381,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
                                   << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " "
                                   << outmpaths.at(i)->phi() << " " << outmpaths.at(i)->phiB() << " "
                                   << outmpaths.at(i)->quality() << " " << outmpaths.at(i)->chiSquare();
+      
+      /*      cout << iEvent.id().event() << " mp " << i << ": " << outmpaths.at(i)->bxTimeValue() << " "
+	   << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " "
+	   << outmpaths.at(i)->phi() << " " << outmpaths.at(i)->phiB() << " "
+	   << outmpaths.at(i)->quality() << " " << outmpaths.at(i)->chiSquare() << endl;
+      */
     }
     for (unsigned int i = 0; i < metaPrimitives.size(); i++) {
       stringstream ss;
@@ -477,6 +484,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       stringstream ss;
       ss << iEvent.id().event() << " correlated mp " << i << ": ";
       printmPC(ss.str(), correlatedMetaPrimitives.at(i));
+      
     }
   }
 
@@ -595,6 +603,7 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
   mpathanalyzer_->finish();
   mpathqualityenhancer_->finish();
   mpathredundantfilter_->finish();
+  mpathhitsfilter_->finish();
   mpathassociator_->finish();
   rpc_integrator_->finish();
 };
@@ -636,6 +645,22 @@ void DTTrigPhase2Prod::printmPC(const string& ss, const metaPrimitive& mP) const
                               << mP.lat7 << " " << setw(2) << left << mP.lat8 << " " << setw(10) << right << mP.x << " "
                               << setw(9) << left << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13)
                               << left << mP.chi2 << " r:" << rango(mP);
+
+
+  /*  cout << ss << (int)ChId << "\t  " << setw(2) << left << mP.wi1 << " " << setw(2) << left
+                              << mP.wi2 << " " << setw(2) << left << mP.wi3 << " " << setw(2) << left << mP.wi4 << " "
+                              << setw(2) << left << mP.wi5 << " " << setw(2) << left << mP.wi6 << " " << setw(2) << left
+                              << mP.wi7 << " " << setw(2) << left << mP.wi8 << " " << setw(5) << left << mP.tdc1 << " "
+                              << setw(5) << left << mP.tdc2 << " " << setw(5) << left << mP.tdc3 << " " << setw(5)
+                              << left << mP.tdc4 << " " << setw(5) << left << mP.tdc5 << " " << setw(5) << left
+                              << mP.tdc6 << " " << setw(5) << left << mP.tdc7 << " " << setw(5) << left << mP.tdc8
+                              << " " << setw(2) << left << mP.lat1 << " " << setw(2) << left << mP.lat2 << " "
+                              << setw(2) << left << mP.lat3 << " " << setw(2) << left << mP.lat4 << " " << setw(2)
+                              << left << mP.lat5 << " " << setw(2) << left << mP.lat6 << " " << setw(2) << left
+                              << mP.lat7 << " " << setw(2) << left << mP.lat8 << " " << setw(10) << right << mP.x << " "
+                              << setw(9) << left << mP.tanPhi << " " << setw(5) << left << mP.t0 << " " << setw(13)
+       << left << mP.chi2 << " r:" << rango(mP) << endl;
+  */
 }
 
 int DTTrigPhase2Prod::rango(const metaPrimitive& mp) const {

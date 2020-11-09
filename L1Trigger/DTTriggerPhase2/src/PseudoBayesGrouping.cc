@@ -215,7 +215,7 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
     if (debug_)
       LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Create pointers ";
     DTPrimitivePtrs ptrPrimitive;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < NUM_LAYERS_2SL; i++)
       ptrPrimitive.push_back(std::make_shared<DTPrimitive>());
 
     qualitybits qualityDTP;
@@ -258,15 +258,6 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
         }
       }
     }
-    //Now, if there are empty spaces in the vector fill them full of daylight
-//    int ipow = 1;
-//    for (int i = 0; i <= 7; i++) {
-//      ipow *= 2;
-//      if (qualityDTP != (qualityDTP | qualitybits(1 << i))) {
-//        ptrPrimitive.at(i) = std::make_shared<DTPrimitive>();
-//      }
-//    }
-
     stringstream ss;    
     mpaths.emplace_back(
 			std::make_shared<MuonPath>(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown()));

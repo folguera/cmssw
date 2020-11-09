@@ -26,7 +26,7 @@ public:
   void setLateralComb(cmsdt::LATERAL_CASES latComb[4]);
   void setLateralComb(const cmsdt::LATERAL_CASES *latComb);
   void setLateralCombFromPrimitives(void);
-
+  
   void setHorizPos(float pos) { horizPos_ = pos; }
   void setTanPhi(float tanPhi) { tanPhi_ = tanPhi; }
   void setChiSquare(float chi) { chiSquare_ = chi; }
@@ -41,6 +41,7 @@ public:
 
   // getter methods
   DTPrimitivePtr primitive(int layer) const { return prim_[layer]; }
+  DTPrimitivePtrs primitive() const { return prim_; }
   short nprimitives() const { return nprimitives_; }
   short nprimitivesDown() const { return nprimitivesDown_; }
   short nprimitivesUp() const { return nprimitivesUp_; }
@@ -66,7 +67,7 @@ public:
   bool isEqualTo(MuonPath *ptr);
   bool isAnalyzable();
   bool completeMP();
-
+  
 private:
   //------------------------------------------------------------------
   //---  MuonPath's data
