@@ -2,15 +2,15 @@ import pickle, os
 import math 
 import ROOT 
 
-ss = ["shared0","shared25", "shared50","shared75","shared100"]
-samples = {"shared0":ROOT.kOrange+2, "shared25":ROOT.kBlack, "shared50":ROOT.kRed, "shared75":ROOT.kBlue, "shared100":ROOT.kGreen+1}
-tags = {"shared0": "same chamber", "shared25": "shared 25% hits", "shared50": "shared 50% hits", "shared75":"shared 75% hits" , "shared100":"shared 100% hits"}
+ss = ["shared25", "shared50","shared75","shared100"]
+samples = {"shared25":ROOT.kBlack, "shared50":ROOT.kRed, "shared75":ROOT.kBlue, "shared100":ROOT.kGreen+1}
+tags = {"shared25": "shared 25% hits", "shared50": "shared 50% hits", "shared75":"shared 75% hits" , "shared100":"shared 100% hits"}
 
 plots=[]
 titles={}  
 for st in ["MB1","MB2","MB3","MB4"]:
     for var in ["Phi","PhiB","Chi2","Bx","Time"]:
-        for q in ["q1","q3","q5","q8","q12","q34","q57","q689"]:
+        for q in ["q1","q3","q5","q8"]:
             plots.append("h%sRes_%s_%s" %(var,st,q))
             titlename = '; %s^{std}-%s^{bay};' %(var,var)
             if "PhiB" in var: 
@@ -24,12 +24,10 @@ for st in ["MB1","MB2","MB3","MB4"]:
                 
             titles["h%sRes_%s_%s" %(var,st,q)] = titlename
     plots.append("hMatchingEff_%s" %(st))
-    plots.append("hMatchingEffIncl_%s" %(st))
     titles["hMatchingEff_%s" %(st)] = " ; muon quality ; Efficiency = N_{bayes}/N_{std}"  
-    titles["hMatchingEffIncl_%s" %(st)] = " ; muon quality ; Efficiency = N_{bayes}/N_{std}"  
 
 
-outpath = "/afs/cern.ch/user/f/folguera/www/private/L1TPhase2/DTTP/200429_Groupings/"
+outpath = "/afs/cern.ch/user/f/folguera/www/private/L1TPhase2/DTTP/201124_Groupings/"
 if not os.path.exists(outpath):
     os.mkdir(outpath)
     print "cp ~folguera/public/utils/index.php %s/" %outpath
@@ -43,14 +41,14 @@ if not os.path.exists(outpath):
     os.system("cp ~folguera/public/utils/index.php %s/" %outpath)
 
 
-outFile = ROOT.TFile("GroupingComparison_StdToBayes_Apr29.root","RECREATE")
+outFile = ROOT.TFile("GroupingComparison_StdToBayes_Nov24.root","RECREATE")
 outFile.cd()
 
 ROOT.gROOT.ProcessLine('.L PlotTemplate.C+')
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
-with open('GroupingComparison_StdToBayes_Apr29.pickle', 'rb') as handle:
+with open('GroupingComparison_StdToBayes_Nov24.pickle', 'rb') as handle:
     b = pickle.load(handle)
 
 #leg = ROOT.TLegend(0.6,0.6,0.85,0.26);
