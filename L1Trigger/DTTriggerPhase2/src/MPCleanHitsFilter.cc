@@ -11,6 +11,7 @@ MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet& pset) : MPFilter(pset) 
   debug_ = pset.getUntrackedParameter<bool>("debug");
   
   timeTolerance_ = pset.exists("timeTolerance") ? pset.getParameter<int>("timeTolerance") : 999999;
+  // probably something close to the max time drift (400ns/2) is a reasonable value 
 }
 void MPCleanHitsFilter::run(edm::Event &iEvent,
 			    const edm::EventSetup &iEventSetup,
@@ -30,8 +31,9 @@ void MPCleanHitsFilter::removeOutliers(MuonPathPtr &mpath){
   int MeanTime = getMeanTime(mpath);
   for (int i=0; i<mpath->nprimitives(); i++){
     if (!mpath->primitive(i)->isValidTime()) continue;
-    if (mpath->primitive(i)->tdcTimeStamp() - MeanTime > timeTolerance_) {
+    if (std::abs(mpath->primitive(i)->tdcTimeStamp() - MeanTime) > timeTolerance_) {
       mpath->primitive(i)->setTDCTimeStamp(-1); //invalidate hit 
+      mpath->primitive(i)->setChannelId(-1);    //invalidate hit 
     }
   }
   
