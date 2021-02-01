@@ -31,14 +31,14 @@ process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0 #0 is mc, 1 is data, 2 is slice test
 process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
-
 process.dtTriggerPhase2BayesPrimitiveDigis = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2BayesPrimitiveDigis.algo = 1 ## bayes grouping
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 4
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 2 
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 2 
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minUncorrelatedHits = 3
-process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(26)
+#process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(26)
+process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(300)
 
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
@@ -81,9 +81,3 @@ process.p = cms.Path(process.CalibratedDigis *
                      process.dtTriggerPhase2StdPrimitiveDigis
 )
 process.this_is_the_end = cms.EndPath(process.out)
-
-
-
-
-
-
