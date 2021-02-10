@@ -133,16 +133,24 @@ int AngleConverterBase::getProcessorPhi(int phiZero,
 
   //FIXME: to be checked (only important for ME1/3) keep more bits for offset, truncate at the end
 
+  int fixOff = offsetLoc;
   // a quick fix for towards geometry changes due to global tag.
   // in case of MC tag fixOff shold be identical to offsetLoc
-  int fixOff =
-      fixCscOffsetGeom(offsetLoc);  //TODO does not work in correlator, i.e. when phiZero is always 0. .Fix this
 
-  //int fixOff = offsetLoc;
+  if(config->getFixCscGeometryOffset())
+    fixOff = fixCscOffsetGeom(offsetLoc);  //TODO does not work in correlator, i.e. when phiZero is always 0. .Fix this
+
+
 
   int phi = fixOff + order * scale * halfStrip;
   //the phi conversion is done like above - and not simply converting the layer->centerOfStrip(halfStrip/2 +1).phi() - to mimic this what is done by the firmware,
   //where phi of the stub is calculated with use of the offset and scale provided by an register
+
+  /*
+  auto localPoint = layer->toLocal(layer->centerOfStrip(halfStrip));
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << 147 << " csc: " <<csc.rawId()<<" "<< csc<<" layer "<<layer->id()<<" "<<layer->id().rawId()
+      << " halfStrip "<<halfStrip<<" phiGlobal " << layer->centerOfStrip(halfStrip).phi()<<" local phi "<<localPoint.phi()<<" x "<<localPoint.x()<<" y "<<localPoint.y() <<std::endl;
+	*/
 
   /*//debug
   auto radToDeg = [](double rad) { return (180. / M_PI * rad); };
@@ -182,9 +190,12 @@ int AngleConverterBase::getProcessorPhi(
   int halfStrip = lround(((stripPhi1 + stripPhi2) / 2.) / hsPhiPitch);
   halfStrip = config->foldPhi(halfStrip);  //only for the case when the two strips are on different sides of phi = pi
 
-  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << 175 << " roll " << rollId << " cluster: firstStrip " << digi1
-                                << " stripPhi1 " << stripPhi1 << " lastStrip " << digi2 << " stripPhi2 " << stripPhi2
-                                << " halfStrip " << halfStrip << std::endl;
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << 185 << " roll " << rollId.rawId() << " " << rollId
+                                << " cluster: firstStrip " << digi1 << " stripPhi1Global " << stripPhi1
+                                << " stripPhi1LocalPhi " << roll->centreOfStrip((int)digi1).x() << " y "
+                                << roll->centreOfStrip((int)digi1).y() << " lastStrip " << digi2 << " stripPhi2Global "
+                                << stripPhi2 << " stripPhi2LocalPhi x " << roll->centreOfStrip((int)digi2).x() << " y "
+                                << roll->centreOfStrip((int)digi2).y() << " halfStrip " << halfStrip << std::endl;
 
   return config->foldPhi(halfStrip - phiZero);
 }
@@ -304,14 +315,14 @@ std::vector<EtaValue> AngleConverterBase::getGlobalEta(const L1MuDTChambThContai
 float AngleConverterBase::cscChamberEtaSize(const CSCDetId& detId) const {
   if (detId.station() == 1) {
     if (detId.ring() == 1)
-      return (2.5 - 1.6) /
-             2.;  ///ME1/1 lower eta (b?, eta < ~2.1), muCorrelator eta bins 6-11 - but getGlobalEtaCsc(const CSCDetId& detId) gives the midle of the full chamber, so here we put the size of the full chamber
+      return (2.5 - 1.6) / 2.;
+    ///ME1/1 lower eta (b?, eta < ~2.1), L1TkMuonBayes eta bins 6-11 - but getGlobalEtaCsc(const CSCDetId& detId) gives the midle of the full chamber, so here we put the size of the full chamber
     if (detId.ring() == 2)
       return (1.7 - 1.2) / 2.;
     if (detId.ring() == 3)
       return (1.12 - 0.9) / 2.;
     if (detId.ring() == 4)
-      return (2.5 - 1.6) / 2.;  ///ME1/1 higher eta (a?, eta > ~2.1), muCorrelator eta bins 10-15
+      return (2.5 - 1.6) / 2.;  ///ME1/1 higher eta (a?, eta > ~2.1), L1TkMuonBayes eta bins 10-15
   } else if (detId.station() == 2) {
     if (detId.ring() == 1)
       return (2.5 - 1.6) / 2.;

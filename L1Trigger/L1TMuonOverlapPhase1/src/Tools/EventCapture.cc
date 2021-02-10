@@ -7,6 +7,7 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EventCapture.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinputMaker.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,26 +15,31 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/Common/interface/Ptr.h"
 
 #include <sstream>
 
-EventCapture::EventCapture(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig)
+EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
+                           const OMTFConfiguration* omtfConfig,
+                           CandidateSimMuonMatcher* candidateSimMuonMatcher)
     : omtfConfig(omtfConfig),
+      candidateSimMuonMatcher(candidateSimMuonMatcher),
       inputInProcs(omtfConfig->processorCnt()),
       algoMuonsInProcs(omtfConfig->processorCnt()),
-      gbCandidatesInProcs(omtfConfig->processorCnt()) {
+      gbCandidatesInProcs(omtfConfig->processorCnt()),
+      stubsSimHitsMatcher(edmCfg, omtfConfig) {
   //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" omtfConfig->nProcessors() "<<omtfConfig->nProcessors()<<std::endl;
-  if (edmCfg.exists("g4SimTrackSrc"))
-    simTrackInputTag = edmCfg.getParameter<edm::InputTag>("g4SimTrackSrc");
+  if (edmCfg.exists("simTrackInputTag"))
+    simTrackInputTag = edmCfg.getParameter<edm::InputTag>("simTrackInputTag");
   else
     edm::LogImportant("OMTFReconstruction")
-        << "EventCapture::EventCapture: no InputTag g4SimTrackSrc found" << std::endl;
+        << "EventCapture::EventCapture: no InputTag simTrackInputTag found" << std::endl;
 }
 
 EventCapture::~EventCapture() {
   // TODO Auto-generated destructor stub
 }
+
+void EventCapture::beginRun(edm::EventSetup const& eventSetup) { stubsSimHitsMatcher.beginRun(eventSetup); }
 
 void EventCapture::observeEventBegin(const edm::Event& event) {
   simMuons.clear();
@@ -76,11 +82,49 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                                    std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
   std::ostringstream ostr;
   //filtering
+
+  bool dump = false;
+
+  if (candidateSimMuonMatcher) {
+    std::vector<MatchingResult> matchingResults = candidateSimMuonMatcher->getMatchingResults();
+    edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResults.size() " << matchingResults.size() << std::endl;
+
+    //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
+    for (auto& matchingResult : matchingResults) {
+      if (matchingResult.muonCand && matchingResult.muonCand->hwQual() >= 12 &&
+          matchingResult.muonCand->hwPt() > 38) {  //&& matchingResult.genPt < 20
+        dump = true;
+
+        bool runStubsSimHitsMatcher = false;
+        if (matchingResult.trackingParticle) {
+          auto trackingParticle = matchingResult.trackingParticle;
+          ostr << "trackingParticle: eventId " << trackingParticle->eventId().event() << " pdgId " << std::setw(3)
+               << trackingParticle->pdgId() << " trackId " << trackingParticle->g4Tracks().at(0).trackId() << " pt "
+               << std::setw(9) << trackingParticle->pt()  //<<" Beta "<<simMuon->momentum().Beta()
+               << " eta " << std::setw(9) << trackingParticle->momentum().eta() << " phi " << std::setw(9)
+               << trackingParticle->momentum().phi() << std::endl;
+        } else {
+          ostr << "no simMuon ";
+          runStubsSimHitsMatcher = true;
+        }
+        ostr << "matched to: " << std::endl;
+        auto finalCandidate = matchingResult.muonCand;
+        ostr << " hwPt " << finalCandidate->hwPt() << " hwSign " << finalCandidate->hwSign() << " hwQual "
+             << finalCandidate->hwQual() << " hwEta " << std::setw(4) << finalCandidate->hwEta() << std::setw(4)
+             << " hwPhi " << finalCandidate->hwPhi() << "    eta " << std::setw(9)
+             << (finalCandidate->hwEta() * 0.010875) << " phi " << std::endl;
+
+        if (runStubsSimHitsMatcher)
+          stubsSimHitsMatcher.match(iEvent, matchingResult.muonCand, matchingResult.procMuon, ostr);
+      }
+    }
+  }
+
   /*
   bool wasSimMuInOmtfPos = false;
   bool wasSimMuInOmtfNeg = false;
   for(auto& simMuon : simMuons) {
-    if( simMuon->eventId().event() == 0 && abs(simMuon->momentum().eta() ) > 0.82 && abs(simMuon->momentum().eta() ) < 1.24 && simMuon->momentum().pt() > 2.5) {
+    if( simMuon->eventId().event() == 0 && abs(simMuon->momentum().eta() ) > 0.82 && abs(simMuon->momentum().eta() ) < 1.24 && simMuon->momentum().pt() > 5) {
       ostr<<"SimMuon: eventId "<<simMuon->eventId().event()<<" pdgId "<<std::setw(3)<<simMuon->type()
                   <<" pt "<<std::setw(9)<<simMuon->momentum().pt() //<<" Beta "<<simMuon->momentum().Beta()
                   <<" eta "<<std::setw(9)<<simMuon->momentum().eta()<<" phi "<<std::setw(9)<<simMuon->momentum().phi()
@@ -99,30 +143,32 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
 
 
   for(auto& finalCandidate : *finalCandidates) {
-    if(finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12)
+    if(finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 && finalCandidate.hwPt() > 41)
       wasCandInNeg = true;
 
-    if(finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12)
+    if(finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12 && finalCandidate.hwPt() > 41)
       wasCandInPos = true;
   }
 
-  bool dump = false;
+
   if( (wasSimMuInOmtfNeg && !wasCandInNeg) )
     dump = true;
 
   if( (wasSimMuInOmtfPos && !wasCandInPos) )
     dump = true;
 
-  dump = true; ///TODO if presetn then dumps all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  */
+
+  /*  dump = true; ///TODO if presetn then dumps all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if(!dump)
-    return;*/
+    return;
 
   bool dump = false;
   for (auto& finalCandidate : *finalCandidates) {
-    if (finalCandidate.hwQual() >= 1 && finalCandidate.hwPt() >= 41) {  //41
+    if (finalCandidate.hwPt() < 41) {  //  finalCandidate.hwQual() >= 1  41
       dump = true;
     }
-  }
+  }*/
 
   if (!dump)
     return;
@@ -175,7 +221,10 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
           bool layerFired = false;
           if (stub && (stub->type != MuonStub::Type::EMPTY)) {
             layerFired = true;
-            ostrInput << (*stub) << std::endl;
+
+            auto globalPhiRad = omtfConfig->procHwPhiToGlobalPhi(
+                stub->phiHw, OMTFinputMaker::getProcessorPhiZero(omtfConfig, iProc % 6));
+            ostrInput << (*stub) << " globalPhiRad " << globalPhiRad << std::endl;
           }
           if (layerFired)
             layersWithStubs++;
@@ -213,4 +262,4 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
   edm::LogVerbatim("l1tOmtfEventPrint") << std::endl;
 }
 
-void EventCapture::endJob() {}
+void EventCapture::endJob() { stubsSimHitsMatcher.endJob(); }

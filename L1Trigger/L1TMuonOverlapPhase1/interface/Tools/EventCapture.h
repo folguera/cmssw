@@ -12,13 +12,20 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternWithStat.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/CandidateSimMuonMatcher.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/StubsSimHitsMatcher.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EventCapture : public IOMTFEmulationObserver {
 public:
-  EventCapture(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig);
+  EventCapture(const edm::ParameterSet& edmCfg,
+               const OMTFConfiguration* omtfConfig,
+               CandidateSimMuonMatcher* candidateSimMuonMatcher);
 
   ~EventCapture() override;
+
+  void beginRun(edm::EventSetup const& eventSetup) override;
 
   void observeProcesorEmulation(unsigned int iProcessor,
                                 l1t::tftype mtfType,
@@ -38,11 +45,15 @@ private:
   edm::InputTag simTrackInputTag;
   const OMTFConfiguration* omtfConfig;
 
+  CandidateSimMuonMatcher* candidateSimMuonMatcher;
+
   std::vector<edm::Ptr<SimTrack> > simMuons;
 
   std::vector<std::shared_ptr<OMTFinput> > inputInProcs;
   std::vector<AlgoMuons> algoMuonsInProcs;
   std::vector<AlgoMuons> gbCandidatesInProcs;
+
+  StubsSimHitsMatcher stubsSimHitsMatcher;
 };
 
 #endif /* OMTF_EVENTCAPTURE_H_ */

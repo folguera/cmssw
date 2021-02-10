@@ -7,7 +7,7 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-verbose = False
+verbose = True
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -15,7 +15,7 @@ if verbose:
        destinations   = cms.untracked.vstring(
                                                #'detailedInfo',
                                                #'critical',
-                                               #'cout',
+                                               'cout',
                                                #'cerr',
                                                'omtfEventPrint'
                     ),
@@ -27,8 +27,16 @@ if verbose:
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
-                         l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
-                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+                         l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
+                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(10000000) )
+                       ),
+       cout = cms.untracked.PSet(    
+                         threshold = cms.untracked.string('INFO'),
+                         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+                         #INFO   =  cms.untracked.int32(0),
+                         #DEBUG   = cms.untracked.int32(0),
+                         l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
+                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(10000000) )
                        ),
        debugModules = cms.untracked.vstring('L1MuonAnalyzerOmtf', 'simOmtfPhase2Digis') 
        #debugModules = cms.untracked.vstring('*')
@@ -106,15 +114,18 @@ process.simOmtfPhase2Digis.dumpResultToXML = cms.bool(False)
 process.simOmtfPhase2Digis.dumpResultToROOT = cms.bool(False)
 process.simOmtfPhase2Digis.eventCaptureDebug = cms.bool(False)
 
-#process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/expert/omtf/Patterns_0x0009_oldSample_3_10Files.xml")
 #process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files.xml")
-process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
+#process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml")
+#process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00011_oldSample_3_30Files_grouped1_classProb7.xml")
+process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
+
+#process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
 #process.simOmtfPhase2Digis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
 #                                                       cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_minus_v1.xml"))
 #)
 
-#process.simOmtfPhase2Digis.sorterType = cms.string("byLLH")
-#process.simOmtfPhase2Digis.ghostBusterType = cms.string("GhostBusterPreferRefDt")
+process.simOmtfPhase2Digis.sorterType = cms.string("byLLH")
+process.simOmtfPhase2Digis.ghostBusterType = cms.string("GhostBusterPreferRefDt") #GhostBusterPreferRefDt byLLH
 
 process.simOmtfPhase2Digis.dropDTPrimitives = cms.bool(False)  
 process.simOmtfPhase2Digis.usePhase2DTPrimitives = cms.bool(False) #if here is true, dropDTPrimitives should also be true
@@ -128,18 +139,18 @@ process.simOmtfPhase2Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 
 process.simOmtfPhase2Digis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
 
-process.simOmtfPhase2Digis.noHitValueInPdf = cms.bool(False)
+process.simOmtfPhase2Digis.noHitValueInPdf = cms.bool(True)
 
 process.simOmtfPhase2Digis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 #nn_pThresholds = [0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.50, 0.52, 0.54 ]
 #nn_pThresholds = [0.40, 0.50] 
-nn_pThresholds = [0.35, 0.40, 0.45, 0.50, 0.55] 
+#nn_pThresholds = [0.35, 0.40, 0.45, 0.50, 0.55] 
  
-process.simOmtfPhase2Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/omtfClassifier_withPtBins_v34.txt")
-process.simOmtfPhase2Digis.ptCalibrationFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/PtCalibration_v34.root")
+#process.simOmtfPhase2Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/omtfClassifier_withPtBins_v34.txt")
+#process.simOmtfPhase2Digis.ptCalibrationFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/PtCalibration_v34.root")
 
-process.simOmtfPhase2Digis.nn_pThresholds = cms.vdouble(nn_pThresholds)
+#process.simOmtfPhase2Digis.nn_pThresholds = cms.vdouble(nn_pThresholds)
 
 
 #process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
@@ -165,14 +176,15 @@ process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf",
                                  etaCutFrom = cms.double(0.82), #OMTF eta range
                                  etaCutTo = cms.double(1.24),
                                  L1OMTFInputTag  = cms.InputTag("simOmtfPhase2Digis","OMTF"),
-                                 nn_pThresholds = cms.vdouble(nn_pThresholds), 
+                                 #nn_pThresholds = cms.vdouble(nn_pThresholds), 
                                  analysisType = cms.string(analysisType),
                                  
                                  simTracksTag = cms.InputTag('g4SimHits'),
                                  simVertexesTag = cms.InputTag('g4SimHits'),
-                                 trackingParticleToken = cms.InputTag("mix", "MergedTrackTruth"),
+                                 trackingParticleTag = cms.InputTag("mix", "MergedTrackTruth"),
                                  #TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                  
+                                 matchUsingPropagation = cms.bool(True),
                                  muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root") #if you want to make this file, remove this entry
 
                                  

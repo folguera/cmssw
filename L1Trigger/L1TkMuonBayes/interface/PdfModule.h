@@ -5,11 +5,11 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#ifndef INTERFACE_PDFMODULE_H_
-#define INTERFACE_PDFMODULE_H_
+#ifndef L1TkMuonBayes_PDFMODULE_H_
+#define L1TkMuonBayes_PDFMODULE_H_
 
 #include "L1Trigger/L1TkMuonBayes/interface/AlgoTTMuon.h"
-#include "L1Trigger/L1TkMuonBayes/interface/MuCorrelatorConfig.h"
+#include "L1Trigger/L1TkMuonBayes/interface/TkMuBayesProcConfig.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStubsInput.h"
 
 #include <vector>
@@ -18,7 +18,7 @@
 
 class IPdfModule {
 public:
-  IPdfModule(MuCorrelatorConfigPtr config): config(config) {}
+  IPdfModule(TkMuBayesProcConfigPtr config) : config(config) {}
 
   virtual ~IPdfModule() {}
 
@@ -26,30 +26,38 @@ public:
 
   //virtual void processStub(const MuonStubPtr& stub, int layer, const TrackingTriggerTrackPtr& ttTrack, const MuonStubPtr refStub, AlgoTTMuonPtr algoTTMuon) = 0;
 
-  virtual void processStubs(const MuonStubsInput& muonStubs, unsigned int layer, const TrackingTriggerTrackPtr& ttTrack, const MuonStubPtr refStub, AlgoTTMuonPtr algoTTMuon) = 0;
+  virtual void processStubs(const MuonStubsInput& muonStubs,
+                            unsigned int layer,
+                            const TrackingTriggerTrackPtr& ttTrack,
+                            const MuonStubPtr refStub,
+                            AlgoTTMuonPtr algoTTMuon) = 0;
+
 protected:
-  MuCorrelatorConfigPtr config;
+  TkMuBayesProcConfigPtr config;
 };
 
-
-
-class PdfModule: public IPdfModule {
+class PdfModule : public IPdfModule {
 public:
-  PdfModule(MuCorrelatorConfigPtr& config);
+  PdfModule(TkMuBayesProcConfigPtr& config);
 
-  virtual ~PdfModule() {}
+  ~PdfModule() override {}
 
   //assign the coefficients vectors and fills it with some dummy values
-  void init();
+  virtual void init();
 
   //adds the StubResult to the algoTTMuon
-  virtual void processStubs(const MuonStubsInput& muonStubs, unsigned int layer, const TrackingTriggerTrackPtr& ttTrack, const MuonStubPtr refStub, AlgoTTMuonPtr algoTTMuon);
+  virtual void processStubs(const MuonStubsInput& muonStubs,
+                    unsigned int layer,
+                    const TrackingTriggerTrackPtr& ttTrack,
+                    const MuonStubPtr refStub,
+                    AlgoTTMuonPtr algoTTMuon) override;
 
 
-  //refLayer = 0 means no ref layer is used
-  virtual float getPdfVal(unsigned int layer, unsigned int etaBin, unsigned int refLayer, unsigned int ptBin, int pdfBin);
+  virtual float getExtrapolation(unsigned int layer, unsigned int etaBin, unsigned int refLayer, const TrackingTriggerTrackPtr& ttTrack);
 
-  virtual float getExtrapolation(unsigned int layer, unsigned int etaBin, unsigned int refLayer, unsigned int ptBin);
+  //refLayer = 0 means no ref layer is used, pdfBin is deltaPhi or deltaEta
+  virtual float getPdfVal(unsigned int layer, unsigned int etaBin, unsigned int refLayer,
+                          const TrackingTriggerTrackPtr& ttTrack, int pdfBin);
 
   const std::vector<std::vector<std::vector<std::vector<std::vector<int> > > > >& getCoefficients() const {
     return coefficients;
@@ -63,11 +71,10 @@ public:
 
   friend class boost::serialization::access;
 
-  template<class Archive>
-  void serialize(Archive & ar, const unsigned int version)
-  {
-      ar & BOOST_SERIALIZATION_NVP(bitShift);
-      ar & BOOST_SERIALIZATION_NVP(coefficients);
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_SERIALIZATION_NVP(bitShift);
+    ar& BOOST_SERIALIZATION_NVP(coefficients);
   }
 
 protected:
@@ -80,6 +87,4 @@ protected:
   //boost::multi_array<short, 3> coefficients; -  cannot be use since the lengths of vectors varies between layers (1 eta bin for barrel layer, 8 or 16 for endcap)
 };
 
-
-
-#endif /* INTERFACE_PDFMODULE_H_ */
+#endif /* L1TkMuonBayes_PDFMODULE_H_ */

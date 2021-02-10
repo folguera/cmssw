@@ -5,6 +5,8 @@ import os
 import sys
 import commands
 
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
@@ -28,7 +30,7 @@ if verbose:
                          #DEBUG   = cms.untracked.int32(0),
                          l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
-       debugModules = cms.untracked.vstring('L1TMuonBayesMuCorrelatorTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       debugModules = cms.untracked.vstring('L1TkMuonBayesTrackProducer', 'simOmtfDigis', 'simL1TkMuonBayesTrackProducer') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -41,41 +43,38 @@ if not verbose:
 
 
 #######################################TTTracks################################################
-GEOMETRY = "D17"
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-# 2026 geometry 
-process.load('Configuration.Geometry.GeometryExtended2026D47Reco_cff') 
-process.load('Configuration.Geometry.GeometryExtended2026D47_cff') 
+#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff') #TODO!!!!!!!!!!!!! this geometry is required for Phase2HLTTDRWinter20
+
 process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff') 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, '111X_mcRun4_realistic_T15_v3', '')
 
 
 ############################################################
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
-if GEOMETRY == "D17":
-    Source_Files = cms.untracked.vstring(
-          'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root' 
+Source_Files = cms.untracked.vstring(
+          #'file:///eos/user/k/kbunkow/cms_data/mc/Phase2HLTTDRWinter20/Phase2HLTTDRWinter20DIGI__Muminus_Pt10-gun_NoPU_E6F1BC5E-BD51-A948-ADDC-8D84EFF14174_dump100Ev.root'
+          'file:///eos/user/k/kbunkow/cms_data/mc/Phase2HLTTDRWinter20/Phase2HLTTDRWinter20DIGI_DoubleMuon_gun_FlatPt-1To100_NoPU_3FD40D17-5C29-804C-B49A-029CC02B63DC_dump1016Ev.root'
 )
-elif GEOMETRY == "TkOnly":
-    Source_Files = cms.untracked.vstring(
-    "file:MuMinus_1to10_TkOnly.root"
-)
-else: 
-    print "not a valid geometry!"
 
 process.source = cms.Source("PoolSource", fileNames = Source_Files,
         inputCommands=cms.untracked.vstring(
@@ -98,15 +97,14 @@ process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
 process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 
-#if GEOMETRY == "D10": 
-#    TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(False)
-
-if GEOMETRY != "TkOnly": 
-    from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
-    TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
+from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
+TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
 process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
+
+
+from L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff import *
 
 
 ############################################################
@@ -118,9 +116,9 @@ process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStub
 #    TTTracksFromTracklet.trackerGeometry = cms.untracked.string("flat")
 #TTTracksFromTracklet.asciiFileName = cms.untracked.string("evlist.txt")
 
-process.load("L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff")
-process.TTTracks = cms.Path(process.L1TrackletTracks)
-process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
+process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
+
+#process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 
 
 #######################################TTTracks################################################
@@ -147,29 +145,47 @@ process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 
 
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase1.simBayesMuCorrelatorTrackProducer_cfi')
+process.load('L1Trigger.L1TkMuonBayes.simL1TkMuonBayesTrackProducer_cfi')
+process.simL1TkMuonBayesTrackProducer.usePhase2DTPrimitives = cms.bool(False)
 
-process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/pdfModule.xml")
+process.simL1TkMuonBayesTrackProducer.L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
+#process.simL1TkMuonBayesTrackProducer.ttTracksSource = cms.string("TRACKING_PARTICLES") #
+process.simL1TkMuonBayesTrackProducer.ttTracksSource = cms.string("L1_TRACKER") #
+
+process.simL1TkMuonBayesTrackProducer.TrackingParticleInputTag= cms.InputTag("mix", "MergedTrackTruth") #trackingParticleTag
+
+process.simL1TkMuonBayesTrackProducer.lctCentralBx = cms.int32(8)#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+
+#process.simL1TkMuonBayesTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/pdfModule.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.L1TMuonSeq = cms.Sequence( #process.esProd +         
-                                   process.simBayesMuCorrelatorTrackProducer 
+process.L1TMuonSeq = cms.Sequence( #process.esProd +    
+                                   process.L1TrackTrigger + L1HybridTracksWithAssociators#+     
+                                   + process.simL1TkMuonBayesTrackProducer 
                                    #+ process.dumpED
                                    #+ process.dumpES
 )
 
+
+
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
-# process.out = cms.OutputModule("PoolOutputModule", 
-#     fileName = cms.untracked.string("outCollections.root"),
-#     outputCommands=cms.untracked.vstring(
-#         'drop *',
-#         'keep l1tRegionalMuonCandBXVector_simOmtfDigis_OMTF_HLT')
-# )
-# process.output_step = cms.EndPath(process.out)
+process.out = cms.OutputModule("PoolOutputModule", 
+    fileName = cms.untracked.string("outCollections.root"),
+    outputCommands=cms.untracked.vstring(
+        #'drop *',
+        'keep *',
+         'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
+        'drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT',
+        'drop l1tEMTFHit2016s_simEmtfDigis__HLT',
+        'drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT',
+        'drop l1tEMTFTrack2016s_simEmtfDigis__HLT',
+        'drop *HGCal*_*_*_*'
+        )
+)
+process.output_step = cms.EndPath(process.out)
 
 
 ############################################################
@@ -179,9 +195,13 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
 # use this if cluster/stub associators not available 
 #process.schedule = cms.Schedule(process.TTClusterStubTruth, process.TTTracksWithTruth, process.L1TMuonPath)
-process.schedule = cms.Schedule(process.TTTracksWithTruth, process.L1TMuonPath)
+#process.schedule = cms.Schedule(process.TTTracksWithTruth, process.L1TMuonPath)
+#process.schedule = cms.Schedule(process.L1TMuonPath)
+process.schedule = cms.Schedule(#process.TTClusterStub, 
+                                #process.TTClusterStubTruth, 
+                                process.L1TMuonPath)
 
 # use this to only run tracking + track associator
 #process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)
 
-#process.schedule.extend([process.output_step])
+process.schedule.extend([process.output_step])

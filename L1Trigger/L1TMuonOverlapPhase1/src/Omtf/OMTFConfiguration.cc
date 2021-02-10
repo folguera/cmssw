@@ -203,12 +203,12 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
   }
 
   if (edmParameterSet.exists("ghostBusterType")) {
-    if (edmParameterSet.getParameter<std::string>("ghostBusterType") == "GhostBusterPreferRefDt") {
-      setGhostBusterType(edmParameterSet.getParameter<std::string>("ghostBusterType"));
+    setGhostBusterType(edmParameterSet.getParameter<std::string>("ghostBusterType"));
 
-      edm::LogVerbatim("OMTFReconstruction") << "setting GhostBusterPreferRefDt" << std::endl;
-    }
+    edm::LogVerbatim("OMTFReconstruction") << "ghostBusterType: " << getGhostBusterType() << std::endl;
   }
+
+  setFixCscGeometryOffset(true); //for the OMTF by default is true, read from python if needed
 }
 
 ///////////////////////////////////////////////
@@ -335,6 +335,11 @@ int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) c
   return lround((phiRad - phi15deg) / phiUnit);  //FIXME lround or floor ???
 }
 
+double OMTFConfiguration::procHwPhiToGlobalPhi(int procHwPhi, int procHwPhi0) const {
+  int globalHwPhi = foldPhi(procHwPhi + procHwPhi0);
+  const double phiUnit = 2 * M_PI / nPhiBins();  //rad/unit
+  return globalHwPhi * phiUnit;
+}
 /*int OMTFConfiguration::foldPhi(int phi) const {
   int phiBins = nPhiBins();
   if(phi > phiBins/2)

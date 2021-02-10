@@ -34,6 +34,35 @@
 #include <string>
 #include <vector>
 
+double PatternOptimizerBase::vxMuRate(double pt_GeV) {
+  if (pt_GeV == 0)
+    return 0.0;
+  const double lum = 2.0e34;  //defoult is 1.0e34;
+  const double dabseta = 1.0;
+  const double dpt = 1.0;
+  const double afactor = 1.0e-34 * lum * dabseta * dpt;
+  const double a = 2 * 1.3084E6;
+  const double mu = -0.725;
+  const double sigma = 0.4333;
+  const double s2 = 2 * sigma * sigma;
+
+  double ptlog10;
+  ptlog10 = log10(pt_GeV);
+  double ex = (ptlog10 - mu) * (ptlog10 - mu) / s2;
+  double rate = (a * exp(-ex) * afactor);
+  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
+  return rate;
+}
+
+double PatternOptimizerBase::vxIntegMuRate(double pt_GeV, double dpt, double etaFrom, double etaTo) {
+  //calkowanie metoda trapezow - nie do konca dobre
+  double rate = 0.5 * (vxMuRate(pt_GeV) + vxMuRate(pt_GeV + dpt)) * dpt;
+
+  rate = rate * (etaTo - etaFrom);
+  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
+  return rate;
+}
+
 PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig)
     : edmCfg(edmCfg), omtfConfig(omtfConfig), simMuon(nullptr) {
   // TODO Auto-generated constructor stub
@@ -42,7 +71,7 @@ PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg, cons
   simMuFoundByOmtfPt =
       new TH1I("simMuFoundByOmtfPt", "simMuFoundByOmtfPt", goldenPatterns.size(), -0.5, goldenPatterns.size() - 0.5);
 
-  simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 400, 0, 400);
+  simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 800, 0, 400);
 }
 
 PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
@@ -55,7 +84,7 @@ PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
   simMuFoundByOmtfPt =
       new TH1I("simMuFoundByOmtfPt", "simMuFoundByOmtfPt", goldenPatterns.size(), -0.5, goldenPatterns.size() - 0.5);
 
-  simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 400, 0, 400);
+  simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 800, 0, 400);
 }
 
 PatternOptimizerBase::~PatternOptimizerBase() {
@@ -173,11 +202,11 @@ void PatternOptimizerBase::endJob() {
 
 const SimTrack* PatternOptimizerBase::findSimMuon(const edm::Event& event, const SimTrack* previous) {
   const SimTrack* result = nullptr;
-  if (edmCfg.exists("g4SimTrackSrc") == false)
+  if (edmCfg.exists("simTrackInputTag") == false)
     return result;
 
   edm::Handle<edm::SimTrackContainer> simTks;
-  event.getByLabel(edmCfg.getParameter<edm::InputTag>("g4SimTrackSrc"), simTks);
+  event.getByLabel(edmCfg.getParameter<edm::InputTag>("simTrackInputTag"), simTks);
 
   for (std::vector<SimTrack>::const_iterator it = simTks->begin(); it < simTks->end(); it++) {
     const SimTrack& aTrack = *it;
@@ -195,7 +224,7 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
   gStyle->SetOptStat(111111);
   TFile outfile(rootFileName.c_str(), "RECREATE");
   cout << __FUNCTION__ << ": " << __LINE__ << " out fileName " << rootFileName << " outfile->GetName() "
-       << outfile.GetName() << endl;
+       << outfile.GetName() << " writeLayerStat " << writeLayerStat << endl;
 
   outfile.cd();
   simMuFoundByOmtfPt->Write();
@@ -204,6 +233,7 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
 
   outfile.mkdir("patternsPdfs")->cd();
   outfile.mkdir("patternsPdfs/canvases");
+  outfile.mkdir("layerStats");
   ostringstream ostrName;
   ostringstream ostrTtle;
   vector<TH1F*> classProbHists;
@@ -235,7 +265,7 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
              << patternPt.ptTo << "_GeV";
     TCanvas* canvas = new TCanvas(ostrName.str().c_str(), ostrTtle.str().c_str(), 1200, 1000);
     canvas->Divide(gp->getPdf().size(), gp->getPdf()[0].size(), 0, 0);
-    outfile.cd("patternsPdfs");
+
     for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
         canvas->cd(1 + iLayer + iRefLayer * gp->getPdf().size());
@@ -257,8 +287,23 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
           hist->SetLineColor(kGreen);
 
         hist->GetYaxis()->SetRangeUser(0, omtfConfig->pdfMaxValue() + 1);
-        hist->Write();
         hist->Draw("hist");
+
+        outfile.cd("patternsPdfs");
+        hist->Write();
+
+        /////////////////////// histLayerStat
+        if (writeLayerStat) {
+          string histName = "histLayerStat_" + ostrName.str();
+          unsigned int binCnt = gp->getStatistics()[iLayer][iRefLayer].size();
+          TH1I* histLayerStat = new TH1I(histName.c_str(), histName.c_str(), binCnt, -0.5, binCnt - 0.5);
+          for (unsigned int iBin = 0; iBin < binCnt; iBin++) {
+            histLayerStat->Fill(iBin, gp->getStatistics()[iLayer][iRefLayer][iBin][0]);
+          }
+
+          outfile.cd("layerStats");
+          histLayerStat->Write();
+        }
       }
     }
     outfile.cd("patternsPdfs/canvases");
