@@ -7,10 +7,33 @@
 #include <iomanip>
 
 int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB) const {
-  //return meanDistPhi[iLayer][iRefLayer][0];
-  return (((meanDistPhi[iLayer][iRefLayer][1] * refLayerPhiB) >> myOmtfConfig->nPdfAddrBits()) +
-          meanDistPhi[iLayer][iRefLayer][0]);
+  return meanDistPhi[iLayer][iRefLayer][0];
+//  return (((meanDistPhi[iLayer][iRefLayer][1] * refLayerPhiB) >> myOmtfConfig->nPdfAddrBits()) +
+//          meanDistPhi[iLayer][iRefLayer][0]);
   //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
+}
+
+int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, unsigned int LayerSL, unsigned int RefLayerSL) const {
+  return meanDistPhi[iLayer][iRefLayer][0];
+
+  unsigned int paramIndex = getParamIndex(LayerSL,RefLayerSL);   
+  return meanDistPhi[iLayer][iRefLayer][paramIndex];
+  //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
+}
+
+int GoldenPattern::getParamIndex(unsigned int LayerSL, unsigned int RefLayerSL) const{
+  int paramIndex = 0;
+  if      (LayerSL==0 && RefLayerSL==0) paramIndex = 0;
+  else if (LayerSL==0 && RefLayerSL==1) paramIndex = 1;
+  else if (LayerSL==0 && RefLayerSL==3) paramIndex = 2;
+  else if (LayerSL==1 && RefLayerSL==0) paramIndex = 3;
+  else if (LayerSL==1 && RefLayerSL==1) paramIndex = 4;
+  else if (LayerSL==1 && RefLayerSL==3) paramIndex = 5;
+  else if (LayerSL==3 && RefLayerSL==0) paramIndex = 6;
+  else if (LayerSL==3 && RefLayerSL==1) paramIndex = 7;
+  else if (LayerSL==3 && RefLayerSL==3) paramIndex = 8;
+
+  return paramIndex;
 }
 
 ////////////////////////////////////////////////////

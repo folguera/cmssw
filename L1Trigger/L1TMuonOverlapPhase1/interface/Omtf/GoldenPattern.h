@@ -22,7 +22,7 @@ public:
   GoldenPattern(const Key& aKey, unsigned int nLayers, unsigned int nRefLayers, unsigned int nPdfAddrBits)
       : GoldenPatternBase(aKey),
         pdfAllRef(boost::extents[nLayers][nRefLayers][1 << nPdfAddrBits]),
-        meanDistPhi(boost::extents[nLayers][nRefLayers][2]),
+        meanDistPhi(boost::extents[nLayers][nRefLayers][9]),
         distPhiBitShift(boost::extents[nLayers][nRefLayers]) {
     reset();
   }
@@ -30,7 +30,7 @@ public:
   GoldenPattern(const Key& aKey, const OMTFConfiguration* omtfConfig)
       : GoldenPatternBase(aKey, omtfConfig),
         pdfAllRef(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()][omtfConfig->nPdfBins()]),
-        meanDistPhi(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()][2]),
+        meanDistPhi(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()][9]),
         distPhiBitShift(boost::extents[omtfConfig->nLayers()][omtfConfig->nRefLayers()]) {
     reset();
   }
@@ -46,6 +46,7 @@ public:
   virtual void setPdf(pdfArrayType& aPdf) { pdfAllRef = aPdf; }
 
   int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB = 0) const override;
+  int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, unsigned int LayerSL = 0, unsigned int RefLayerSL = 0) const override;
 
   PdfValueType pdfValue(unsigned int iLayer,
                         unsigned int iRefLayer,
@@ -77,6 +78,9 @@ public:
     return distPhiBitShift[iLayer][iRefLayer];
   }
 
+
+  int getParamIndex(unsigned int LayerSL, unsigned int RefLayerSL) const; 
+
   void setDistPhiBitShift(int value, unsigned int iLayer, unsigned int iRefLayer) override {
     distPhiBitShift[iLayer][iRefLayer] = value;
   }
@@ -103,10 +107,12 @@ protected:
   ///Third index: pdf bin number within layer
   pdfArrayType pdfAllRef;
 
+ 
   ///Mean positions in each layer
   ///First index: measurement layer number
   ///Second index: refLayer number
   ///Third index: index = 0 - a0, index = 1 - a1 for the linear fit meanDistPhi = a0 + a1 * phi_b
+  ///Third index used for update the measurement in the center of the SL in case the reference or measurememt layer only defined there.  
   meanDistPhiArrayType meanDistPhi;
 
   ///distPhi resolution can be reduced to reduce the number of bit on the LUT input

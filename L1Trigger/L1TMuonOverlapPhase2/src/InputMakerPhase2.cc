@@ -78,11 +78,12 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 
   // need to shift 20-BX to roll-back the shift introduced by the DT TPs
   stub.bx = digi.bxNum() - 20;
-  //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+  stub.timing = digi.t0(); //TODO what about sub-bx timing, is is available?
+  stub.superLayerHw = digi.slNum(); // 0: correlated, 1:SL1, 2:SL2, 3:SL3
 
   stub.logicLayer = iLayer;
   stub.detId = detid;
-
+  
   OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
 }
 

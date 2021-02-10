@@ -277,7 +277,7 @@ void PatternGenerator::upadatePdfs() {
                   << __FUNCTION__ << ": " << __LINE__ << " " << gp->key() << " iLayer " << iLayer << " iRefLayer "
                   << iRefLayer << " count " << count << " meanDistPhi " << meanDistPhi << endl;
           }
-          gp->setMeanDistPhiValue(round(meanDistPhi), iLayer, iRefLayer);
+          gp->setMeanDistPhiValue(round(meanDistPhi), iLayer, iRefLayer, paramIndex);
         }
       }
     }

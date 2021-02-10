@@ -490,12 +490,33 @@ void XMLConfigWriter::writeGPData(const GoldenPattern* aGP1,
     for (unsigned int iRefLayer = 0; iRefLayer < myOMTFConfig->nRefLayers(); ++iRefLayer) {
       xercesc::DOMElement* aRefLayer = theDoc->createElement(_toDOMS("RefLayer"));
 
-      if (writeMeanDistPhi1) {
+      if (writeMeanDistPhi1) { //use this for Phase-2 
         int meanDistPhi0 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][0];
         setAttributeInt(aRefLayer, "meanDistPhi0", meanDistPhi0);
 
         int meanDistPhi1 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][1];
         setAttributeInt(aRefLayer, "meanDistPhi1", meanDistPhi1);
+
+        int meanDistPhi2 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][2];
+        setAttributeInt(aRefLayer, "meanDistPhi2", meanDistPhi2);
+
+        int meanDistPhi3 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][3];
+        setAttributeInt(aRefLayer, "meanDistPhi3", meanDistPhi3);
+
+        int meanDistPhi4 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][4];
+        setAttributeInt(aRefLayer, "meanDistPhi4", meanDistPhi4);
+
+        int meanDistPhi5 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][5];
+        setAttributeInt(aRefLayer, "meanDistPhi5", meanDistPhi5);
+
+        int meanDistPhi6 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][6];
+        setAttributeInt(aRefLayer, "meanDistPhi6", meanDistPhi6);
+
+        int meanDistPhi7 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][7];
+        setAttributeInt(aRefLayer, "meanDistPhi7", meanDistPhi7);
+
+        int meanDistPhi8 = aGP1->getMeanDistPhi()[iLayer][iRefLayer][8];
+        setAttributeInt(aRefLayer, "meanDistPhi8", meanDistPhi8);
       } else {
         int meanDistPhi = aGP1->getMeanDistPhi()[iLayer][iRefLayer][0];
         setAttributeInt(aRefLayer, "meanDistPhi", meanDistPhi);

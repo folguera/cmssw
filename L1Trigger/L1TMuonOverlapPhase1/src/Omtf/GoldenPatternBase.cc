@@ -80,6 +80,9 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
     if (hitPhi >= (int)myOmtfConfig->nPhiBins())  //TODO is this needed now? the empty hit will be empty stub
       continue;  //empty itHits are marked with nPhiBins() in OMTFProcessor::restrictInput
+    
+    if (refStub->superLayerHw!=0 || stub->superLayerHw!=0)  // get again the phiMeanDist in case we have DT and position NOT in the center
+      phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw, stub->superLayerHw,refStub->superLayerHw);
 
     int phiDist = this->myOmtfConfig->foldPhi(
         hitPhi - phiMean -

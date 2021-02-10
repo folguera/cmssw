@@ -61,8 +61,8 @@ public:
 
   //used to address LUTs
   unsigned int logicLayer = 0;
-
-  //int inputNumHw = -1;
+  unsigned int superLayerHw = 0;  // used only for DT 
+ //int inputNumHw = -1;
 
   //layer number in hardware convention
   //int layerHw = -1;

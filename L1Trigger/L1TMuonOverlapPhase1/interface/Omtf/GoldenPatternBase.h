@@ -88,6 +88,7 @@ public:
   //virtual const vector2D & getMeanDistPhi() const = 0;
 
   virtual int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB = 0) const = 0;
+  virtual int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, unsigned int LayerSL = 0, unsigned int RefLayerSL = 0) const = 0;
 
   virtual PdfValueType pdfValue(unsigned int iLayer,
                                 unsigned int iRefLayer,
