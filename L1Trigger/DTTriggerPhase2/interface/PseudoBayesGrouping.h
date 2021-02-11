@@ -59,6 +59,7 @@ private:
   int minSingleSLHitsMax_;
   int minSingleSLHitsMin_;
   int minUncorrelatedHits_;
+  uint maxPathsPerMatch_;
 
   //Classified digis
   std::vector<DTPrimitive> alldigis_;

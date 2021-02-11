@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 PseudoBayesPattern = cms.PSet(pattern_filename = cms.untracked.FileInPath("L1Trigger/DTTriggerPhase2/data/PseudoBayesPatterns_uncorrelated_v0.root"),
-                              debug = cms.untracked.bool(False),
+                              debug = cms.untracked.bool(True),
                               #Minimum number of layers hit (total). Together with the two parameters under this it means 4+4, 4+3 or 3+3
                               minNLayerHits   = cms.untracked.int32(4),
                               #Minimum number of hits in the most hit superlayer
@@ -20,4 +20,6 @@ PseudoBayesPattern = cms.PSet(pattern_filename = cms.untracked.FileInPath("L1Tri
                               minUncorrelatedHits = cms.untracked.int32(3),
                               #DTPrimitives are saved in the appropriate element of the muonPath array
                               saveOnPlace = cms.untracked.bool(True),
+                              #Maximum number of muonpaths created per final match
+                              maxPathsPerMatch = cms.untracked.int32(256),
                               )

@@ -27,6 +27,7 @@ PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::Consumes
   allowDuplicates_ = pset.getUntrackedParameter<bool>("allowDuplicates");
   allowUncorrelatedPatterns_ = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
   minUncorrelatedHits_ = pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  maxPathsPerMatch_ = pset.getUntrackedParameter<int>("maxPathsPerMatch");
   saveOnPlace_ = pset.getUntrackedParameter<bool>("saveOnPlace");
   setLateralities_ = pset.getUntrackedParameter<bool>("setLateralities");
   if (debug_)
@@ -182,6 +183,7 @@ void PseudoBayesGrouping::run(Event& iEvent,
   //Takes dt digis collection and does the grouping for correlated hits, it is saved in a vector of up to 8 (or 4) correlated hits
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run";
+
   //Do initial cleaning
   CleanDigisByLayer();
   //Sort digis by layer
@@ -204,6 +206,7 @@ void PseudoBayesGrouping::run(Event& iEvent,
 
   //Last organize candidates information into muonpaths to finalize the grouping
   FillMuonPaths(mpaths);
+
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run ended run";
 
@@ -214,12 +217,21 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
   for (auto itCand = finalMatches_->begin(); itCand != finalMatches_->end(); itCand++) {
     if (debug_)
       LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Create pointers ";
+
+    // Vector of all muon paths we may find
+    std::vector<DTPrimitivePtrs> ptrPrimitive_vector;
+
+    // We will have at least one muon path
     DTPrimitivePtrs ptrPrimitive;
     for (int i = 0; i < NUM_LAYERS_2SL; i++)
       ptrPrimitive.push_back(std::make_shared<DTPrimitive>());
 
+    ptrPrimitive_vector.push_back(ptrPrimitive);
+
     qualitybits qualityDTP;
+    qualitybits qualityDTP2;
     int intHit = 0;
+
     //And for each candidate loop over all grouped hits
     for (auto& itDTP : (*itCand)->candHits()) {
       if (debug_)
@@ -242,25 +254,132 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
           (*itDTP).setLaterality(RIGHT);
         }
       }
-      //Only fill the DT primitives pointer if there is not one hit already in the layer
-      if (qualityDTP != (qualityDTP | ref8Hit)) {
-        if (debug_)
-          LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Adding hit to muon path";
+
+      // If one hit is already present in the current layer, for each ptrPrimitive already existing,
+      // create a new with all its hits. Then, fill it with the new hit and add it to the primitives vector.
+      // Do not consider more than 2 hits in the same wire or more than maxPathsPerMatch_ total muonpaths per finalMatches_
+      if (qualityDTP == (qualityDTP | ref8Hit) && qualityDTP2 != (qualityDTP2 | ref8Hit) && ptrPrimitive_vector.size() < maxPathsPerMatch_) {
+	if (debug_)
+          LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Creating additional muon paths";
+
+        qualityDTP2 = (qualityDTP2 | ref8Hit);
+
+	int n_prim = ptrPrimitive_vector.size();
+
+	for (int j = 0; j < n_prim; j++){
+	  DTPrimitivePtrs tmpPrimitive;
+	  for (int i = 0; i < NUM_LAYERS_2SL; i++){
+	    tmpPrimitive.push_back(ptrPrimitive_vector.at(j).at(i));
+	  }
+	  // Now save the hit in the new path
+	  if (saveOnPlace_) {
+	    //This will save the primitive in a place of the vector equal to its L position
+	    tmpPrimitive.at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
+	  }
+	  if (!saveOnPlace_) {
+	    //This will save the primitive in order
+	    //intHit++;
+	    tmpPrimitive.at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
+	  }
+	  // Now add the new path to the vector of paths 
+	  ptrPrimitive_vector.push_back(tmpPrimitive);
+	}
+      }
+
+      // If there is not one hit already in the layer, fill the DT primitives pointers
+      //if (qualityDTP != (qualityDTP | ref8Hit)) {
+      else{  
+	if (debug_)
+          LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run Adding hit to muon paths";
+
         qualityDTP = (qualityDTP | ref8Hit);
-        if (saveOnPlace_) {
-          //This will save the primitive in a place of the vector equal to its L position
-          ptrPrimitive.at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
-        }
-        if (!saveOnPlace_) {
-          //This will save the primitive in order
-          intHit++;
-          ptrPrimitive.at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
-        }
+
+	// for (all paths --> fill them)
+	for (auto prim_it = ptrPrimitive_vector.begin(); prim_it != ptrPrimitive_vector.end(); ++prim_it){
+
+	  if (saveOnPlace_) {
+	    //This will save the primitive in a place of the vector equal to its L position
+	    prim_it->at(layerHit) = std::make_shared<DTPrimitive>((*itDTP));
+	  }
+	  if (!saveOnPlace_) {
+	    //This will save the primitive in order
+	    intHit++;
+	    prim_it->at(intHit) = std::make_shared<DTPrimitive>((*itDTP));
+	  }
+	}
+
       }
     }
+      
+    // cout << "Number of paths = " << ptrPrimitive_vector.size() << endl;
+    // cout << "Number of Up    = " << (*itCand)->nLayerUp()      << endl;
+    // cout << "Number of Down  = " << (*itCand)->nLayerDown()    << endl;
+    // cout << "------------------" << endl;
+
     stringstream ss;    
-    mpaths.emplace_back(
-			std::make_shared<MuonPath>(ptrPrimitive, (short)(*itCand)->nLayerUp(), (short)(*itCand)->nLayerDown()));
+
+
+
+    // // In case we have 3 hits in the same layer, we may be creating two new paths instead of one
+    // // --> Look for duplicate paths 
+    // cout << "=================" << endl;
+    // int tttotal = ptrPrimitive_vector.size();
+    // cout << "Total number of paths = " << tttotal << endl;
+    // int iter = 1;
+    // for (auto iPath = ptrPrimitive_vector.begin() + 1; iPath != ptrPrimitive_vector.end(); iPath++) {
+    //   bool are_the_same = true;
+    //   cout << "-----------------" << endl;
+    //   cout << "Starting path number: " << iter << endl;
+    //   int jter = 0;
+    //   for (auto jPath = ptrPrimitive_vector.begin(); jPath != iPath; jPath++) {
+    // 	cout << "Comparing with path number: " << jter << endl;
+    // 	for (int ilayer = 0; ilayer < NUM_LAYERS_2SL; ++ilayer){
+    // 	  if (iPath->at(ilayer)->tdcTimeStamp() != jPath->at(ilayer)->tdcTimeStamp()){
+    // 	    are_the_same = false;
+    // 	  }	  
+    // 	}
+    // 	if (are_the_same == true)
+    // 	  cout << "Paths " << jter << " and " << iter << " ARE the same!" << endl;
+    // 	else
+    // 	  cout << "Paths " << jter << " and " << iter << " are not the same!" << endl;
+    // 	++jter;
+    //   }
+    //   ++iter;
+    // }
+
+
+    int n_paths = ptrPrimitive_vector.size();
+
+
+    // cout << "===================" << endl;
+    // cout << "Showing all "<< n_paths << " paths:" << endl;
+    // cout << "Number of Up    = " << (*itCand)->nLayerUp()      << endl;
+    // cout << "Number of Down  = " << (*itCand)->nLayerDown()    << endl;
+
+    // if ((*itCand)->nLayerUp() > 8)
+    //   cout << "NUMBER OF UP LARGER THAN 8" << endl;
+
+    // if ((*itCand)->nLayerDown() > 8)
+    //   cout << "NUMBER OF DOWN LARGER THAN 8" << endl;
+
+    for (int n_path = 0; n_path < n_paths; ++n_path){
+
+
+      // // Check if all the paths are the same or if they are filled properly
+      // cout << "..................." << endl;
+      // cout << "Path " << n_path << ":" << endl;
+      // for (int n_prim = 0; n_prim < 8; ++n_prim){
+      // 	cout << "Layer:   " << ptrPrimitive_vector.at(n_path).at(n_prim)->layerId() << endl;
+      // 	cout << "Camera:  " << ptrPrimitive_vector.at(n_path).at(n_prim)->cameraId() << endl;
+      // 	cout << "Channel: " << ptrPrimitive_vector.at(n_path).at(n_prim)->channelId() << endl;
+      // 	cout << "Time:    " << ptrPrimitive_vector.at(n_path).at(n_prim)->tdcTimeStamp() << endl;
+      // 	cout << " " << endl;
+      // }
+
+      mpaths.emplace_back(std::make_shared<MuonPath>(ptrPrimitive_vector.at(n_path), 
+						     (short)(*itCand)->nLayerUp(), 
+						     (short)(*itCand)->nLayerDown()));
+    }
   }
 }
 
