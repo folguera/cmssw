@@ -13,8 +13,8 @@ process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
-process.dtTriggerPhase2PrimitiveDigis.dump = False
-process.dtTriggerPhase2PrimitiveDigis.debug = False
+process.dtTriggerPhase2PrimitiveDigis.dump = True
+process.dtTriggerPhase2PrimitiveDigis.debug = True
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -31,15 +31,20 @@ process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0 #0 is mc, 1 is data, 2 is slice test
 process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
+
+# Bayes
 process.dtTriggerPhase2BayesPrimitiveDigis = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2BayesPrimitiveDigis.algo = 1 ## bayes grouping
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 4
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 2 
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 2 
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minUncorrelatedHits = 3
+
+# process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 4
+# process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 2 
+# process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 2 
+# process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minUncorrelatedHits = 3
+
 #process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(26)
 process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(300)
 
+# STD
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
 

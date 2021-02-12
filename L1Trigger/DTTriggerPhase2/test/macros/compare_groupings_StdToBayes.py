@@ -59,7 +59,7 @@ ROOT.gROOT.SetBatch(True)
 ##
 ## Main part
 ##
-files = ['/afs/cern.ch/user/f/folguera/workdir/Upgrade/DTTP/CMSSW_11_2_0_pre2/src/DTTriggerPhase2Primitives.root']
+files = ['/afs/cern.ch/user/n/ntrevisa/work/DT/CMSSW_11_2_0_pre2/src/DTTriggerPhase2Primitives.root']
 
 print "Number of files: %d" % len(files)
 
@@ -161,7 +161,7 @@ for frac in [0.25,0.5,0.75,1.00]:
     count = 0
 
     if (dumpToFile): 
-        f= open("EventDumpList.log","w+")
+        f= open("EventDumpList_StdToBayes.log","w+")
 
     for ev in events:
         if not count%1000:  print count, events.size()
@@ -177,15 +177,15 @@ for frac in [0.25,0.5,0.75,1.00]:
     
         if (dumpToFile):
             f.write( "\nInspecting Event Number %i \n" %(ev.eventAuxiliary().id().event())  )
-            f.write( "        Wh   Se   St  | w1 w2 w3 w4 w5 w6 w7 w8 |  tdc1  tdc2  tdc3  tdc4  tdc5  tdc6  tdc7  tdc8 | Q     phi  phib  bX\n" )
-            f.write( "-----------------------------------------------------------------------------------------------------------------------\n" )
+            f.write( "        Wh   Se   St  | w1 w2 w3 w4 w5 w6 w7 w8 |  tdc1  tdc2  tdc3  tdc4  tdc5  tdc6  tdc7  tdc8 | Q     phi  phib  bX      Chi2 \n" )
+            f.write( "----------------------------------------------------------------------------------------------------------------------------------\n" )
             for muon in muon_bayes:
-                f.write( "[Bayes]: Wh%2d Se%2d St%1d | %2d %2d %2d %2d %2d %2d %2d %2d | %5d %5d %5d %5d %5d %5d %5d %5d | Q%1d %6d %5d %2d\n" %(muon.whNum(),muon.scNum(),muon.stNum(),muon.pathWireId(0),muon.pathWireId(1),muon.pathWireId(2),muon.pathWireId(3),muon.pathWireId(4),muon.pathWireId(5),muon.pathWireId(6),muon.pathWireId(7),muon.pathTDC(0),muon.pathTDC(1),muon.pathTDC(2),muon.pathTDC(3),muon.pathTDC(4),muon.pathTDC(5),muon.pathTDC(6),muon.pathTDC(7),muon.quality(),muon.phi(),muon.phiBend(),muon.bxNum()-20) )
+                f.write( "[Bayes]: Wh%2d Se%2d St%1d | %2d %2d %2d %2d %2d %2d %2d %2d | %5d %5d %5d %5d %5d %5d %5d %5d | Q%1d %6d %5d %3d %9d\n" %(muon.whNum(),muon.scNum(),muon.stNum(),muon.pathWireId(0),muon.pathWireId(1),muon.pathWireId(2),muon.pathWireId(3),muon.pathWireId(4),muon.pathWireId(5),muon.pathWireId(6),muon.pathWireId(7),muon.pathTDC(0),muon.pathTDC(1),muon.pathTDC(2),muon.pathTDC(3),muon.pathTDC(4),muon.pathTDC(5),muon.pathTDC(6),muon.pathTDC(7),muon.quality(),muon.phi(),muon.phiBend(),muon.bxNum()-20,muon.chi2()) )
         
 
         for muon in muon_std:
             if (dumpToFile): 
-                f.write( "[Std  ]: Wh%2d Se%2d St%1d | %2d %2d %2d %2d %2d %2d %2d %2d | %5d %5d %5d %5d %5d %5d %5d %5d | Q%1d %6d %5d %2d\n" %(muon.whNum(),muon.scNum(),muon.stNum(),muon.pathWireId(0),muon.pathWireId(1),muon.pathWireId(2),muon.pathWireId(3),muon.pathWireId(4),muon.pathWireId(5),muon.pathWireId(6),muon.pathWireId(7),muon.pathTDC(0),muon.pathTDC(1),muon.pathTDC(2),muon.pathTDC(3),muon.pathTDC(4),muon.pathTDC(5),muon.pathTDC(6),muon.pathTDC(7),muon.quality(),muon.phi(),muon.phiBend(),muon.bxNum()-20)  )
+                f.write( "[Std  ]: Wh%2d Se%2d St%1d | %2d %2d %2d %2d %2d %2d %2d %2d | %5d %5d %5d %5d %5d %5d %5d %5d | Q%1d %6d %5d %3d %9d\n" %(muon.whNum(),muon.scNum(),muon.stNum(),muon.pathWireId(0),muon.pathWireId(1),muon.pathWireId(2),muon.pathWireId(3),muon.pathWireId(4),muon.pathWireId(5),muon.pathWireId(6),muon.pathWireId(7),muon.pathTDC(0),muon.pathTDC(1),muon.pathTDC(2),muon.pathTDC(3),muon.pathTDC(4),muon.pathTDC(5),muon.pathTDC(6),muon.pathTDC(7),muon.quality(),muon.phi(),muon.phiBend(),muon.bxNum()-20,muon.chi2())  )
         
             ## now match with the previous 
             st = muon.stNum()-1
@@ -231,5 +231,5 @@ for frac in [0.25,0.5,0.75,1.00]:
         
 
 import pickle 
-with open('GroupingComparison_StdToBayes_Nov24.pickle', 'wb') as handle:
+with open('GroupingComparison_StdToBayes.pickle', 'wb') as handle:
     pickle.dump(outputDict, handle, protocol=pickle.HIGHEST_PROTOCOL)
