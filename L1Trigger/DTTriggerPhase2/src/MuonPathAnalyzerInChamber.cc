@@ -16,7 +16,8 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, e
       bxTolerance_(30),
       minQuality_(LOWQGHOST),
       chiSquareThreshold_(50),
-      minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")) {
+      minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")),
+      splitPathPerSL_(pset.getUntrackedParameter<bool>("splitPathPerSL")){
   // Obtention of parameters
 
   if (debug_)
@@ -100,47 +101,15 @@ void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
       else continue;
     }
     
-    if (debug_) {
-      LogDebug("MuonPathAnalyzerInChamber") 
-	<< "Up path: "
-	<< muonpathUp_ptr->nprimitives() << " , " 
-	<< muonpathUp_ptr->nprimitivesUp() << " , " 
-	<< muonpathUp_ptr->nprimitivesDown() << " ; "
-	<< "Down path: "
-	<< muonpathDown_ptr->nprimitives() << " , " 
-	<< muonpathDown_ptr->nprimitivesUp() << " , " 
-	<< muonpathDown_ptr->nprimitivesDown();
-
-      for (int n = 0; n < muonpath->get()->nprimitives(); ++n){
-	LogDebug("MuonPathAnalyzerInChamber") 
-	  << "Full path primitives: "
-	  << n << " , "
-	  << muonpath->get()->primitive(n)->laterality() << " , "
-	  << muonpath->get()->primitive(n)->layerId() << " , "
-	  << muonpath->get()->primitive(n)->superLayerId() << " , "
-	  << muonpath->get()->primitive(n)->isValidTime() << " , "
-	  << "Up path primitives: "
-	  << n << " , "
-	  << muonpathUp_ptr->primitive(n)->laterality() << " , "
-	  << muonpathUp_ptr->primitive(n)->layerId() << " , "
-	  << muonpathUp_ptr->primitive(n)->superLayerId() << " , "
-	  << muonpathUp_ptr->primitive(n)->isValidTime() << " , "
-	  << "Low path primitives: "
-	  << n << " , "
-	  << muonpathDown_ptr->primitive(n)->laterality() << " , "
-	  << muonpathDown_ptr->primitive(n)->layerId() << " , "
-	  << muonpathDown_ptr->primitive(n)->superLayerId() << " , "
-	  << muonpathDown_ptr->primitive(n)->isValidTime();
-      }
-    }
-
     analyze(*muonpath, outmuonpaths);
 
-    if (muonpathUp_ptr->nprimitivesUp() > 0)
-      analyze(muonpathUp_ptr, outmuonpaths);
+    if (splitPathPerSL_){
+      if (muonpathUp_ptr->nprimitivesUp() > 1)
+	analyze(muonpathUp_ptr, outmuonpaths);
 
-    if (muonpathDown_ptr->nprimitivesDown() > 0)
-      analyze(muonpathDown_ptr, outmuonpaths);
+      if (muonpathDown_ptr->nprimitivesDown() > 1)
+	analyze(muonpathDown_ptr, outmuonpaths);
+    }
   }
 }
 
