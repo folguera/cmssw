@@ -68,9 +68,14 @@ events = Events(files)
 ## load some histograms (and efficiencies): 
 outputDict = {} 
 dumpToFile = True
+
 for frac in [0.25,0.5,0.75,1.00]:
+    
+    it = 0
+
     fracname="shared%i" %(frac*100)
     
+    # Inclusive in MB
     hPhiRes_q1  = []
     hPhiRes_q3  = []
     hPhiRes_q5  = []
@@ -98,6 +103,36 @@ for frac in [0.25,0.5,0.75,1.00]:
 
     hMatchingEff = []
 
+
+    # Exclusive in MB
+    hPhiRes_MB_q1  = []
+    hPhiRes_MB_q3  = []
+    hPhiRes_MB_q5  = []
+    hPhiRes_MB_q8  = []
+    
+    hPhiBRes_MB_q1 = []
+    hPhiBRes_MB_q3 = []
+    hPhiBRes_MB_q5 = []
+    hPhiBRes_MB_q8 = []
+    
+    hChi2Res_MB_q1 = []
+    hChi2Res_MB_q3 = []
+    hChi2Res_MB_q5 = []
+    hChi2Res_MB_q8 = []
+    
+    hBxRes_MB_q1 = []
+    hBxRes_MB_q3 = []
+    hBxRes_MB_q5 = []
+    hBxRes_MB_q8 = []
+    
+    hTimeRes_MB_q1 = []
+    hTimeRes_MB_q3 = []
+    hTimeRes_MB_q5 = []
+    hTimeRes_MB_q8 = []
+
+    hMatchingEff_MB = []
+
+    # Split into 4 MB (1, 2, 3, 4)
     for st in range(1,5):    
         hMatchingEff.append(ROOT.TEfficiency("hMatchingEff_MB%i_%s" %(st,fracname), "",9,0.5,9.5))
 
@@ -115,7 +150,7 @@ for frac in [0.25,0.5,0.75,1.00]:
         hChi2Res_q3.append(ROOT.TH1F("hChi2Res_MB%i_q3_%s" %(st,fracname),"",20,-5000,5000.))
         hChi2Res_q5.append(ROOT.TH1F("hChi2Res_MB%i_q5_%s" %(st,fracname),"",20,-5000,5000.))
         hChi2Res_q8.append(ROOT.TH1F("hChi2Res_MB%i_q8_%s" %(st,fracname),"",20,-5000,5000.))
-        
+            
         hBxRes_q1.append(ROOT.TH1F("hBxRes_MB%i_q1_%s" %(st,fracname),"",20,-10,10.))
         hBxRes_q3.append(ROOT.TH1F("hBxRes_MB%i_q3_%s" %(st,fracname),"",20,-10,10.))
         hBxRes_q5.append(ROOT.TH1F("hBxRes_MB%i_q5_%s" %(st,fracname),"",20,-10,10.))
@@ -126,6 +161,35 @@ for frac in [0.25,0.5,0.75,1.00]:
         hTimeRes_q5.append(ROOT.TH1F("hTimeRes_MB%i_q5_%s" %(st,fracname),"",20,-100,100.))
         hTimeRes_q8.append(ROOT.TH1F("hTimeRes_MB%i_q8_%s" %(st,fracname),"",20,-100,100.))
     
+        # Split into 5 wheels (-2, -1, 0, 1, 2)
+        for wh in range(-2,3):
+            hMatchingEff_MB.append(ROOT.TEfficiency("hMatchingEff_MB%i_Wh%i_%s" %(st, wh, fracname), "", 9, 0.5, 9.5))
+
+            hPhiRes_MB_q1.append(ROOT.TH1F("hPhiRes_MB_MB%i_MB_Wh%i_MB_q1_MB_%s"   %(st, wh, fracname), "", 20, -5000, 5000.))
+            hPhiRes_MB_q3.append(ROOT.TH1F("hPhiRes_MB_MB%i_MB_Wh%i_MB_q3_MB_%s"   %(st, wh, fracname), "", 20, -5000, 5000.))
+            hPhiRes_MB_q5.append(ROOT.TH1F("hPhiRes_MB_MB%i_MB_Wh%i_MB_q5_MB_%s"   %(st, wh, fracname), "", 20, -5000, 5000.))
+            hPhiRes_MB_q8.append(ROOT.TH1F("hPhiRes_MB_MB%i_MB_Wh%i_MB_q8_MB_%s"   %(st, wh, fracname), "", 20, -5000, 5000.))
+        
+            hPhiBRes_MB_q1.append(ROOT.TH1F("hPhiBRes_MB_MB%i_MB_Wh%i_MB_q1_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hPhiBRes_MB_q3.append(ROOT.TH1F("hPhiBRes_MB_MB%i_MB_Wh%i_MB_q3_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hPhiBRes_MB_q5.append(ROOT.TH1F("hPhiBRes_MB_MB%i_MB_Wh%i_MB_q5_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hPhiBRes_MB_q8.append(ROOT.TH1F("hPhiBRes_MB_MB%i_MB_Wh%i_MB_q8_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+        
+            hChi2Res_MB_q1.append(ROOT.TH1F("hChi2Res_MB_MB%i_MB_Wh%i_MB_q1_MB_%s" %(st, wh, fracname), "", 20, -5000, 5000.))
+            hChi2Res_MB_q3.append(ROOT.TH1F("hChi2Res_MB_MB%i_MB_Wh%i_MB_q3_MB_%s" %(st, wh, fracname), "", 20, -5000, 5000.))
+            hChi2Res_MB_q5.append(ROOT.TH1F("hChi2Res_MB_MB%i_MB_Wh%i_MB_q5_MB_%s" %(st, wh, fracname), "", 20, -5000, 5000.))
+            hChi2Res_MB_q8.append(ROOT.TH1F("hChi2Res_MB_MB%i_MB_Wh%i_MB_q8_MB_%s" %(st, wh, fracname), "", 20, -5000, 5000.))
+            
+            hBxRes_MB_q1.append(ROOT.TH1F("hBxRes_MB_MB%i_MB_Wh%i_MB_q1_MB_%s"     %(st, wh, fracname), "", 20, -10, 10.))
+            hBxRes_MB_q3.append(ROOT.TH1F("hBxRes_MB_MB%i_MB_Wh%i_MB_q3_MB_%s"     %(st, wh, fracname), "", 20, -10, 10.))
+            hBxRes_MB_q5.append(ROOT.TH1F("hBxRes_MB_MB%i_MB_Wh%i_MB_q5_MB_%s"     %(st, wh, fracname), "", 20, -10, 10.))
+            hBxRes_MB_q8.append(ROOT.TH1F("hBxRes_MB_MB%i_MB_Wh%i_MB_q8_MB_%s"     %(st, wh, fracname), "", 20, -10, 10.))
+        
+            hTimeRes_MB_q1.append(ROOT.TH1F("hTimeRes_MB_MB%i_MB_Wh%i_MB_q1_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hTimeRes_MB_q3.append(ROOT.TH1F("hTimeRes_MB_MB%i_MB_Wh%i_MB_q3_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hTimeRes_MB_q5.append(ROOT.TH1F("hTimeRes_MB_MB%i_MB_Wh%i_MB_q5_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+            hTimeRes_MB_q8.append(ROOT.TH1F("hTimeRes_MB_MB%i_MB_Wh%i_MB_q8_MB_%s" %(st, wh, fracname), "", 20, -100, 100.))
+
 
     print "now save into dictionary"
     outputDict[fracname] = {}
@@ -157,6 +221,38 @@ for frac in [0.25,0.5,0.75,1.00]:
         outputDict[fracname]['hTimeRes_MB%i_q5'%st] = hTimeRes_q5[st-1]
         outputDict[fracname]['hTimeRes_MB%i_q8'%st] = hTimeRes_q8[st-1]       
 
+        for wh in range(-2,3):
+
+            it = it + 1
+            print("MB = {}, Wheel = {}, iteration = {}".format(st, wh, it))
+
+            outputDict[fracname]['hMatchingEff_MB%i_Wh%i'%(st, wh)] = hMatchingEff_MB[wh+2 + 5*(st-1)]
+
+            outputDict[fracname]['hPhiRes_MB%i_Wh%i_q1'%(st, wh)]  = hPhiRes_MB_q1[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiRes_MB%i_Wh%i_q3'%(st, wh)]  = hPhiRes_MB_q3[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiRes_MB%i_Wh%i_q5'%(st, wh)]  = hPhiRes_MB_q5[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiRes_MB%i_Wh%i_q8'%(st, wh)]  = hPhiRes_MB_q8[wh+2 + 5*(st-1)]       
+
+            outputDict[fracname]['hPhiBRes_MB%i_Wh%i_q1'%(st, wh)] = hPhiBRes_MB_q1[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiBRes_MB%i_Wh%i_q3'%(st, wh)] = hPhiBRes_MB_q3[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiBRes_MB%i_Wh%i_q5'%(st, wh)] = hPhiBRes_MB_q5[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hPhiBRes_MB%i_Wh%i_q8'%(st, wh)] = hPhiBRes_MB_q8[wh+2 + 5*(st-1)]
+    
+            outputDict[fracname]['hChi2Res_MB%i_Wh%i_q1'%(st, wh)] = hChi2Res_MB_q1[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hChi2Res_MB%i_Wh%i_q3'%(st, wh)] = hChi2Res_MB_q3[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hChi2Res_MB%i_Wh%i_q5'%(st, wh)] = hChi2Res_MB_q5[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hChi2Res_MB%i_Wh%i_q8'%(st, wh)] = hChi2Res_MB_q8[wh+2 + 5*(st-1)]       
+
+            outputDict[fracname]['hBxRes_MB%i_Wh%i_q1'%(st, wh)]   = hBxRes_MB_q1[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hBxRes_MB%i_Wh%i_q3'%(st, wh)]   = hBxRes_MB_q3[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hBxRes_MB%i_Wh%i_q5'%(st, wh)]   = hBxRes_MB_q5[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hBxRes_MB%i_Wh%i_q8'%(st, wh)]   = hBxRes_MB_q8[wh+2 + 5*(st-1)]       
+
+            outputDict[fracname]['hTimeRes_MB%i_Wh%i_q1'%(st, wh)] = hTimeRes_MB_q1[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hTimeRes_MB%i_Wh%i_q3'%(st, wh)] = hTimeRes_MB_q3[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hTimeRes_MB%i_Wh%i_q5'%(st, wh)] = hTimeRes_MB_q5[wh+2 + 5*(st-1)]
+            outputDict[fracname]['hTimeRes_MB%i_Wh%i_q8'%(st, wh)] = hTimeRes_MB_q8[wh+2 + 5*(st-1)]       
+
     # loop over events
     count = 0
 
@@ -166,7 +262,6 @@ for frac in [0.25,0.5,0.75,1.00]:
     for ev in events:
         if not count%1000:  print count, events.size()
         count = count+1
-    
         
         ev.getByLabel(muoBayesLabel, muoBayesHandle)
         ev.getByLabel(muoStdLabel, muoStdHandle)
@@ -189,40 +284,74 @@ for frac in [0.25,0.5,0.75,1.00]:
         
             ## now match with the previous 
             st = muon.stNum()-1
+            wh = muon.whNum()+2
             matched = False
             for muon2 in muon_bayes: 
                 matched = matched or IsMatched(muon,muon2,frac)
                 if not IsMatched(muon,muon2,frac): continue
 
                 if (muon.quality()>=1) :  
+                    # Inclusive in MB
                     hPhiRes_q1[st]  .Fill( (muon.phi()-muon2.phi()) )
                     hPhiBRes_q1[st] .Fill( (muon.phiBend()-muon2.phiBend()) )
                     hChi2Res_q1[st] .Fill( (muon.chi2()-muon2.chi2()) )
                     hBxRes_q1[st]   .Fill( (muon.bxNum()-muon2.bxNum()) )
                     hTimeRes_q1[st] .Fill( (muon.t0()-muon2.t0()) )
+
+                    # Exclusive in MB
+                    hPhiRes_MB_q1[5*st + wh]  .Fill( (muon.phi()-muon2.phi()) )
+                    hPhiBRes_MB_q1[5*st + wh] .Fill( (muon.phiBend()-muon2.phiBend()) )
+                    hChi2Res_MB_q1[5*st + wh] .Fill( (muon.chi2()-muon2.chi2()) )
+                    hBxRes_MB_q1[5*st + wh]   .Fill( (muon.bxNum()-muon2.bxNum()) )
+                    hTimeRes_MB_q1[5*st + wh] .Fill( (muon.t0()-muon2.t0()) )
                     
                 if (muon.quality()>=3) :
+                    # Inclusive in MB
                     hPhiRes_q3[st]  .Fill( (muon.phi()-muon2.phi()) )
                     hPhiBRes_q3[st] .Fill( (muon.phiBend()-muon2.phiBend()) )
                     hChi2Res_q3[st] .Fill( (muon.chi2()-muon2.chi2()) )
                     hBxRes_q3[st]   .Fill( (muon.bxNum()-muon2.bxNum()) )
                     hTimeRes_q3[st] .Fill( (muon.t0()-muon2.t0()) )
 
+                    # Exclusive in MB
+                    hPhiRes_MB_q3[5*st + wh]  .Fill( (muon.phi()-muon2.phi()) )
+                    hPhiBRes_MB_q3[5*st + wh] .Fill( (muon.phiBend()-muon2.phiBend()) )
+                    hChi2Res_MB_q3[5*st + wh] .Fill( (muon.chi2()-muon2.chi2()) )
+                    hBxRes_MB_q3[5*st + wh]   .Fill( (muon.bxNum()-muon2.bxNum()) )
+                    hTimeRes_MB_q3[5*st + wh] .Fill( (muon.t0()-muon2.t0()) )
+
                 if (muon.quality()>=5) :
+                    # Inclusive in MB
                     hPhiRes_q5[st]  .Fill( (muon.phi()-muon2.phi()) )
                     hPhiBRes_q5[st] .Fill( (muon.phiBend()-muon2.phiBend()) )
                     hChi2Res_q5[st] .Fill( (muon.chi2()-muon2.chi2()) )
                     hBxRes_q5[st]   .Fill( (muon.bxNum()-muon2.bxNum()) )
                     hTimeRes_q5[st] .Fill( (muon.t0()-muon2.t0()) )
+
+                    # Exclusive in MB
+                    hPhiRes_MB_q5[5*st + wh]  .Fill( (muon.phi()-muon2.phi()) )
+                    hPhiBRes_MB_q5[5*st + wh] .Fill( (muon.phiBend()-muon2.phiBend()) )
+                    hChi2Res_MB_q5[5*st + wh] .Fill( (muon.chi2()-muon2.chi2()) )
+                    hBxRes_MB_q5[5*st + wh]   .Fill( (muon.bxNum()-muon2.bxNum()) )
+                    hTimeRes_MB_q5[5*st + wh] .Fill( (muon.t0()-muon2.t0()) )
                
                 if (muon.quality()>=8) :
+                    # Inclusive in MB
                     hPhiRes_q8[st]  .Fill( (muon.phi()-muon2.phi()) )
                     hPhiBRes_q8[st] .Fill( (muon.phiBend()-muon2.phiBend()) )
                     hChi2Res_q8[st] .Fill( (muon.chi2()-muon2.chi2()) )
                     hBxRes_q8[st]   .Fill( (muon.bxNum()-muon2.bxNum()) )
                     hTimeRes_q8[st] .Fill( (muon.t0()-muon2.t0()) )
+
+                    # Exclusive in MB
+                    hPhiRes_MB_q8[5*st + wh]  .Fill( (muon.phi()-muon2.phi()) )
+                    hPhiBRes_MB_q8[5*st + wh] .Fill( (muon.phiBend()-muon2.phiBend()) )
+                    hChi2Res_MB_q8[5*st + wh] .Fill( (muon.chi2()-muon2.chi2()) )
+                    hBxRes_MB_q8[5*st + wh]   .Fill( (muon.bxNum()-muon2.bxNum()) )
+                    hTimeRes_MB_q8[5*st + wh] .Fill( (muon.t0()-muon2.t0()) )
                 
             hMatchingEff[st].Fill(matched, muon.quality())
+            hMatchingEff_MB[5*st + wh].Fill(matched, muon.quality())
 
     if (dumpToFile): f.close()
     ev.toBegin()
@@ -232,4 +361,4 @@ for frac in [0.25,0.5,0.75,1.00]:
 
 import pickle 
 with open('GroupingComparison_StdToBayes.pickle', 'wb') as handle:
-    pickle.dump(outputDict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(outputDict,   handle, protocol=pickle.HIGHEST_PROTOCOL)
