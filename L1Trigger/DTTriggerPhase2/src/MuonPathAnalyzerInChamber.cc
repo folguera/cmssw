@@ -14,7 +14,8 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, e
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),
       bxTolerance_(30),
-      minQuality_(LOWQGHOST),
+      // minQuality_(LOWQGHOST),
+      minQuality_(H3PLUS0),
       chiSquareThreshold_(50),
       minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")),
       splitPathPerSL_(pset.getUntrackedParameter<bool>("splitPathPerSL")){
@@ -586,30 +587,71 @@ void MuonPathAnalyzerInChamber::evaluateQuality(MuonPathPtr &mPath) {
   mPath->setNPrimitivesUp(nPrimsUp);
   mPath->setNPrimitivesDown(nPrimsDown);
   
+
+  // // OLD QUALITY ASSIGNMENT
+  // if (mPath->nprimitivesUp() >= 4 && mPath->nprimitivesDown() >= 4) {
+  //    mPath->setQuality(HIGHHIGHQ);
+  // } 
+  // else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() == 3) ||
+  //            (mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 4)) {
+  //   mPath->setQuality(HIGHLOWQ);
+  // } 
+  // else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
+  //            (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 4)) {
+  //   mPath->setQuality(CHIGHQ);
+  // } 
+  // else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 3)) {
+  //   mPath->setQuality(LOWLOWQ);
+  // } 
+  // else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
+  //            (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 3) ||
+  //            (mPath->nprimitivesUp() == 2 && mPath->nprimitivesDown() == 2)) {
+  //   mPath->setQuality(CLOWQ);
+  // } 
+  // else if (mPath->nprimitivesUp() >= 4 || mPath->nprimitivesDown() >= 4) {
+  //   mPath->setQuality(HIGHQ);
+  // } 
+  // else if (mPath->nprimitivesUp() == 3 || mPath->nprimitivesDown() == 3) {
+  //   mPath->setQuality(LOWQ);
+  // }
+
+  // NEW QUALITY ASSIGNMENT
+  // 4 + 4 --> H4PLUS4 --> Q = 8
   if (mPath->nprimitivesUp() >= 4 && mPath->nprimitivesDown() >= 4) {
-    mPath->setQuality(HIGHHIGHQ);
-  } 
+    mPath->setQuality(H4PLUS4);
+  }
+  // 4 + 3 --> H4PLUS3 --> Q = 7
   else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() == 3) ||
-             (mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 4)) {
-    mPath->setQuality(HIGHLOWQ);
-  } 
-  else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
-             (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 4)) {
-    mPath->setQuality(CHIGHQ);
-  } 
-  else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 3)) {
-    mPath->setQuality(LOWLOWQ);
-  } 
-  else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
-             (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 3) ||
-             (mPath->nprimitivesUp() == 2 && mPath->nprimitivesDown() == 2)) {
-    mPath->setQuality(CLOWQ);
-  } 
-  else if (mPath->nprimitivesUp() >= 4 || mPath->nprimitivesDown() >= 4) {
-    mPath->setQuality(HIGHQ);
-  } 
-  else if (mPath->nprimitivesUp() == 3 || mPath->nprimitivesDown() == 3) {
-    mPath->setQuality(LOWQ);
-  } 
-    
+	   (mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 4)) {
+    mPath->setQuality(H4PLUS3);
+  }
+  // 3 + 3 --> H3PLUS3 --> Q = 6
+  else if (mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 3) {
+    mPath->setQuality(H3PLUS3);
+  }
+  // 4 + 2 --> H4PLUS2 --> Q = 4
+  else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() == 2) ||
+	   (mPath->nprimitivesUp() == 2 && mPath->nprimitivesDown() == 4)) {
+    mPath->setQuality(H4PLUS2);
+  }
+  // (4 + 0) or (4 + 1) --> H4PLUS0 --> Q = 3
+  else if ((mPath->nprimitivesUp() == 4 && 
+	    (mPath->nprimitivesDown() == 1 || mPath->nprimitivesDown() == 0)) ||
+	   ((mPath->nprimitivesUp() == 1 || mPath->nprimitivesUp() == 0) &&
+	    mPath->nprimitivesDown() == 4)){
+    mPath->setQuality(H4PLUS0);
+  }
+  // 3 + 2 --> H3PLUS2 --> Q = 2
+  else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 2) ||
+	   (mPath->nprimitivesUp() == 2 && mPath->nprimitivesDown() == 3)){
+    mPath->setQuality(H3PLUS2);
+  }
+  // (3 + 0) or (3 + 1) --> H3PLUS0 --> Q = 1
+  else if ((mPath->nprimitivesUp() == 3 && 
+	    (mPath->nprimitivesDown() == 1 || mPath->nprimitivesDown() == 0)) ||
+	   ((mPath->nprimitivesUp() == 1 || mPath->nprimitivesUp() == 0) &&
+	    mPath->nprimitivesDown() == 3)){
+    mPath->setQuality(H3PLUS0);
+  }
+
 }

@@ -374,7 +374,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       }
       cout << "" << endl;
       ss   << " | quality: " << filteredmuonpaths.at(i)->quality();
-      cout << " | quality: " << filteredmuonpaths.at(i)->quality() << endl;
+      cout << "quality: " << filteredmuonpaths.at(i)->quality() << endl;
       LogInfo("DTTrigPhase2Prod") << ss.str();
     }
   }
@@ -386,9 +386,13 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     LogDebug("DTTrigPhase2Prod") << "MUON PATHS found: " << muonpaths.size() << " (" << filteredmuonpaths.size()
                                  << ") in event " << iEvent.id().event();
 
+  cout << "" << endl;
   cout << "Starting fitting step" << endl;
-  cout << "MUON PATHS found: " << muonpaths.size() << " (" << filteredmuonpaths.size()
-                                 << " after filtering) in event " << iEvent.id().event();
+  cout << "" << endl;
+  cout << "MUON PATHS found using algorithm " << algo_ << ": " << muonpaths.size() << endl;
+  cout << "MUON PATHS found using algorithm " << algo_ << " after filtering: " << filteredmuonpaths.size()
+       << " in event " << iEvent.id().event() << endl;
+  cout << "" << endl;
 
   if (debug_)
     LogDebug("DTTrigPhase2Prod") << "filling NmetaPrimtives" << std::endl;
@@ -408,22 +412,38 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   if (dump_) {
     for (unsigned int i = 0; i < outmpaths.size(); i++) {
-      LogInfo("DTTrigPhase2Prod") << iEvent.id().event() << " mp " << i << ": " << outmpaths.at(i)->bxTimeValue() << " "
-                                  << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " "
-                                  << outmpaths.at(i)->phi() << " " << outmpaths.at(i)->phiB() << " "
-                                  << outmpaths.at(i)->quality() << " " << outmpaths.at(i)->chiSquare();
+      LogInfo("DTTrigPhase2Prod") << iEvent.id().event() << " mp " << i << ": " 
+				  << outmpaths.at(i)->bxTimeValue() << " "
+                                  << outmpaths.at(i)->horizPos() << " " 
+				  << outmpaths.at(i)->tanPhi() << " "
+                                  << outmpaths.at(i)->phi() << " " 
+				  << outmpaths.at(i)->phiB() << " "
+                                  << outmpaths.at(i)->quality() << " " 
+				  << outmpaths.at(i)->chiSquare();
       
-      cout << "" << endl;
-      cout << iEvent.id().event() << " mp " << i << ": " << outmpaths.at(i)->bxTimeValue() << " "
-	   << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " "
-	   << outmpaths.at(i)->phi() << " " << outmpaths.at(i)->phiB() << " "
-	   << outmpaths.at(i)->quality() << " " << outmpaths.at(i)->chiSquare() << endl;
+      cout << iEvent.id().event() << " mp " << i << ": " 
+	   << outmpaths.at(i)->bxTimeValue() << " "
+	   << outmpaths.at(i)->horizPos() << " " 
+	   << outmpaths.at(i)->tanPhi() << " "
+	   << outmpaths.at(i)->phi() << " " 
+	   << outmpaths.at(i)->phiB() << " "
+	   << outmpaths.at(i)->quality() << " " 
+	   << outmpaths.at(i)->chiSquare() << endl;
     }
     for (unsigned int i = 0; i < metaPrimitives.size(); i++) {
       stringstream ss;
       ss << iEvent.id().event() << " mp " << i << ": ";
       printmP(ss.str(), metaPrimitives.at(i));
     }
+    if (algo_ == Standard) {
+      cout << "" << endl;
+      cout << "Muon paths using algorithm " << algo_ << " after fitting: " << metaPrimitives.size() << " in event " << iEvent.id().event() << endl;
+    }
+    else{
+      cout << "" << endl;
+      cout << "Muon paths using algorithm " << algo_ << " after fitting: " << outmpaths.size() << " in event " << iEvent.id().event() << endl;
+    }
+
   }
 
   muonpaths.clear();
@@ -512,8 +532,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     LogInfo("DTTrigPhase2Prod") << "DTp2 in event:" << iEvent.id().event() << " we found "
                                 << correlatedMetaPrimitives.size() << " correlatedMetPrimitives (chamber)";
 
-    cout << "DTp2 in event: " << iEvent.id().event() << " we found "
-	 << correlatedMetaPrimitives.size() << " correlatedMetPrimitives (chambers)" << endl;
+    cout << "" << endl;
+    cout << "Correlated metaPrimitive found using algorithm " << algo_ << " are " << correlatedMetaPrimitives.size() << " in event " << iEvent.id().event() << endl;
+    cout << "" << endl;
 
     for (unsigned int i = 0; i < correlatedMetaPrimitives.size(); i++) {
       stringstream ss;
@@ -564,7 +585,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       sectorTP = 10;
     sectorTP = sectorTP - 1;
     int sl = 0;
-    if (metaPrimitiveIt.quality < LOWLOWQ || metaPrimitiveIt.quality == CHIGHQ) {
+    // if (metaPrimitiveIt.quality < LOWLOWQ || metaPrimitiveIt.quality == CHIGHQ) {
+    // If the metaPrimitive is not correlated, give it a reference SL
+    if (metaPrimitiveIt.quality < H3PLUS3) {
       if (inner(metaPrimitiveIt))
         sl = 1;
       else

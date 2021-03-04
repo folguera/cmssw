@@ -311,71 +311,11 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
       }
     }
       
-    // cout << "Number of paths = " << ptrPrimitive_vector.size() << endl;
-    // cout << "Number of Up    = " << (*itCand)->nLayerUp()      << endl;
-    // cout << "Number of Down  = " << (*itCand)->nLayerDown()    << endl;
-    // cout << "------------------" << endl;
-
     stringstream ss;    
-
-
-
-    // // In case we have 3 hits in the same layer, we may be creating two new paths instead of one
-    // // --> Look for duplicate paths 
-    // cout << "=================" << endl;
-    // int tttotal = ptrPrimitive_vector.size();
-    // cout << "Total number of paths = " << tttotal << endl;
-    // int iter = 1;
-    // for (auto iPath = ptrPrimitive_vector.begin() + 1; iPath != ptrPrimitive_vector.end(); iPath++) {
-    //   bool are_the_same = true;
-    //   cout << "-----------------" << endl;
-    //   cout << "Starting path number: " << iter << endl;
-    //   int jter = 0;
-    //   for (auto jPath = ptrPrimitive_vector.begin(); jPath != iPath; jPath++) {
-    // 	cout << "Comparing with path number: " << jter << endl;
-    // 	for (int ilayer = 0; ilayer < NUM_LAYERS_2SL; ++ilayer){
-    // 	  if (iPath->at(ilayer)->tdcTimeStamp() != jPath->at(ilayer)->tdcTimeStamp()){
-    // 	    are_the_same = false;
-    // 	  }	  
-    // 	}
-    // 	if (are_the_same == true)
-    // 	  cout << "Paths " << jter << " and " << iter << " ARE the same!" << endl;
-    // 	else
-    // 	  cout << "Paths " << jter << " and " << iter << " are not the same!" << endl;
-    // 	++jter;
-    //   }
-    //   ++iter;
-    // }
-
 
     int n_paths = ptrPrimitive_vector.size();
 
-
-    // cout << "===================" << endl;
-    // cout << "Showing all "<< n_paths << " paths:" << endl;
-    // cout << "Number of Up    = " << (*itCand)->nLayerUp()      << endl;
-    // cout << "Number of Down  = " << (*itCand)->nLayerDown()    << endl;
-
-    // if ((*itCand)->nLayerUp() > 8)
-    //   cout << "NUMBER OF UP LARGER THAN 8" << endl;
-
-    // if ((*itCand)->nLayerDown() > 8)
-    //   cout << "NUMBER OF DOWN LARGER THAN 8" << endl;
-
     for (int n_path = 0; n_path < n_paths; ++n_path){
-
-
-      // // Check if all the paths are the same or if they are filled properly
-      // cout << "..................." << endl;
-      // cout << "Path " << n_path << ":" << endl;
-      // for (int n_prim = 0; n_prim < 8; ++n_prim){
-      // 	cout << "Layer:   " << ptrPrimitive_vector.at(n_path).at(n_prim)->layerId() << endl;
-      // 	cout << "Camera:  " << ptrPrimitive_vector.at(n_path).at(n_prim)->cameraId() << endl;
-      // 	cout << "Channel: " << ptrPrimitive_vector.at(n_path).at(n_prim)->channelId() << endl;
-      // 	cout << "Time:    " << ptrPrimitive_vector.at(n_path).at(n_prim)->tdcTimeStamp() << endl;
-      // 	cout << " " << endl;
-      // }
-
       mpaths.emplace_back(std::make_shared<MuonPath>(ptrPrimitive_vector.at(n_path), 
 						     (short)(*itCand)->nLayerUp(), 
 						     (short)(*itCand)->nLayerDown()));
@@ -428,7 +368,7 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs() {
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                                             std::vector<DTPrimitive> digisinLUp,
                                             DTPatternPtrs patterns) {
-  //Loop over all hits and search for matching patterns (there will be four
+  // Loop over all hits and search for matching patterns (there will be four
   // amongst ~60, accounting for possible lateralities)
   for (auto dtPD_it = digisinLDown.begin(); dtPD_it != digisinLDown.end(); dtPD_it++) {
     int LDown = dtPD_it->layerId();
