@@ -373,7 +373,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              // const DTSuperLayerId &dtSLId(dtLId);
+              // creating a new DTSuperLayerId object to compare with the required SL id
               const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 3);
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
@@ -585,7 +585,6 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              // const DTSuperLayerId &dtSLId(dtLId);
               // creating a new DTSuperLayerId object to compare with the required SL id
               const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 1);
               if (dtSLId.rawId() != sl1Id.rawId())
