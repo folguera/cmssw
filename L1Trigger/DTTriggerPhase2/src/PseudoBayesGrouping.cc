@@ -51,135 +51,196 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase using patterns file " << pattern_filename_;
   nPatterns_ = 0;
-  //Load patterns from pattern root file with expected hits information
-  TFile* f = TFile::Open(TString(pattern_filename_), "READ");
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Move all this into LoadPattern
+  // //Load patterns from pattern root file with expected hits information
+  // TFile* f = TFile::Open(TString(pattern_filename_), "READ");
+  // std::vector<std::vector<std::vector<int>>>* pattern_reader =
+  //     (std::vector<std::vector<std::vector<int>>>*)f->Get("allPatterns");
+  // for (std::vector<std::vector<std::vector<int>>>::iterator itPattern = (*pattern_reader).begin();
+  //      itPattern != (*pattern_reader).end();
+  //      ++itPattern) {
+  //   //Loops over all patterns in the loop and constructs the Pattern object for each one
+  //   LoadPattern(itPattern);
+  // }
+  // if (debug_)
+  //   LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase Total number of loaded patterns: "
+  //                                   << nPatterns_;
+  // f->Close();
+  // delete f;
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Currently hard-coded. To be fixed
+  TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
+
+  // cout << "Loading patterns ..." << endl;
+
+  // Load all patterns
+  // MB1
+  LoadPattern(patterns_folder + "createdPatterns_MB1_left.root",  0, 0);
+  LoadPattern(patterns_folder + "createdPatterns_MB1_right.root", 0, 2);
+  // MB2
+  LoadPattern(patterns_folder + "createdPatterns_MB2_left.root",  1, 0);
+  LoadPattern(patterns_folder + "createdPatterns_MB2_right.root", 1, 2);
+  // MB3
+  LoadPattern(patterns_folder + "createdPatterns_MB3.root",       2, 1);
+  // MB4
+  LoadPattern(patterns_folder + "createdPatterns_MB4_left.root",  3, 0);
+  LoadPattern(patterns_folder + "createdPatterns_MB4.root",       3, 1);
+  LoadPattern(patterns_folder + "createdPatterns_MB4_right.root", 3, 2);
+
+  // cout << "Patterns loaded ..." << endl;
+
+  prelimMatches_ = std::make_unique<CandidateGroupPtrs>();
+  allMatches_ = std::make_unique<CandidateGroupPtrs>();
+  finalMatches_ = std::make_unique<CandidateGroupPtrs>();
+
+  //  cout << "Exiting initialise ..." << endl;
+
+}
+
+// void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
+void PseudoBayesGrouping::LoadPattern(TString pattern_file_name,
+				      int     MB_number,
+				      int     SL_shift
+				      ) {
+
+  // cout << "Entering load pattern: " << MB_number << ", " << SL_shift << endl;
+  
+  TFile* f = TFile::Open(pattern_file_name, "READ");
+
   std::vector<std::vector<std::vector<int>>>* pattern_reader =
       (std::vector<std::vector<std::vector<int>>>*)f->Get("allPatterns");
+
+  // cout << "Number of patterns = " << pattern_reader->size() << endl;
+
   for (std::vector<std::vector<std::vector<int>>>::iterator itPattern = (*pattern_reader).begin();
-       itPattern != (*pattern_reader).end();
-       ++itPattern) {
-    //Loops over all patterns in the loop and constructs the Pattern object for each one
-    LoadPattern(itPattern);
+       itPattern != (*pattern_reader).end(); ++itPattern) {
+    
+     if (debug_)
+      LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: "
+				      << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
+				      << itPattern->at(0).at(2) << ", ";
+  
+    auto p = std::make_shared<DTPattern>();
+    bool is_seed = true;
+    for (const auto& itHits : *itPattern) {
+
+      //      cout << "Looping over patterns" << endl;
+      
+      //First entry is the seeding information
+      if (is_seed) {
+	p = std::make_shared<DTPattern>(DTPattern(itHits.at(0), itHits.at(1), itHits.at(2)));
+	is_seed = false;
+      }
+      //Other entries are the hits information
+      else {
+	if (itHits.begin() == itHits.end())
+	  continue;
+	//We need to correct the geometry from pattern generation to reconstruction as they use slightly displaced basis
+	else if (itHits.at(0) % 2 == 0) {
+	  p->addHit(std::make_tuple(itHits.at(0), itHits.at(1), itHits.at(2)));
+	} 
+	else if (itHits.at(0) % 2 == 1) {
+	  p->addHit(std::make_tuple(itHits.at(0), itHits.at(1) - 1, itHits.at(2)));
+	}
+      }
+    }
+    //Classified by seeding layers for optimized search later
+    //TODO::This can be vastly improved using std::bitset<8>, for example
+    if (p->sl1() == 0) {
+      if (p->sl2() == 7)
+	L0L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L0L6Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 5)
+	L0L5Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 4)
+	L0L4Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 3)
+	L0L3Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 2)
+	L0L2Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 1)
+	L0L1Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    if (p->sl1() == 1) {
+      if (p->sl2() == 7)
+	L1L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L1L6Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 5)
+	L1L5Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 4)
+	L1L4Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 3)
+	L1L3Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 2)
+	L1L2Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    if (p->sl1() == 2) {
+      if (p->sl2() == 7)
+	L2L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L2L6Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 5)
+	L2L5Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 4)
+	L2L4Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 3)
+	L2L3Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    if (p->sl1() == 3) {
+      if (p->sl2() == 7)
+	L3L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L3L6Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 5)
+	L3L5Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 4)
+	L3L4Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    
+    if (p->sl1() == 4) {
+      if (p->sl2() == 7)
+      L4L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L4L6Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 5)
+	L4L5Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    if (p->sl1() == 5) {
+      if (p->sl2() == 7)
+	L5L7Patterns_[MB_number][SL_shift].push_back(p);
+      if (p->sl2() == 6)
+	L5L6Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    if (p->sl1() == 6) {
+      if (p->sl2() == 7)
+	L6L7Patterns_[MB_number][SL_shift].push_back(p);
+    }
+    //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
+    allPatterns_[MB_number][SL_shift].push_back(p);
+    nPatterns_++;
   }
+
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::initialiase Total number of loaded patterns: "
                                     << nPatterns_;
   f->Close();
   delete f;
 
-  prelimMatches_ = std::make_unique<CandidateGroupPtrs>();
-  allMatches_ = std::make_unique<CandidateGroupPtrs>();
-  finalMatches_ = std::make_unique<CandidateGroupPtrs>();
-}
+  //  cout << "Exiting load pattern" << endl;
 
-void PseudoBayesGrouping::LoadPattern(std::vector<std::vector<std::vector<int>>>::iterator itPattern) {
-  if (debug_)
-    LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::LoadPattern Loading patterns seeded by: "
-                                    << itPattern->at(0).at(0) << ", " << itPattern->at(0).at(1) << ", "
-                                    << itPattern->at(0).at(2) << ", ";
-  
-  auto p = std::make_shared<DTPattern>();
-  bool is_seed = true;
-  for (const auto& itHits : *itPattern) {
-    //First entry is the seeding information
-    if (is_seed) {
-      p = std::make_shared<DTPattern>(DTPattern(itHits.at(0), itHits.at(1), itHits.at(2)));
-      is_seed = false;
-    }
-    //Other entries are the hits information
-    else {
-      if (itHits.begin() == itHits.end())
-        continue;
-      //We need to correct the geometry from pattern generation to reconstruction as they use slightly displaced basis
-      else if (itHits.at(0) % 2 == 0) {
-        p->addHit(std::make_tuple(itHits.at(0), itHits.at(1), itHits.at(2)));
-      } else if (itHits.at(0) % 2 == 1) {
-        p->addHit(std::make_tuple(itHits.at(0), itHits.at(1) - 1, itHits.at(2)));
-      }
-    }
-  }
-  //Classified by seeding layers for optimized search later
-  //TODO::This can be vastly improved using std::bitset<8>, for example
-  if (p->sl1() == 0) {
-    if (p->sl2() == 7)
-      L0L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L0L6Patterns_.push_back(p);
-    if (p->sl2() == 5)
-      L0L5Patterns_.push_back(p);
-    if (p->sl2() == 4)
-      L0L4Patterns_.push_back(p);
-    if (p->sl2() == 3)
-      L0L3Patterns_.push_back(p);
-    if (p->sl2() == 2)
-      L0L2Patterns_.push_back(p);
-    if (p->sl2() == 1)
-      L0L1Patterns_.push_back(p);
-  }
-  if (p->sl1() == 1) {
-    if (p->sl2() == 7)
-      L1L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L1L6Patterns_.push_back(p);
-    if (p->sl2() == 5)
-      L1L5Patterns_.push_back(p);
-    if (p->sl2() == 4)
-      L1L4Patterns_.push_back(p);
-    if (p->sl2() == 3)
-      L1L3Patterns_.push_back(p);
-    if (p->sl2() == 2)
-      L1L2Patterns_.push_back(p);
-  }
-  if (p->sl1() == 2) {
-    if (p->sl2() == 7)
-      L2L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L2L6Patterns_.push_back(p);
-    if (p->sl2() == 5)
-      L2L5Patterns_.push_back(p);
-    if (p->sl2() == 4)
-      L2L4Patterns_.push_back(p);
-    if (p->sl2() == 3)
-      L2L3Patterns_.push_back(p);
-  }
-  if (p->sl1() == 3) {
-    if (p->sl2() == 7)
-      L3L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L3L6Patterns_.push_back(p);
-    if (p->sl2() == 5)
-      L3L5Patterns_.push_back(p);
-    if (p->sl2() == 4)
-      L3L4Patterns_.push_back(p);
-  }
-
-  if (p->sl1() == 4) {
-    if (p->sl2() == 7)
-      L4L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L4L6Patterns_.push_back(p);
-    if (p->sl2() == 5)
-      L4L5Patterns_.push_back(p);
-  }
-  if (p->sl1() == 5) {
-    if (p->sl2() == 7)
-      L5L7Patterns_.push_back(p);
-    if (p->sl2() == 6)
-      L5L6Patterns_.push_back(p);
-  }
-  if (p->sl1() == 6) {
-    if (p->sl2() == 7)
-      L6L7Patterns_.push_back(p);
-  }
-  //Also creating a list of all patterns, needed later for deleting and avoid a memory leak
-  allPatterns_.push_back(p);
-  nPatterns_++;
 }
 
 void PseudoBayesGrouping::run(Event& iEvent,
                               const EventSetup& iEventSetup,
                               const DTDigiCollection& digis,
-                              MuonPathPtrs& mpaths) {
+                              MuonPathPtrs& mpaths
+			      ) {
+
   //Takes dt digis collection and does the grouping for correlated hits, it is saved in a vector of up to 8 (or 4) correlated hits
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping::run";
@@ -189,7 +250,18 @@ void PseudoBayesGrouping::run(Event& iEvent,
   //Sort digis by layer
   FillDigisByLayer(&digis);
   //Sarch for patterns
-  RecognisePatternsByLayerPairs();
+  DTChamberId chamber_id;
+
+  // We just want the chamber ID of the first digi
+  // as they are all the same --> create a loop and break it
+  // after the first iteration
+  for (const auto& detUnitIt : digis){
+    const DTLayerId layer_Id = detUnitIt.first;
+    chamber_id = layer_Id.superlayerId().chamberId();
+    // cout << "Chamber ID = " << chamber_id << endl;
+    break;
+  }
+  RecognisePatternsByLayerPairs(chamber_id);
   //Now sort patterns by qualities
   std::sort(prelimMatches_->begin(), prelimMatches_->end(), CandPointGreat());
   if (debug_ && !prelimMatches_->empty()) {
@@ -323,46 +395,118 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
   }
 }
 
-void PseudoBayesGrouping::RecognisePatternsByLayerPairs() {
+void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) {
+
+  cout << "RecognisePatternsByLayerPairs:: chamber ID = " << chamber_ID << endl;
+
+  // chamber_ID traslated to MB, wheel, sector
+  int MB     = chamber_ID.station() - 1;
+  int wheel  = chamber_ID.wheel();
+  int sector = chamber_ID.sector();
+
+  cout << "My inputs: wheel = " << wheel << ", station = " << MB << ", sector = " << sector << endl;
+
+  // shift of SL3 wrt SL1 
+  int shift = -1;
+
+  // Now define DT geometry depending on its ID
+  // MB1
+  if(MB == 0){
+    if (wheel == -1 || wheel == -2)
+      shift = 2; // positive (right)
+    else if (wheel == 1 || wheel == 2)
+      shift = 0; // negative (left)
+    else if (wheel == 0){
+      if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
+	shift = 2; // positive (right)
+      else 
+	shift = 0; // negative (left)
+    }
+  }
+  // MB2
+  else if (MB == 1){
+    if (wheel == -1 || wheel == -2)
+      shift = 0; // negative (left)
+    else if (wheel == 1 || wheel == 2)
+      shift = 2; // positive (right)
+    else if (wheel == 0){
+      if (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12)
+	shift = 0; // negative (left) 
+      else 
+	shift = 2; // positive (right) 
+    }
+  }
+  // MB3
+  else if (MB == 2){
+    shift = 1; // shift is always 0 in MB3
+  }
+  // MB4
+  else if (MB == 3){
+    if (wheel == -1 || wheel == -2)
+      if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
+	shift = 1; // no shift
+      else if (sector == 5 || sector == 6 || sector == 7 || sector == 8 || sector == 14)
+	shift = 2; // positive (right)
+      else 
+	shift = 0; // negative (left)
+    else if (wheel == 1 || wheel == 2)
+      if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
+	shift = 1; // no shift
+      else if (sector == 1 || sector == 2 || sector == 3 || sector == 10 || sector == 12)
+	shift = 2; // positive (right)
+      else
+	shift = 0; // negative (left)
+    else if (wheel == 0)
+      if (sector == 4 || sector == 9 || sector == 11 || sector == 13)
+	shift = 1; // no shift
+      else if (sector == 2 || sector == 3 || sector == 5 || sector == 8 || sector == 10)
+	shift = 2; // positive (right)
+      else
+	shift = 0; // negative (left)      
+    else return;
+  }
+
+  cout << "MB = " << MB << " sector = " << sector << " shift = " << shift << endl;
+
   //Separated from main run function for clarity. Do all pattern recognition steps
   pidx_ = 0;
   //Compare L0-L7
-  RecognisePatterns(digisinL0_, digisinL7_, L0L7Patterns_);
+  RecognisePatterns(digisinL0_, digisinL7_, L0L7Patterns_[MB][shift]);
   //Compare L0-L6 and L1-L7
-  RecognisePatterns(digisinL0_, digisinL6_, L0L6Patterns_);
-  RecognisePatterns(digisinL1_, digisinL7_, L1L7Patterns_);
+  RecognisePatterns(digisinL0_, digisinL6_, L0L6Patterns_[MB][shift]);
+  RecognisePatterns(digisinL1_, digisinL7_, L1L7Patterns_[MB][shift]);
   //Compare L0-L5, L1-L6, L2-L7
-  RecognisePatterns(digisinL0_, digisinL5_, L0L5Patterns_);
-  RecognisePatterns(digisinL1_, digisinL6_, L1L6Patterns_);
-  RecognisePatterns(digisinL2_, digisinL7_, L2L7Patterns_);
+  RecognisePatterns(digisinL0_, digisinL5_, L0L5Patterns_[MB][shift]);
+  RecognisePatterns(digisinL1_, digisinL6_, L1L6Patterns_[MB][shift]);
+  RecognisePatterns(digisinL2_, digisinL7_, L2L7Patterns_[MB][shift]);
   //L0-L4, L1-L5, L2-L6, L3-L7
-  RecognisePatterns(digisinL0_, digisinL4_, L0L4Patterns_);
-  RecognisePatterns(digisinL1_, digisinL5_, L1L5Patterns_);
-  RecognisePatterns(digisinL2_, digisinL6_, L2L6Patterns_);
-  RecognisePatterns(digisinL3_, digisinL7_, L3L7Patterns_);
+  RecognisePatterns(digisinL0_, digisinL4_, L0L4Patterns_[MB][shift]);
+  RecognisePatterns(digisinL1_, digisinL5_, L1L5Patterns_[MB][shift]);
+  RecognisePatterns(digisinL2_, digisinL6_, L2L6Patterns_[MB][shift]);
+  RecognisePatterns(digisinL3_, digisinL7_, L3L7Patterns_[MB][shift]);
   //L1-L4, L2-L5, L3-L6
-  RecognisePatterns(digisinL1_, digisinL4_, L1L4Patterns_);
-  RecognisePatterns(digisinL2_, digisinL5_, L2L5Patterns_);
-  RecognisePatterns(digisinL3_, digisinL6_, L3L6Patterns_);
+  RecognisePatterns(digisinL1_, digisinL4_, L1L4Patterns_[MB][shift]);
+  RecognisePatterns(digisinL2_, digisinL5_, L2L5Patterns_[MB][shift]);
+  RecognisePatterns(digisinL3_, digisinL6_, L3L6Patterns_[MB][shift]);
   //L2-L4, L3-L5
-  RecognisePatterns(digisinL2_, digisinL4_, L2L4Patterns_);
-  RecognisePatterns(digisinL3_, digisinL5_, L3L5Patterns_);
+  RecognisePatterns(digisinL2_, digisinL4_, L2L4Patterns_[MB][shift]);
+  RecognisePatterns(digisinL3_, digisinL5_, L3L5Patterns_[MB][shift]);
   //L3-L4
-  RecognisePatterns(digisinL3_, digisinL4_, L3L4Patterns_);
+  RecognisePatterns(digisinL3_, digisinL4_, L3L4Patterns_[MB][shift]);
   //Uncorrelated SL1
-  RecognisePatterns(digisinL0_, digisinL1_, L0L1Patterns_);
-  RecognisePatterns(digisinL0_, digisinL2_, L0L2Patterns_);
-  RecognisePatterns(digisinL0_, digisinL3_, L0L3Patterns_);
-  RecognisePatterns(digisinL1_, digisinL2_, L1L2Patterns_);
-  RecognisePatterns(digisinL1_, digisinL3_, L1L3Patterns_);
-  RecognisePatterns(digisinL2_, digisinL3_, L2L3Patterns_);
+  RecognisePatterns(digisinL0_, digisinL1_, L0L1Patterns_[MB][shift]);
+  RecognisePatterns(digisinL0_, digisinL2_, L0L2Patterns_[MB][shift]);
+  RecognisePatterns(digisinL0_, digisinL3_, L0L3Patterns_[MB][shift]);
+  RecognisePatterns(digisinL1_, digisinL2_, L1L2Patterns_[MB][shift]);
+  RecognisePatterns(digisinL1_, digisinL3_, L1L3Patterns_[MB][shift]);
+  RecognisePatterns(digisinL2_, digisinL3_, L2L3Patterns_[MB][shift]);
   //Uncorrelated SL3
-  RecognisePatterns(digisinL4_, digisinL5_, L4L5Patterns_);
-  RecognisePatterns(digisinL4_, digisinL6_, L4L6Patterns_);
-  RecognisePatterns(digisinL4_, digisinL7_, L4L7Patterns_);
-  RecognisePatterns(digisinL5_, digisinL6_, L5L6Patterns_);
-  RecognisePatterns(digisinL5_, digisinL7_, L5L7Patterns_);
-  RecognisePatterns(digisinL6_, digisinL7_, L6L7Patterns_);
+  RecognisePatterns(digisinL4_, digisinL5_, L4L5Patterns_[MB][shift]);
+  RecognisePatterns(digisinL4_, digisinL6_, L4L6Patterns_[MB][shift]);
+  RecognisePatterns(digisinL4_, digisinL7_, L4L7Patterns_[MB][shift]);
+  RecognisePatterns(digisinL5_, digisinL6_, L5L6Patterns_[MB][shift]);
+  RecognisePatterns(digisinL5_, digisinL7_, L5L7Patterns_[MB][shift]);
+  RecognisePatterns(digisinL6_, digisinL7_, L6L7Patterns_[MB][shift]);
 }
 
 void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
