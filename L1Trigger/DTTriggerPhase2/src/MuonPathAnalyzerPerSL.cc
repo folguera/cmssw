@@ -11,7 +11,6 @@ using namespace cmsdt;
 MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset, edm::ConsumesCollector &iC)
     : MuonPathAnalyzer(pset, iC),
       bxTolerance_(30),
-      //minQuality_(LOWQGHOST),
       minQuality_(H3PLUS0),
       chiSquareThreshold_(50),
       debug_(pset.getUntrackedParameter<bool>("debug")),

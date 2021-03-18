@@ -14,7 +14,6 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, e
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),
       bxTolerance_(30),
-      // minQuality_(LOWQGHOST),
       minQuality_(H3PLUS0),
       chiSquareThreshold_(50),
       minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")),
@@ -146,6 +145,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
   if (debug_)
     LogDebug("MuonPathAnalyzerInChamber") << "DTp2:analyze \t\t\t\t\t yes it is analyzable " << mPath->isAnalyzable();
 
+
   // first of all, get info from primitives, so we can reduce the number of latereralities:
   buildLateralities(mPath);
   setWirePosAndTimeInMP(mPath);
@@ -176,6 +176,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPathPtr &inMPath, MuonPathPtrs &outM
         break;
       NTotalHits--;
     }
+
     if (mPath->chiSquare() > chiSquareThreshold_)
       continue;
     
@@ -587,33 +588,6 @@ void MuonPathAnalyzerInChamber::evaluateQuality(MuonPathPtr &mPath) {
   mPath->setNPrimitivesUp(nPrimsUp);
   mPath->setNPrimitivesDown(nPrimsDown);
   
-
-  // // OLD QUALITY ASSIGNMENT
-  // if (mPath->nprimitivesUp() >= 4 && mPath->nprimitivesDown() >= 4) {
-  //    mPath->setQuality(HIGHHIGHQ);
-  // } 
-  // else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() == 3) ||
-  //            (mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 4)) {
-  //   mPath->setQuality(HIGHLOWQ);
-  // } 
-  // else if ((mPath->nprimitivesUp() == 4 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
-  //            (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 4)) {
-  //   mPath->setQuality(CHIGHQ);
-  // } 
-  // else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() == 3)) {
-  //   mPath->setQuality(LOWLOWQ);
-  // } 
-  // else if ((mPath->nprimitivesUp() == 3 && mPath->nprimitivesDown() <= 2 && mPath->nprimitivesDown() > 0) ||
-  //            (mPath->nprimitivesUp() <= 2 && mPath->nprimitivesUp() > 0 && mPath->nprimitivesDown() == 3) ||
-  //            (mPath->nprimitivesUp() == 2 && mPath->nprimitivesDown() == 2)) {
-  //   mPath->setQuality(CLOWQ);
-  // } 
-  // else if (mPath->nprimitivesUp() >= 4 || mPath->nprimitivesDown() >= 4) {
-  //   mPath->setQuality(HIGHQ);
-  // } 
-  // else if (mPath->nprimitivesUp() == 3 || mPath->nprimitivesDown() == 3) {
-  //   mPath->setQuality(LOWQ);
-  // }
 
   // NEW QUALITY ASSIGNMENT
   // 4 + 4 --> H4PLUS4 --> Q = 8
