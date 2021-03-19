@@ -43,6 +43,7 @@ process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.allowedVariance = 1
 process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(300)
 
+
 # STD
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
 process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
@@ -50,15 +51,15 @@ process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
                                 'file:////eos/cms/store/user/folguera/P2L1TUpgrade/Mu_FlatPt2to100-pythia8-gun_file.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/941C1EA3-141B-6841-AE07-8E5D3ED57461.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/A37FFE18-21EF-5648-AFC8-56BF9CA76B58.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/86F62E38-D278-2841-8BB4-B25FCD44BFF7.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/7CA99B54-AA55-5047-8FCB-8E85DA5B85CE.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/763C6CDF-FF14-A745-AB9E-2A56819BEC78.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/2E88F5EC-8039-4A4D-A48E-A29E2A8C41E7.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/FFB599F9-D497-6943-9287-58E740519498.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/51EFC25B-E0FB-9B4B-B85C-EE4C5CE9C378.root',
-##'/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/F98EB821-7883-F34C-93AD-2CA3E790BC94.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/941C1EA3-141B-6841-AE07-8E5D3ED57461.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/A37FFE18-21EF-5648-AFC8-56BF9CA76B58.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/86F62E38-D278-2841-8BB4-B25FCD44BFF7.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/7CA99B54-AA55-5047-8FCB-8E85DA5B85CE.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/763C6CDF-FF14-A745-AB9E-2A56819BEC78.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/2E88F5EC-8039-4A4D-A48E-A29E2A8C41E7.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/FFB599F9-D497-6943-9287-58E740519498.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/51EFC25B-E0FB-9B4B-B85C-EE4C5CE9C378.root',
+                                # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v2/70000/F98EB821-7883-F34C-93AD-2CA3E790BC94.root',
 
 )
                         )
