@@ -274,6 +274,14 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
                                               << " " << mpAux->lateralComb()[0] << " " << mpAux->lateralComb()[1] << " "
                                               << mpAux->lateralComb()[2] << " " << mpAux->lateralComb()[3];
 
+            cout << "MuonPathAnalyzerPerSL - BX Time  = " << mpAux->bxTimeValue()
+		 << ", BX Id    = " << mpAux->bxNumId()
+		 << ", XCoor    = " << mpAux->horizPos()
+		 << ", tan(Phi) = " << mpAux->tanPhi()
+		 << ", chi2     = " << mpAux->chiSquare() 
+		 << endl;
+
+
           DTChamberId ChId(MuonPathSLId.wheel(), MuonPathSLId.station(), MuonPathSLId.sector());
 
           double jm_tanPhi = -1. * mpAux->tanPhi();  //testing with this line
@@ -309,6 +317,11 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
           double psi = atan(jm_tanPhi);
           double phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
           double chi2 = mpAux->chiSquare() * 0.01;  //in cmssw we need cm, 1 cm^2 = 100 mm^2
+
+	  cout << "Local point AM = " << LocalPoint(jm_x, 0., z) << endl;
+	  cout << "Sector AM = " << MuonPathSLId.sector() << endl;
+	  cout << "Phi AM = " << (jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1)) * 65536. / 0.8 << endl;
+
 
           if (debug_)
             LogDebug("MuonPathAnalyzerPerSL")

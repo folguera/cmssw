@@ -43,6 +43,12 @@ process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin
 process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.allowedVariance = 1
 process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(300)
 
+# #######################################################
+# # Bayes Fit - same process name as Bayes! Use only one!
+# process.dtTriggerPhase2BayesPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
+# process.dtTriggerPhase2BayesPrimitiveDigis.algo = 3 ## Bayes Fit on Std grouping
+# process.dtTriggerPhase2BayesPrimitiveDigis.splitPathPerSL = cms.untracked.bool(True)
+# #######################################################
 
 # STD
 process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()

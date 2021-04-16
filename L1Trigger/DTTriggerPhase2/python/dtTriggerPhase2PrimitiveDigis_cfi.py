@@ -30,7 +30,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
-                                               minHits4Fit = cms.untracked.int32(4),
+                                               minHits4Fit = cms.untracked.int32(3),
                                                splitPathPerSL = cms.untracked.bool(True),
 
                                                #debugging

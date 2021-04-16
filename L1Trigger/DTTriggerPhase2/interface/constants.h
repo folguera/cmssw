@@ -174,7 +174,7 @@ namespace cmsdt {
     MP_QUALITY quality;
   };
 
-  enum algo { Standard = 0, PseudoBayes = 1, HoughTrans = 2 };
+  enum algo { Standard = 0, PseudoBayes = 1, HoughTrans = 2, BayesFit = 3 };
 
   enum scenario { MC = 0, DATA = 1, SLICE_TEST = 2 };
 

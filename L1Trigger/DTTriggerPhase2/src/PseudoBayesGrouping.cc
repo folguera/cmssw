@@ -397,14 +397,14 @@ void PseudoBayesGrouping::FillMuonPaths(MuonPathPtrs& mpaths) {
 
 void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) {
 
-  cout << "RecognisePatternsByLayerPairs:: chamber ID = " << chamber_ID << endl;
+  // cout << "RecognisePatternsByLayerPairs:: chamber ID = " << chamber_ID << endl;
 
   // chamber_ID traslated to MB, wheel, sector
   int MB     = chamber_ID.station() - 1;
   int wheel  = chamber_ID.wheel();
   int sector = chamber_ID.sector();
 
-  cout << "My inputs: wheel = " << wheel << ", station = " << MB << ", sector = " << sector << endl;
+  //  cout << "My inputs: wheel = " << wheel << ", station = " << MB << ", sector = " << sector << endl;
 
   // shift of SL3 wrt SL1 
   int shift = -1;
@@ -466,7 +466,7 @@ void PseudoBayesGrouping::RecognisePatternsByLayerPairs(DTChamberId chamber_ID) 
     else return;
   }
 
-  cout << "MB = " << MB << " sector = " << sector << " shift = " << shift << endl;
+  // cout << "MB = " << MB << " sector = " << sector << " shift = " << shift << endl;
 
   //Separated from main run function for clarity. Do all pattern recognition steps
   pidx_ = 0;

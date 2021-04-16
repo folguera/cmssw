@@ -43,6 +43,8 @@ L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi()
       m_index(0),
       m_t0(0),
       m_chi2(0),
+      m_xLocal(0),
+      m_tanPsi(0),
       m_rpcFlag(-10){ 
   
   for (int i=0; i<8; i++) {
@@ -52,7 +54,7 @@ L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi()
   }
 }
 
-L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int rpc, int wireId[8], int tdc[8],int lat[8])
+L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int x, int tan, int rpc, int wireId[8], int tdc[8],int lat[8])
   : m_bx(bx),
     m_wheel(wh),
     m_sector(sc),
@@ -64,6 +66,8 @@ L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int
     m_index(idx),
     m_t0(t0),
     m_chi2(chi2),
+    m_xLocal(x),
+    m_tanPsi(tan),
     m_rpcFlag(rpc) {
   
   for (int i=0; i<8; i++) {
@@ -97,6 +101,10 @@ int L1Phase2MuDTExtPhDigi::index() const { return m_index; }
 int L1Phase2MuDTExtPhDigi::t0() const { return m_t0; }
 
 int L1Phase2MuDTExtPhDigi::chi2() const { return m_chi2; }
+
+int L1Phase2MuDTExtPhDigi::xLocal() const { return m_xLocal; }
+
+int L1Phase2MuDTExtPhDigi::tanPsi() const { return m_tanPsi; } 
 
 int L1Phase2MuDTExtPhDigi::rpcFlag() const { return m_rpcFlag; }
 
