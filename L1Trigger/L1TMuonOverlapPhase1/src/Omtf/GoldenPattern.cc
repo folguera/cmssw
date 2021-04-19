@@ -6,20 +6,18 @@
 #include <cmath>
 #include <iomanip>
 
-int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB) const {
-  return meanDistPhi[iLayer][iRefLayer][0];
-//  return (((meanDistPhi[iLayer][iRefLayer][1] * refLayerPhiB) >> myOmtfConfig->nPdfAddrBits()) +
-//          meanDistPhi[iLayer][iRefLayer][0]);
-  //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
-}
+int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB, unsigned int iLayerSL, unsigned int iRefLayerSL) const {
+  //  return meanDistPhi[iLayer][iRefLayer][0];
 
-int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, unsigned int LayerSL, unsigned int RefLayerSL) const {
-  return meanDistPhi[iLayer][iRefLayer][0];
-
-  unsigned int paramIndex = getParamIndex(LayerSL,RefLayerSL);   
+  unsigned int paramIndex = getParamIndex(iLayerSL,iRefLayerSL);   
   return meanDistPhi[iLayer][iRefLayer][paramIndex];
   //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
+
+  //  return (((meanDistPhi[iLayer][iRefLayer][1] * refLayerPhiB) >> myOmtfConfig->nPdfAddrBits()) +
+  //          meanDistPhi[iLayer][iRefLayer][0]);
+  //assumes that the meanDistPhi[1] is float alpha from the fit to the phiB-phi distribution multiplied by 2^myOmtfConfig->nPdfAddrBits()
 }
+
 
 int GoldenPattern::getParamIndex(unsigned int LayerSL, unsigned int RefLayerSL) const{
   int paramIndex = 0;

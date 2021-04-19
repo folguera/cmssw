@@ -150,7 +150,7 @@ void PatternGenerator::updateStat() {
 
         if (fired) {  //the result is not empty
           int phiDist = gpResult.getStubResults()[iLayer].getPdfBin();
-          phiDist += exptCandGp->meanDistPhiValue(iLayer, refLayer) - pdfMiddle;
+          phiDist += exptCandGp->meanDistPhiValue(iLayer, refLayer, 0) - pdfMiddle;
           //removing the shift applied in the GoldenPatternBase::process1Layer1RefLayer
 
           /*
@@ -315,7 +315,7 @@ void PatternGenerator::upadatePdfs() {
     if (gp->key().thePt == 0)
       continue;
 
-    int minHitCnt = minHitCntThresh * eventCntPerGp[gp->key().number()];  // //TODO tune threshold <<<<<<<<<<<<<<<<<<
+    int minHitCnt = minHitCntThresh * eventCntPerGp[gp->key().number()];  // TODO tune threshold <<<<<<<<<<<<<<<<<<
     edm::LogImportant("l1tOmtfEventPrint")
         << "PatternGenerator::upadatePdfs() Calculating meanDistPhi " << gp->key() << " eventCnt "
         << eventCntPerGp[gp->key().number()] << " minHitCnt " << minHitCnt << std::endl;
@@ -346,6 +346,7 @@ void PatternGenerator::upadatePdfs() {
                   << __FUNCTION__ << ": " << __LINE__ << " " << gp->key() << " iLayer " << iLayer << " iRefLayer "
                   << iRefLayer << " count " << count << " meanDistPhi " << meanDistPhi << endl;
           }
+	  int paramIndex = 0; // TODO load a proper value here gp->getParamIndex();
           gp->setMeanDistPhiValue(round(meanDistPhi), iLayer, iRefLayer, paramIndex);
         }
       }

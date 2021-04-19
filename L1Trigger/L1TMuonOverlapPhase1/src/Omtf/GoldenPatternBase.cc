@@ -82,7 +82,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
       continue;  //empty itHits are marked with nPhiBins() in OMTFProcessor::restrictInput
     
     if (refStub->superLayerHw!=0 || stub->superLayerHw!=0)  // get again the phiMeanDist in case we have DT and position NOT in the center
-      phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw, stub->superLayerHw,refStub->superLayerHw);
+      phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw, stub->superLayerHw, refStub->superLayerHw);
 
     int phiDist = this->myOmtfConfig->foldPhi(hitPhi - phiMean - phiRefHit);
     //for standard omtf foldPhi is not needed, but if one processor works for full phi then it is

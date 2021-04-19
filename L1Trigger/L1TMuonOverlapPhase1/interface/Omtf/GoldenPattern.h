@@ -45,8 +45,7 @@ public:
 
   virtual void setPdf(pdfArrayType& aPdf) { pdfAllRef = aPdf; }
 
-  int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB = 0) const override;
-  int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, unsigned int LayerSL = 0, unsigned int RefLayerSL = 0) const override;
+  int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer, int refLayerPhiB = 0, unsigned int iLayerSL = 0, unsigned int iRefLayerSL = 0) const override;
 
   PdfValueType pdfValue(unsigned int iLayer,
                         unsigned int iRefLayer,

@@ -804,7 +804,7 @@ void PatternOptimizer::calculateThresholds(GoldenPatternWithStat* omtfCandGp, Go
 /*
 void PatternOptimizer::calculateThresholds(double targetEff) {
   cout<<__FUNCTION__<<":"<<__LINE__<<" targetEff "<<targetEff<<std::endl;
-/*  TFile outfile("optimisedPats_2.root", "READ"); //FIXME the file name
+  TFile outfile("optimisedPats_2.root", "READ"); //FIXME the file name
 
   ostringstream ostrName;
   ostringstream ostrTitle;
