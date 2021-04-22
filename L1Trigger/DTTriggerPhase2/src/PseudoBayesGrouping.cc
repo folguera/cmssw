@@ -72,7 +72,8 @@ void PseudoBayesGrouping::initialise(const edm::EventSetup& iEventSetup) {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Currently hard-coded. To be fixed
-  TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
+  // TString patterns_folder = "L1Trigger/DTTriggerPhase2/data/";
+  TString patterns_folder = "/afs/cern.ch/user/n/ntrevisa/public/Patterns_h287mm/";
 
   // cout << "Loading patterns ..." << endl;
 

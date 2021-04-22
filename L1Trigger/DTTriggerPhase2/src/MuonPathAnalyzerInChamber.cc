@@ -113,10 +113,13 @@ void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
     cout << "Full path fitted" << endl; 
 
     if (splitPathPerSL_){
-      if (muonpathUp_ptr->nprimitivesUp() > 1)
+      // Analyze only if original muonpath was correlated or confirmed.
+      // Otherwise, it's just repeating the original muonpath fit
+
+      if (muonpathUp_ptr->nprimitivesUp() > 1 && muonpath->get()->nprimitivesDown() > 0)
 	analyze(muonpathUp_ptr, outmuonpaths);
 
-      if (muonpathDown_ptr->nprimitivesDown() > 1)
+      if (muonpathDown_ptr->nprimitivesDown() > 1 && muonpath->get()->nprimitivesUp() > 0)
 	analyze(muonpathDown_ptr, outmuonpaths);
     }
   }
@@ -357,7 +360,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   latQuality_.clear();
 
   /* We generate all the possible laterality combinations compatible with the built 
-     group in the previous step*/
+     group in the previous step */
   lateralities_.push_back(TLateralities());
   for (int ilat = 0; ilat < NLayers; ilat++) {
     // Get value from input
@@ -502,8 +505,10 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPathPtr &mpath,
                                             << zwire[lay] << " tTDCvdrift " << tTDCvdrift[lay];
     xhit[lay] = xwire[lay] + (-1 + 2 * laterality[lay]) * 1000 * tTDCvdrift[lay];
     cout << "xwire = " << xwire[lay]
-	 << ", zwire = " << zwire[lay]
-         << ", tTDCvdrift = " << tTDCvdrift[lay] << endl;
+    	 << ", zwire = " << zwire[lay]
+         << ", tTDCvdrift = " << tTDCvdrift[lay]
+	 << ", laterality = " << laterality[lay] << endl;
+
     if (debug_)
       LogDebug("MuonPathAnalyzerInChamber") << "In fitPerLat " << lay << " xhit " << xhit[lay];
   }
