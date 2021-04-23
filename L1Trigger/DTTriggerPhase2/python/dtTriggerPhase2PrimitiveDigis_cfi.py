@@ -22,6 +22,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                x_precision = cms.untracked.double(1./160.),
                                                minx_match_2digis = cms.untracked.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
+                                               df_extended = cms.bool(True),
                                                filter_cousins = cms.untracked.bool(True),
 #                                               timeTolerance = cms.int32(999999), # in ns
 

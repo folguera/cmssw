@@ -6,7 +6,7 @@
 //                muon barrel Phase2 trigger
 //
 //
-//   Author List: Federica Primavera  Bologna INFN
+//   Author List: Nicolo' Trevisani - Oviedo
 //
 //
 //--------------------------------------------------
@@ -39,24 +39,6 @@ public:
   L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int x, int tan, int rpc = -10, int wireId[8] = 0, int tdc[8]= 0,int lat[8] =0 );
 
   // Operations
-  /* int bxNum() const; */
-
-  /* int whNum() const; */
-  /* int scNum() const; */
-  /* int stNum() const; */
-  /* int slNum() const; */
-
-  /* int phi() const; */
-  /* int phiBend() const; */
-
-  /* int quality() const; */
-  /* int index() const; */
-
-  /* int t0() const; */
-  /* int chi2() const; */
-
-  /* int rpcFlag() const; */
-
   int xLocal() const;
   int tanPsi() const;
 
@@ -65,22 +47,6 @@ public:
   int pathLat(int) const; 
 
 private:
-  /* int m_bx; */
-  /* int m_wheel; */
-  /* int m_sector; */
-  /* int m_station; */
-  /* int m_superlayer; */
-
-  /* int m_phiAngle; */
-  /* int m_phiBending; */
-
-  /* int m_qualityCode; */
-  /* int m_index; */
-
-  /* int m_t0; */
-  /* int m_chi2; */
-
-  /* int m_rpcFlag; */
 
   int m_xLocal;
   int m_tanPsi;
