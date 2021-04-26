@@ -30,13 +30,15 @@
 //              ---------------------
 
 class L1Phase2MuDTPhDigi {
-public:
+ public:
   //  Constructors
   L1Phase2MuDTPhDigi();
-
+  
   L1Phase2MuDTPhDigi(
       int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int rpc = -10);
-
+  
+  virtual ~L1Phase2MuDTPhDigi() {};
+  
   // Operations
   int bxNum() const;
 
@@ -56,7 +58,8 @@ public:
 
   int rpcFlag() const;
 
-private:
+ protected:
+  // DATA MEMBERS
   int m_bx;
   int m_wheel;
   int m_sector;
@@ -73,6 +76,7 @@ private:
   int m_chi2;
 
   int m_rpcFlag;
+  
 };
 
 #endif

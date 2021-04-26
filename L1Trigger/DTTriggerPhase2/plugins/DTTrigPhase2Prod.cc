@@ -40,9 +40,10 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
+//#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h"
 
 // DT trigger GeomUtils
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
@@ -164,9 +165,9 @@ namespace {
 
 DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
     : qmap_({{9, 9}, {8, 8}, {7, 6}, {6, 7}, {5, 3}, {4, 5}, {3, 4}, {2, 2}, {1, 1}}) {
+  
   produces<L1Phase2MuDTPhContainer>();
-  // produces<L1Phase2MuDTExtPhContainer>();
-
+  
   debug_ = pset.getUntrackedParameter<bool>("debug");
   dump_ = pset.getUntrackedParameter<bool>("dump");
 
@@ -217,6 +218,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
   dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+
+
+
 }
 
 DTTrigPhase2Prod::~DTTrigPhase2Prod() {
@@ -688,7 +692,10 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   /// STORING RESULTs
   // std::unique_ptr<MotherGrouping> grouping_obj_;
   // grouping_obj_ = std::make_unique<PseudoBayesGrouping>(pset.getParameter<edm::ParameterSet>("PseudoBayesPattern"), consumesColl);
+
   std::vector<L1Phase2MuDTPhDigi> outP2Ph;
+  
+
   // if (df_extended_ == true){
   //   cout << "Extended!" << endl;
   //   //outP2Ph = new vector<L1Phase2MuDTExtPhDigi> = ();
@@ -733,7 +740,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
    
     if (df_extended_ == true){
-
+      
       int pathWireId[8] = {metaPrimitiveIt.wi1,metaPrimitiveIt.wi2,metaPrimitiveIt.wi3,metaPrimitiveIt.wi4,
 			   metaPrimitiveIt.wi5,metaPrimitiveIt.wi6,metaPrimitiveIt.wi7,metaPrimitiveIt.wi8};
 
@@ -743,7 +750,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       int pathLat[8] = {metaPrimitiveIt.lat1,metaPrimitiveIt.lat2,metaPrimitiveIt.lat3,metaPrimitiveIt.lat4,
 			metaPrimitiveIt.lat5,metaPrimitiveIt.lat6,metaPrimitiveIt.lat7,metaPrimitiveIt.lat8};
     
-      outP2Ph.push_back(L1Phase2MuDTExtPhDigi(
+      outP2Ph.emplace_back(L1Phase2MuDTExtPhDigi(
 					      (int)round(metaPrimitiveIt.t0 / 25.) - shift_back,  // ubx (m_bx) //bx en la orbita
 					      chId.wheel(),    // uwh (m_wheel)     // FIXME: It is not clear who provides this?
 					      sectorTP,        // usc (m_sector)    // FIXME: It is not clear who provides this?
@@ -761,12 +768,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 					      pathWireId,
 					      pathTDC,
 					      pathLat
-					      ));
+											));
       // cout << "Local x in muon path = " << outP2Ph.xLocal() << endl; 
     }
     else{
     
-      outP2Ph.push_back(L1Phase2MuDTPhDigi(
+      outP2Ph.emplace_back(L1Phase2MuDTPhDigi(
 					   (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back,
 					   chId.wheel(),                                                // uwh (m_wheel)
 					   sectorTP,                                                    // usc (m_sector)
@@ -779,7 +786,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 					   (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ,  // ut0 (m_t0Segment)
 					   (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),             // uchi2 (m_chi2Segment)
 					   metaPrimitiveIt.rpcFlag                                      // urpc (m_rpcFlag)
-					   ));
+										  ));
     }
   }
 
@@ -801,7 +808,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   // }
   // else{
   
-  // auto resultP2Ph = std::make_unique<L1Phase2MuDTExtPhContainer>();
   auto resultP2Ph = std::make_unique<L1Phase2MuDTPhContainer>();
   resultP2Ph->setContainer(outP2Ph);
   iEvent.put(std::move(resultP2Ph));
