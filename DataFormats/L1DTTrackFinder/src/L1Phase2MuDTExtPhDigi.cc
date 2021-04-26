@@ -58,6 +58,33 @@ L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int
   }
 }
 
+L1Phase2MuDTExtPhDigi::L1Phase2MuDTExtPhDigi(const L1Phase2MuDTExtPhDigi &digi):
+  L1Phase2MuDTPhDigi(digi.bxNum(), 
+		     digi.whNum(), 
+		     digi.scNum(), 
+		     digi.stNum(), 
+		     digi.slNum(), 
+		     digi.phi(), 
+		     digi.phiBend(), 
+		     digi.quality(), 
+		     digi.index(), 
+		     digi.t0(), 
+		     digi.chi2(), 
+		     digi.rpcFlag()),
+  m_xLocal(digi.xLocal()),
+  m_tanPsi(digi.tanPsi())
+{
+  for (int i=0; i<8; i++) {
+    m_pathWireId[i] = digi.pathWireId(i);
+    m_pathTDC[i] = digi.pathTDC(i);
+    m_pathLat[i] = digi.pathLat(i);
+  } 
+}
+
+int L1Phase2MuDTExtPhDigi::xLocal() const { return m_xLocal; }
+
+int L1Phase2MuDTExtPhDigi::tanPsi() const { return m_tanPsi; }
+
 int L1Phase2MuDTExtPhDigi::pathWireId(int i) const { return m_pathWireId[i]; }
 
 int L1Phase2MuDTExtPhDigi::pathTDC(int i) const { return m_pathTDC[i]; }

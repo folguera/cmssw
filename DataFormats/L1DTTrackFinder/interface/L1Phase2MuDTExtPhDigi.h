@@ -37,6 +37,8 @@ public:
   L1Phase2MuDTExtPhDigi();
 
   L1Phase2MuDTExtPhDigi(int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int x, int tan, int rpc = -10, int wireId[8] = 0, int tdc[8]= 0,int lat[8] =0 );
+
+  L1Phase2MuDTExtPhDigi(const L1Phase2MuDTExtPhDigi &digi);
   
   ~L1Phase2MuDTExtPhDigi() override {};
 

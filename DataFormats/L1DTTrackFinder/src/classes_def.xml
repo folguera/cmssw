@@ -38,17 +38,9 @@
   <version ClassVersion="10" checksum="1310842826"/>
  </class>
 
- <class name="L1Phase2MuDTPhContainer" ClassVersion="7">
-  <version ClassVersion="7" checksum="2858706077"/>
-  <version ClassVersion="6" checksum="3570448055"/>
-  <version ClassVersion="5" checksum="2858706077"/>
-  <version ClassVersion="4" checksum="4273776802"/>
- </class>
-
  <class name="edm::Wrapper<L1MuDTChambPhContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1MuDTChambThContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1MuDTTrackContainer>"/>
 
- <class name="edm::Wrapper<L1Phase2MuDTPhContainer>" splitLevel="0"/> 
 
 </lcgdict>

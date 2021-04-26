@@ -32,20 +32,20 @@
 //---------------------
 //-- Class Interface --
 //---------------------
+template<class T> 
 class L1Phase2MuDTPhContainer {
 public:
-  typedef std::vector<L1Phase2MuDTPhDigi> Segment_Container;
-  typedef std::vector<std::unique_ptr<L1Phase2MuDTPhDigi>> SegmentPtr_Container;
-  typedef Segment_Container::const_iterator Segment_iterator;
+  typedef std::vector<T> Segment_Container;
+  typedef typename Segment_Container::const_iterator Segment_iterator;
   
   //  Constructor
   L1Phase2MuDTPhContainer() {};
 
   void setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; };
-  void setContainerPtr(const SegmentPtr_Container& inputSegments) { 
-    for (auto& muon : inputSegments) 
-      m_segments.push_back(*(muon.get()));
-  };
+//  void setContainerPtr(const SegmentPtr_Container& inputSegments) { 
+//    for (auto& muon : inputSegments) 
+//      m_segments.push_back(*(muon.get()));
+//  };
   
   
   Segment_Container const* getContainer() const { return &m_segments; }; 
