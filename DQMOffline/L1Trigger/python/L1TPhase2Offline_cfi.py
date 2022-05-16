@@ -134,7 +134,11 @@ l1tPhase2CorrelatorOfflineDQM = DQMEDAnalyzer(
 
 )
 
+from DQMOffline.L1Trigger.L1TPhase2MuonOffline_cfi import *
+
 l1tPhase2OfflineDQM = cms.Sequence(
                           l1tPhase2CorrelatorOfflineDQM +
-                          OuterTrackerTkMET
+                          OuterTrackerTkMET +
+                          l1tPhase2MuonOffline
                           )
+
