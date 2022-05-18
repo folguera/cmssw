@@ -10,7 +10,6 @@
   <use name="xerces-c"/>
 </export>
 
-<flags ADD_SUBDIR="1"/>
 
 <use name="xerces-c"/>
 <use name="root"/>
@@ -26,7 +25,6 @@
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/RPCGeometry"/>  
 
-<use name="L1Trigger/CSCCommonTrigger"/>
 <use name="L1Trigger/DTUtilities"/>
 <use name="L1Trigger/L1TMuonOverlapPhase1"/>
 
