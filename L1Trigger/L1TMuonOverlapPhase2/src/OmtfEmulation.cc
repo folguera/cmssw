@@ -7,7 +7,7 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfEmulation.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/InputMakerPhase2.h"
-//#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignmentNN.h"
+#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignmentNN.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -34,15 +34,17 @@ void OmtfEmulation::addObservers(const MuonGeometryTokens& muonGeometryTokens,
   if (observers.empty()) { //assuring it is done only at the first run
     OMTFReconstruction::addObservers(muonGeometryTokens, magneticFieldEsToken, propagatorEsToken);
     /*    if(edmParameterSet.exists("patternsPtAssignment") && edmParameterSet.getParameter<bool>("patternsPtAssignment")) {
-      //std::string rootFileName = edmParameterSet.getParameter<std::string>("dumpHitsFileName");
-      .emplace_back(std::make_unique<PatternsPtAssignment>(edmParameterSet, omtfConfig.get(), omtfProcGoldenPat->getPatterns(), ""));
-    }*/
+    //std::string rootFileName = edmParameterSet.getParameter<std::string>("dumpHitsFileName");
+    .emplace_back(std::make_unique<PatternsPtAssignment>(edmParameterSet, omtfConfig.get(), omtfProcGoldenPat->getPatterns(), ""));
+    }
+    */
   }
 
   if (edmParameterSet.exists("neuralNetworkFile") && !ptAssignment) {
-    /*edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNN" << std::endl;
+    edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNN" << std::endl;
     std::string neuralNetworkFile = edmParameterSet.getParameter<edm::FileInPath>("neuralNetworkFile").fullPath();
-    ptAssignment.reset(new PtAssignmentNN( edmParameterSet, omtfConfig.get(), neuralNetworkFile));*/
+    ptAssignment.reset(new PtAssignmentNN( edmParameterSet, omtfConfig.get(), neuralNetworkFile));
+    
   }
 
   auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPattern>*>(omtfProc.get());

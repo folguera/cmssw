@@ -1,13 +1,16 @@
 #ifndef OMTFProducer_H
 #define OMTFProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfEmulation.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-class L1TMuonOverlapPhase2TrackProducer : public edm::EDProducer {
+class L1TMuonOverlapPhase2TrackProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   L1TMuonOverlapPhase2TrackProducer(const edm::ParameterSet&);
 
@@ -18,6 +21,8 @@ public:
   void endJob() override;
 
   void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
+
+  void endRun(edm::Run const& run, edm::EventSetup const& iSetup) override{};
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 

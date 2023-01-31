@@ -27,9 +27,9 @@ void DtPhase2DigiToStubsConverter::makeStubs(
     ///Check it the data fits into given processor input range
     if (!acceptDigi(detid, iProcessor, procTyp))
       continue;
-
-    // HACK for Phase-2  (DT TPs are centered in bX=20)
-    if (digiIt.bxNum() - 20 >= bxFrom && digiIt.bxNum() - 20 <= bxTo)
+       
+    // HACK for Phase-2 simulation (DT TPs are centered in bX=420)
+    if (digiIt.bxNum() - 420 >= bxFrom && digiIt.bxNum() - 420 <= bxTo)
       addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis.product(), iProcessor, procTyp);
   }
 
@@ -48,7 +48,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(
 //dtThDigis is provided as argument, because in the OMTF implementation the phi and eta digis are merged (even thought it is artificial)
 void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers,
                                                     const L1Phase2MuDTPhDigi& digi,
-                                                    const L1MuDTChambThContainer* dtThDigis,
+                                                    const L1Phase2MuDTThContainer* dtThDigis,
                                                     unsigned int iProcessor,
                                                     l1t::tftype procTyp) {
   DTChamberId detid(digi.whNum(), digi.stNum(), digi.scNum() + 1);
@@ -73,16 +73,17 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
   stub.phiHw = angleConverter->getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
   //stub.etaHw  =  angleConverter->getGlobalEta(digi, dtThDigis);
-  stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum() - 20);
-  //phiB in Ph2 has 2018==1.4rad ... need to convert them to 512==1rad (so we can use OLD patterns)
-
+  stub.etaHw = angleConverter->getGlobalEta(detid, dtThDigis, digi.bxNum() - 420);
+  //4096. / 2.;   // 13 bits, [-2, 2], need to convert them to 512==1rad (to use OLD PATTERNS...)
+  //phiB in Ph2 has 2048==1.4rad ... need to convert them to 512==1rad (so we can use OLD patterns)
+  float PHIB_CONV = 2. * 512. / 4096.;  
   if (stub.qualityHw >= config->getMinDtPhiBQuality())
-    stub.phiBHw = round(digi.phiBend() * 1.4 * 512 / 2048.);
+    stub.phiBHw = round(digi.phiBend() * PHIB_CONV);
   else
     stub.phiBHw = config->nPhiBins();
 
   // need to shift 20-BX to roll-back the shift introduced by the DT TPs
-  stub.bx = digi.bxNum() - 20;
+  stub.bx = digi.bxNum() - 420;
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
 
   stub.logicLayer = iLayer;
@@ -92,7 +93,7 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 }
 
 void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers,
-                                                     const L1MuDTChambThDigi& thetaDigi,
+                                                     const L1Phase2MuDTThContainer& thetaDigi,
                                                      unsigned int iProcessor,
                                                      l1t::tftype procTyp) {
   //in the Phase1 omtf the theta stubs are merged with the phi in the addDTphiDigi

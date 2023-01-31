@@ -31,4 +31,6 @@
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
 
+<use name="lutNN/lutNN2"/>
+
 
