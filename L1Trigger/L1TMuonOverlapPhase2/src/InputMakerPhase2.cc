@@ -48,7 +48,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(
 //dtThDigis is provided as argument, because in the OMTF implementation the phi and eta digis are merged (even thought it is artificial)
 void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers,
                                                     const L1Phase2MuDTPhDigi& digi,
-                                                    const L1Phase2MuDTThContainer* dtThDigis,
+                                                    const L1MuDTChambThContainer* dtThDigis,
                                                     unsigned int iProcessor,
                                                     l1t::tftype procTyp) {
   DTChamberId detid(digi.whNum(), digi.stNum(), digi.scNum() + 1);
@@ -93,7 +93,7 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 }
 
 void DtPhase2DigiToStubsConverterOmtf::addDTetaStubs(MuonStubPtrs2D& muonStubsInLayers,
-                                                     const L1Phase2MuDTThContainer& thetaDigi,
+                                                     const L1MuDTChambThDigi& thetaDigi,
                                                      unsigned int iProcessor,
                                                      l1t::tftype procTyp) {
   //in the Phase1 omtf the theta stubs are merged with the phi in the addDTphiDigi
