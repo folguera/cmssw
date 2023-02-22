@@ -219,11 +219,28 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
 
   if (edmParameterSet.exists("ghostBusterType")) {
     setGhostBusterType(edmParameterSet.getParameter<std::string>("ghostBusterType"));
-
     edm::LogVerbatim("OMTFReconstruction") << "ghostBusterType: " << getGhostBusterType() << std::endl;
   }
 
   setFixCscGeometryOffset(true);  //for the OMTF by default is true, read from python if needed
+
+  if (edmParameterSet.exists("usePhiBExtrapolationFromMB1")) {
+    usePhiBExtrapolationFromMB1 = edmParameterSet.getParameter<bool>("usePhiBExtrapolationFromMB1");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "usePhiBExtrapolationFromMB1: " << usePhiBExtrapolationFromMB1 << std::endl;
+  }
+
+  if (edmParameterSet.exists("usePhiBExtrapolationFromMB2")) {
+    usePhiBExtrapolationFromMB2 = edmParameterSet.getParameter<bool>("usePhiBExtrapolationFromMB2");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "usePhiBExtrapolationFromMB2: " << usePhiBExtrapolationFromMB2 << std::endl;
+  }
+
+  if (edmParameterSet.exists("dtRefHitMinQuality")) {
+    dtRefHitMinQuality = edmParameterSet.getParameter<int>("dtRefHitMinQuality");
+    edm::LogVerbatim("OMTFReconstruction")
+        << "dtRefHitMinQuality: " << dtRefHitMinQuality << std::endl;
+  }
 }
 
 ///////////////////////////////////////////////

@@ -1,0 +1,11 @@
+executable              = $(filename)
+arguments               = $(ClusterId)$(ProcId)
+output                  = batchlogs/$(ClusterId).$(ProcId).out
+error                   = batchlogs/$(ClusterId).$(ProcId).err
+log                     = batchlogs/$(ClusterId).log
++JobFlavour = "workday"
+
+Proxy_path=/afs/cern.ch/user/f/folguera/workdir/proxy/x509up_u50826
+arguments               = $(Proxy_path) arg2 arg3 arg4
+
+queue filename matching (exec/job_*sh)

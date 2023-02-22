@@ -79,6 +79,10 @@ public:
     return this->fixCscGeometryOffset = fixCscGeometryOffset;
   }
 
+  virtual unsigned int  minFiredLayers() const { return minFiredLayers_; }
+  
+  virtual void setMinFiredLayers(int minFiredLay=3) { this->minFiredLayers_ = minFiredLay; }
+
 private:
   int cscLctCentralBx_ = 8;  //CSCConstants::LCT_CENTRAL_BX;
 
@@ -94,6 +98,8 @@ private:
   int minDtPhiBQuality = 2;  //used on the top of the minDtPhiQuality
 
   bool fixCscGeometryOffset = false;
+
+  unsigned int minFiredLayers_ = 3;
 };
 
 #endif /* L1T_OmtfP1_PROCCONFIGURATIONBASE_H_ */
