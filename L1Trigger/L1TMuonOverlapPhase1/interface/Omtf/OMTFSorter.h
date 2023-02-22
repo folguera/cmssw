@@ -7,7 +7,7 @@
 template <class GoldenPatternType>
 class OMTFSorter : public SorterBase<GoldenPatternType> {
 public:
-  OMTFSorter(int sorterTypeFlag) : myType(sorterTypeFlag) {}
+  OMTFSorter(int sorterTypeFlag, int minFiredLay) : myType(sorterTypeFlag), minFiredLayers(minFiredLay) {}
 
   ~OMTFSorter() override {}
 
@@ -22,6 +22,7 @@ public:
 
 private:
   int myType;
+  unsigned int minFiredLayers;
 };
 
 #endif

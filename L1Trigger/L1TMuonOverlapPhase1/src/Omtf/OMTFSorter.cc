@@ -30,13 +30,13 @@ AlgoMuons::value_type OMTFSorter<GoldenPatternType>::sortRefHitResults(
       continue;  //charge==0 means ignore charge
 
     ///Accept only candidates with >2 hits
-    if (itGP->getResults()[procIndx][iRefHit].getFiredLayerCnt() < 3)  //TODO - move 3 to the configuration??
+    if (itGP->getResults()[procIndx][iRefHit].getFiredLayerCnt() < minFiredLayers)  //TODO - move 3 to the configuration??
       continue;
 
     if (bestGP == nullptr) {
       bestGP = itGP.get();
     } else if (myType == 0 && itGP->getResults()[procIndx][iRefHit].getFiredLayerCnt() >
-                                  bestGP->getResults()[procIndx][iRefHit].getFiredLayerCnt()) {
+	       bestGP->getResults()[procIndx][iRefHit].getFiredLayerCnt()) {
       bestGP = itGP.get();
     } else if (myType == 1 || (itGP->getResults()[procIndx][iRefHit].getFiredLayerCnt() ==
                                bestGP->getResults()[procIndx][iRefHit].getFiredLayerCnt())) {

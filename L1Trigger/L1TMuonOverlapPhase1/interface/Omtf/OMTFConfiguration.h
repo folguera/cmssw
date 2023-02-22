@@ -88,7 +88,7 @@ public:
 
   unsigned int fwVersion() const { return (rawParams.fwVersion() >> 16) & 0xFFFF; };
   unsigned int patternsVersion() const { return rawParams.fwVersion() & 0xFFFF; };
-
+    
   const L1TMuonOverlapParams* getRawParams() const { return &rawParams; };
 
   float minPdfVal() const { return 0.001; };
@@ -349,6 +349,7 @@ private:
   //min quality of the DT phi hit used as the reference hit
   //Remember that it is on the top of the minDtPhiQuality
   int dtRefHitMinQuality = 2;
+
 };
 
 #endif

@@ -50,7 +50,7 @@ OMTFProcessor<GoldenPatternType>::~OMTFProcessor() {}
 
 template <class GoldenPatternType>
 void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm::EventSetup const& evSetup) {
-  setSorter(new OMTFSorter<GoldenPatternType>(this->myOmtfConfig->getSorterType()));
+  setSorter(new OMTFSorter<GoldenPatternType>(this->myOmtfConfig->getSorterType(),this->myOmtfConfig->minFiredLayers()));
   //initialize with the default sorter
 
   if (this->myOmtfConfig->getGhostBusterType() == "GhostBusterPreferRefDt" ||

@@ -61,4 +61,10 @@ void ProcConfigurationBase::configureFromEdmParameterSet(const edm::ParameterSet
     edm::LogVerbatim("OMTFReconstruction")
         << "minDtPhiBQuality: " << edmParameterSet.getParameter<int>("minDtPhiBQuality") << std::endl;
   }
+
+  if (edmParameterSet.exists("minFiredLayers")) {
+    minFiredLayers_ = edmParameterSet.getParameter<int>("minFiredLayers");
+    edm::LogVerbatim("OMTFReconstruction")
+      << "minFiredLayers: " << edmParameterSet.getParameter<int>("minFiredLayers") << std::endl;
+  }
 }
