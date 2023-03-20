@@ -91,31 +91,31 @@ namespace Phase2L1GMT {
   const float LSBpt = 0.03125;
   const float LSBphi = 2. * M_PI / pow(2, BITSPHI);
   const float LSBeta = 2. * M_PI / pow(2, BITSETA);
-  const float LSBGTz0 = 0.05; // 0.5mm, in sync with GTT and Correlator
-  const float LSBGTd0 = 0.03; // from GT interface doc
-  const float LSBSAz0 = 1.6; // 0.05 * 32 cm, with range +- 25.6
-  const float LSBSAd0 = 3.84; // 0.03 * 128 cm, with range +- 245.76
+  const float LSBGTz0 = 0.05;  // 0.5mm, in sync with GTT and Correlator
+  const float LSBGTd0 = 0.03;  // from GT interface doc
+  const float LSBSAz0 = 1.6;   // 0.05 * 32 cm, with range +- 25.6
+  const float LSBSAd0 = 3.84;  // 0.03 * 128 cm, with range +- 245.76
 
-  typedef ap_uint<64>         wordtype;
-  typedef ap_uint<1>          valid_gt_t; //valid
-  typedef ap_uint<1>          q_gt_t;     //charge
-  typedef ap_uint<BITSGTPT>   pt_gt_t;    //pt        of tracker muon
-  typedef ap_int<BITSGTPHI>   phi_gt_t;   //phi       of tracker muon
-  typedef ap_int<BITSGTETA>   eta_gt_t;   //eta       of tracker muon
-  typedef ap_int<BITSGTZ0>    z0_gt_t;    //z0        of tracker muon
-  typedef ap_int<BITSGTD0>    d0_gt_t;    //d0        of tracker muon
-  typedef ap_uint<BITSGTISO>  iso_gt_t;   //isolation of tracker muon
+  typedef ap_uint<64> wordtype;
+  typedef ap_uint<1> valid_gt_t;          //valid
+  typedef ap_uint<1> q_gt_t;              //charge
+  typedef ap_uint<BITSGTPT> pt_gt_t;      //pt        of tracker muon
+  typedef ap_int<BITSGTPHI> phi_gt_t;     //phi       of tracker muon
+  typedef ap_int<BITSGTETA> eta_gt_t;     //eta       of tracker muon
+  typedef ap_int<BITSGTZ0> z0_gt_t;       //z0        of tracker muon
+  typedef ap_int<BITSGTD0> d0_gt_t;       //d0        of tracker muon
+  typedef ap_uint<BITSGTISO> iso_gt_t;    //isolation of tracker muon
   typedef ap_uint<BITSGTBETA> beta_gt_t;  //beta      of tracker muon
   typedef ap_uint<BITSGTQUAL> qual_gt_t;  //quality   of tracker muon
 
   //Standalone muon datatype
-  typedef ap_uint<1>          valid_sa_t; //valid
-  typedef ap_uint<BITSGTPT>   pt_sa_t;    //pt      of standalone muon
-  typedef ap_int<BITSGTPHI>   phi_sa_t;   //phi     of standalone muon
-  typedef ap_int<BITSGTETA>   eta_sa_t;   //eta     of standalone muon
-  typedef ap_int<BITSSAZ0>    z0_sa_t;    //z0      of standalone muon
-  typedef ap_int<BITSSAD0>    d0_sa_t;    //d0      of standalone muon
-  typedef ap_uint<1>          q_sa_t;     //charge  of standalone muon
+  typedef ap_uint<1> valid_sa_t;          //valid
+  typedef ap_uint<BITSGTPT> pt_sa_t;      //pt      of standalone muon
+  typedef ap_int<BITSGTPHI> phi_sa_t;     //phi     of standalone muon
+  typedef ap_int<BITSGTETA> eta_sa_t;     //eta     of standalone muon
+  typedef ap_int<BITSSAZ0> z0_sa_t;       //z0      of standalone muon
+  typedef ap_int<BITSSAD0> d0_sa_t;       //d0      of standalone muon
+  typedef ap_uint<1> q_sa_t;              //charge  of standalone muon
   typedef ap_uint<BITSSAQUAL> qual_sa_t;  //quality of standalone muon
 
   inline uint64_t twos_complement(long long int v, uint bits) {
