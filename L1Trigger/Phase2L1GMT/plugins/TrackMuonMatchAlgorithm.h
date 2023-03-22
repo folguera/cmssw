@@ -105,7 +105,7 @@ namespace Phase2L1GMT {
         if (out.size() == maximum)
           break;
         l1t::TrackerMuon muon(mu.trkPtr(), mu.charge(), mu.pt(), mu.eta(), mu.phi(), mu.z0(), mu.d0(), mu.quality());
-        //muon.setMuonRef(mu.muonRef());
+        muon.setMuonRef(mu.muonRef());
         for (const auto& stub : mu.stubs())
           muon.addStub(stub);
         out.push_back(muon);
