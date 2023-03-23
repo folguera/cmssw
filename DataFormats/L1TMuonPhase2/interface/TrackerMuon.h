@@ -32,7 +32,7 @@ namespace l1t {
     ~TrackerMuon() override;
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
-    const edm::Ref<l1t::RegionalMuonCandBxCollection>& muonRef() const { return muRef_; }
+    const std::vector<l1t::RegionalMuonCandRef>& muonRef() const { return muRef_; }
 
     const bool hwCharge() const { return hwCharge_; }
     const int hwZ0() const { return hwZ0_; }
@@ -41,7 +41,7 @@ namespace l1t {
     const int hwIsoSumAp() const { return hwIsoSumAp_; }
     const uint hwBeta() const { return hwBeta_; }
     void setBeta(uint beta) { hwBeta_ = beta; }
-    void setMuonRef(const edm::Ref<l1t::RegionalMuonCandBxCollection>& p) { muRef_ = p; }
+    void setMuonRef(const std::vector<l1t::RegionalMuonCandRef>& p) { muRef_ = p; }
     void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; }
     void setHwIsoSumAp(int isoSum) { hwIsoSumAp_ = isoSum; }
 
@@ -88,7 +88,7 @@ namespace l1t {
     //Store the eneryg sum for isolation with ap_type
     int hwIsoSumAp_;
 
-    edm::Ref<l1t::RegionalMuonCandBxCollection> muRef_;
+    std::vector<l1t::RegionalMuonCandRef> muRef_;
     MuonStubRefVector stubs_;
   };
 }  // namespace l1t
