@@ -62,20 +62,17 @@ void Phase2L1TGMTFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   for (uint i = 0; i < muonHandle->size(); ++i) {
     auto mu = muonHandle->at(i);
-  //  if (applyLowPtFilter_) {
-    std::cout << "muon pt: " << mu.phPt() << " eta: " << mu.phEta() << " Q: " << mu.hwQual(); 
-    for(auto r : mu.muonRef())  {
-      if(r.isNonnull())  {
-        std::cout << "ref muon pt: " << r->hwPt() *0.5 <<" eta : " << r->hwEta() *0.010875  <<" phi " << r->hwPhi()* 2*3.14/576 << std::endl;
-	mu.setHwQual(0); 
+    if (applyLowPtFilter_) {
+      if ((fabs(mu.phEta()) < 0.9 && mu.phPt() < ptBarrelMin_) || (fabs(mu.phEta()) > 0.9 && mu.phPt() < ptEndcapMin_))  {
+        // if quality is already set to 0 don't continue the loop. 
+        for(auto r : mu.muonRef())  {
+          if(r.isNonnull())  {
+	          mu.setHwQual(0);
+            break;
+          }
+        }
       }
-    
-    }   //    if ((fabs(mu.phEta()) < 0.9 && mu.phPt() < ptBarrelMin_) || (fabs(mu.phEta()) > 0.9 && mu.phPt() < ptEndcapMin_))  {
-  //      if (mu.muonRef().isNonNull()) {
-  //        mu.setHwQual(0); // modify the quality to 0 in those cases that there is no SA associated. 
-  //      }
-    //  }
-  //  }
+    }   
     out.push_back(mu); // store all muons otherwise
   }
 
