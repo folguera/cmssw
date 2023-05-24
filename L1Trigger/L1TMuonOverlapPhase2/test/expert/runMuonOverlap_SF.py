@@ -71,7 +71,7 @@ options.register('minFiredLayers',
 
 options.outputFile = 'l1tomtf.root'
 #options.inputFiles = 'file:/eos/cms/store/user/folguera/OMTF/MuonGunSample_106X/MuonFlatPt1to1000_1001_numEvent2000.root'
-options.inputFiles = 'file:/eos/user/a/akalinow/Data/SingleMu/SingleMu_ch0_OneOverPt_test_14_02_2023_1/test_14_02_2023_1/230214_084703/0000/SingleMu_OneOverPt_1_100_m_1.root'
+options.inputFiles = 'file:///eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_iPt0_12_5_2_p1_15_02_2023/12_5_2_p1_15_02_2023/230216_100233/0000/SingleMu_iPt_0_m_16.root'
 
 # get and parse the command line arguments
 options.parseArguments()
@@ -192,13 +192,11 @@ process.simOmtfPhase2Digis.minDtPhiQuality = cms.int32(options.minDtPhiQuality)
 process.simOmtfPhase2Digis.minDtPhiBQuality = cms.int32(options.minDtPhiBQuality)
 process.simOmtfPhase2Digis.minFiredLayers = cms.int32(options.minFiredLayers)
 
-'''
-COMMENT UNTIL I TRAIN NEW PATTERNS... 
 if options.usePhase2DTs: 
-    process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_layerStat_t11_Phase2DTs_fullRes_classProb.xml")
+    process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_layerStat_t11_Phase2DTs_classProb.xml")
 else: 
-    process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_layerStat_t11_clasProb.xml")
-'''
+    process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_layerStat_t11_classProb.xml")
+
 process.simOmtfPhase2Digis.rpcMaxClusterSize = cms.int32(3)
 process.simOmtfPhase2Digis.rpcMaxClusterCnt = cms.int32(2)
 process.simOmtfPhase2Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)

@@ -7,7 +7,6 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfEmulation.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/InputMakerPhase2.h"
-#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignmentNN.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,12 +39,12 @@ void OmtfEmulation::addObservers(const MuonGeometryTokens& muonGeometryTokens,
     */
   }
 
-  if (edmParameterSet.exists("neuralNetworkFile") && !ptAssignment) {
-    edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNN" << std::endl;
-    std::string neuralNetworkFile = edmParameterSet.getParameter<edm::FileInPath>("neuralNetworkFile").fullPath();
-    ptAssignment.reset(new PtAssignmentNN( edmParameterSet, omtfConfig.get(), neuralNetworkFile));
-    
-  }
+//  if (edmParameterSet.exists("neuralNetworkFile") && !ptAssignment) {
+//    edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNN" << std::endl;
+//    std::string neuralNetworkFile = edmParameterSet.getParameter<edm::FileInPath>("neuralNetworkFile").fullPath();
+//    ptAssignment.reset(new PtAssignmentNN( edmParameterSet, omtfConfig.get(), neuralNetworkFile));
+//    
+//  }
 
   auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPattern>*>(omtfProc.get());
   if (omtfProcGoldenPat) {

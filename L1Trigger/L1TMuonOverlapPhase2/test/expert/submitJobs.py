@@ -6,23 +6,26 @@ print ('START')
 
 ########   YOU ONLY NEED TO FILL THE AREA BELOW   #########
 ########   customization  area #########
-NumberOfJobs= 300 # number of jobs to be submitted
+NumberOfJobs= 250 # number of jobs to be submitted
 interval = 2 # number files to be processed in a single job, take care to split your file so that you run on all files. The last job might be with smaller number of files (the ones that remain).
 OutputFileNames = "l1omtf" # base of the output file name, they will be saved in res directory
 #ScriptName = "runMuonOverlap_SF_wNN.py" # script to be used with cmsRun
 ScriptName = "runMuonOverlap_SF.py" # script to be used with cmsRun
 FileList = "list_MuonGunSample_Pt1to1000_106X.txt"
-FileList = "list_SingleMu_FlatPt1to1000_FullEta_125X.txt"
+#FileList = "list_SingleMu_FlatPt1to1000_FullEta_125X.txt"
 #FileList = "list_SingleMu_OneOverPt_FullEta.txt" #] # list with all the file directories
 #FileList = "list_DY.txt" # list with all the file directories
 queue = "workday" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
-OutputDir = [#"/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_02_UsePhase2DTs/noDTPhase2/",
-             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_02_UsePhase2DTs/wDTPhase2_minFiredLay2/",
-             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_02_UsePhase2DTs/wDTPhase2_HQonly/",
-             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_02_UsePhase2DTs/noRPCs_minFiredLay2/"]
-customize = [#"usePhase2DTs=False", 
-             "usePhase2DTs=True minFiredLayers=2", 
-#             "usePhase2DTs=True minDtPhiQuality=4 minDtPhiBQuality=5",
+OutputDir = ["/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/noP2DTs/",
+             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/withP2DTs/",
+             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/withP2DTs_minLay2/",
+             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/withP2DTsHQ/",
+             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/noRPCs/",
+             "/eos/cms/store/user/folguera/L1TMuon/OMTF/2023_03_UsePhase2DTs_NewPats_t11/noRPCs_minLay2/"]
+customize = ["usePhase2DTs=False", 
+             "usePhase2DTs=True",
+             "usePhase2DTs=True minFiredLayers=2",
+             "usePhase2DTs=True minDtPhiQuality=4 minDtPhiBQuality=5",
              "usePhase2DTs=True dropRPCs=True",
              "usePhase2DTs=True dropRPCs=True minFiredLayers=2"] 
 
@@ -43,9 +46,9 @@ for i in range(len(customize)):
     if "MuonGunSample" in FileList: 
         OutDir += "MuonGunSample_Pt1to1000_106X/"
     elif "SingleMu_OneOverPt" in FileList:
-        OutDir += "SingleMu_OneOverPt_1_100/"
+        OutDir += "SingleMu_OneOverPt_FullEta_125X/"
     elif "SingleMu_FlatPt1to1000_FullEta_125X":
-        OutDir += "SingleMu_FlatPt1to1000/"
+        OutDir += "SingleMu_FlatPt1to1000_FullEta_125X/"
 
     path = os.getcwd()
     print ("runnning: " + customize[i])
