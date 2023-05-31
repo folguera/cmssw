@@ -108,7 +108,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             SL3metaPrimitives.push_back(metaprimitiveIt);
         }
 
-        if (SL1metaPrimitives.empty() and SL3metaPrimitives.empty())
+        if (SL1metaPrimitives.empty() or SL3metaPrimitives.empty())
           continue;
 
         if (debug_)
@@ -119,12 +119,11 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         bool at_least_one_SL1_confirmation = false;
         bool at_least_one_SL3_confirmation = false;
 
-        bool useFitSL1[SL1metaPrimitives.size()];
+        vector<bool> useFitSL1,useFitSL3; 
         for (unsigned int i = 0; i < SL1metaPrimitives.size(); i++)
-          useFitSL1[i] = false;
-        bool useFitSL3[SL3metaPrimitives.size()];
+          useFitSL1.push_back(false);
         for (unsigned int i = 0; i < SL3metaPrimitives.size(); i++)
-          useFitSL3[i] = false;
+          useFitSL3.push_back(false);
 
         //SL1-SL3
         vector<metaPrimitive> chamberMetaPrimitives;
@@ -236,12 +235,12 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                   pos_mm_x4 = wireHorizPos_x4 + (drift_dist_um_x4 >> 10);
                 }
                 sum_A = shift + pos_mm_x4 - (long int)round(MeanPos * 10 * INCREASED_RES_POS_POW);
-                sum_A = sum_A << (14 - INCREASED_RES_POS);
+                sum_A = (unsigned long int) sum_A << (14 - INCREASED_RES_POS);
                 sum_B = Z_FACTOR_CORR[i] * (long int)round(-NewSlope * INCREASED_RES_SLOPE_POW);
                 chi2 += ((sum_A - sum_B) * (sum_A - sum_B)) >> 2;
               }
             }
-
+	    
             double newChi2 = (double)(chi2 >> INCREASED_RES_POS_POW) / (1024. * 100.);
 
             if (newChi2 > chi2corTh_)
@@ -986,9 +985,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 }
 
 void MuonPathAssociator::removeSharingFits(vector<metaPrimitive> &chamberMPaths, vector<metaPrimitive> &allMPaths) {
-  bool useFit[chamberMPaths.size()];
+  vector<bool> useFit; 
   for (unsigned int i = 0; i < chamberMPaths.size(); i++) {
-    useFit[i] = true;
+    useFit.push_back(true);
   }
   for (unsigned int i = 0; i < chamberMPaths.size(); i++) {
     if (debug_)
