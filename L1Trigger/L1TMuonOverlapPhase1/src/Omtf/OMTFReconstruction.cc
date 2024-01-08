@@ -204,7 +204,7 @@ void OMTFReconstruction::addObservers(
       if (edmParameterSet.getParameter<bool>("eventCaptureDebug")) {
         observers.emplace_back(std::make_unique<EventCapture>(
             edmParameterSet, omtfConfig.get(), candidateSimMuonMatcher, muonGeometryTokens
-            //&(omtfProcGoldenPat->getPatterns() ),
+            //, &(omtfProcGoldenPat->getPatterns() )
             //watch out, will crash if the proc is re-constructed from the DB after L1TMuonOverlapParamsRcd change
             ));
       }
@@ -227,7 +227,7 @@ void OMTFReconstruction::addObservers(
       if (edmParameterSet.getParameter<bool>("eventCaptureDebug")) {
         observers.emplace_back(std::make_unique<EventCapture>(
             edmParameterSet, omtfConfig.get(), candidateSimMuonMatcher, muonGeometryTokens
-            //&(omtfProcGoldenPat->getPatterns() ),
+            //&(omtfProcGoldenPat->getPatterns() )
             //watch out, will crash if the proc is re-constructed from the DB after L1TMuonOverlapParamsRcd change
             ));
       }

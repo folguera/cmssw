@@ -286,12 +286,23 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                 continue;
 
               //printing GoldenPatternResult, uncomment if needed
-              /*auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
-            edm::LogVerbatim("l1tOmtfEventPrint") << " "<<gp->key() << "  "
-              //<< "  refLayer: " << gpResult.getRefLayer() << "\t"
-              << " Sum over layers: " << gpResult.getPdfSum() << "\t"
-              << " Number of hits: " << gpResult.getFiredLayerCnt() << "\t"
-              << std::endl;*/
+              auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
+              std::ostringstream ostr;
+              ostr<< " "<<gp->key() << "  "
+                  //<< "  refLayer: " << gpResult.getRefLayer() << "\t"
+                  << " Sum over layers: " <<std::setw(5)<< gpResult.getPdfSum()
+                  << " Number of hits: "<<std::setw(2) << gpResult.getFiredLayerCnt();
+
+              for (unsigned int iLogicLayer = 0; iLogicLayer < gpResult.getStubResults().size(); ++iLogicLayer) {
+                ostr << " l: " << std::setw(2) << iLogicLayer << " p: ";
+                if (gpResult.getStubResults()[iLogicLayer].getMuonStub()) {
+                  ostr<<std::setw(2) <<gpResult.getStubResults()[iLogicLayer].getPdfVal();
+                }
+                else {
+                  ostr<<"  ";
+                }
+              }
+              edm::LogVerbatim("l1tOmtfEventPrint")<<ostr.str()<< std::endl;
             }
           edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl;
         }

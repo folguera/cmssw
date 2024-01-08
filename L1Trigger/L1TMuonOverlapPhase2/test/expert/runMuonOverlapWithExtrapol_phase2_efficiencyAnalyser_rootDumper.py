@@ -15,7 +15,7 @@ verbose = True
 
 filesNameLike = sys.argv[2]
 
-version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_DTQ0_SingleMu_effAna_rootDump"
+version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_DTQ0_SingleMu_effAna_cleanStubs_rootDump"
 #version = "noExtrapl_ValueP1Scale_t18_qualConverted_min4_ipT1_deltaPhiVsPhiRef_fixedDTScale"
 
 if verbose: 
@@ -139,10 +139,10 @@ if filesNameLike == 'mcWaw2023_OneOverPt_allfiles' :
              "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_04_04_2023/" #500 files
              
              "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_22_02_2023/", #200 files
-            "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_22_02_2023/", #200 files
+             "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_22_02_2023/", #200 files
              
-            "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
-            "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
+             "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
+             "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
              ]
     
     for path in paths :
@@ -234,6 +234,9 @@ process.simOmtfPhase2Digis.muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/d
 process.simOmtfPhase2Digis.dumpResultToXML = cms.bool(False)
 process.simOmtfPhase2Digis.dumpHitsToROOT = cms.bool(True)
 process.simOmtfPhase2Digis.eventCaptureDebug = cms.bool(False)
+
+process.simOmtfPhase2Digis.cleanStubs = cms.bool(True)
+
 
 process.simOmtfPhase2Digis.minDtPhiQuality = cms.int32(0)
 process.simOmtfPhase2Digis.minDtPhiBQuality = cms.int32(2)
