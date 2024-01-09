@@ -124,11 +124,11 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
 
   //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
 
-  //even for single muons from gun there are events with secondary (?) muons with genPt 0
-  //the candidates can be matched to this muons,
-  //this has no sense, so better is to drop such events.
-  //TOD use other flag then cleanStubs to enable this filter
-  if (omtfConfig->cleanStubs() && matchingResults.size() > 1) {
+  //for some events there are more than one matchingResults,
+  //Usually at least one them has  genPt 0, which means no simMuon was matched, so candidate is ghost (or fake)
+  //so better is to to drop such event, as it is not sue if the correct simMuon was matched to the candidate
+  //TODO add a flag to enable this filter? Disable it if not needed
+  if (matchingResults.size() > 1) { //omtfConfig->cleanStubs() &&
     edm::LogVerbatim("l1tOmtfEventPrint") << "\nDataROOTDumper2::observeEventEnd matchingResults.size() "<< matchingResults.size()<< std::endl;
 
     for (auto& matchingResult : matchingResults) {
