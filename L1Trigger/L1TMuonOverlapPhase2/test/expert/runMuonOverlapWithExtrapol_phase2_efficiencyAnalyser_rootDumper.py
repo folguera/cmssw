@@ -13,9 +13,15 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
 
+test_mode = False
+
 filesNameLike = sys.argv[2]
 
-version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_b_DTQ0_SingleMu_effAna_rootDump"
+version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_d1_DTQ0_SingleMu_effAna_rootDump"
+
+if test_mode :
+    version = version + "_test1"
+
 #version = "noExtrapl_ValueP1Scale_t18_qualConverted_min4_ipT1_deltaPhiVsPhiRef_fixedDTScale"
 
 if verbose: 
@@ -28,18 +34,19 @@ if verbose:
                                                #'cerr',
                                                'omtfEventPrint'
                     ),
-       categories        = cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction'),
+       categories        = cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction', 'l1MuonAnalyzerOmtf'),
        omtfEventPrint = cms.untracked.PSet(    
                          filename  = cms.untracked.string('omtfAnalysis2_' + version + "_" + filesNameLike),
                          extension = cms.untracked.string('.txt'),                
-                         threshold = cms.untracked.string('DEBUG'),
+                         threshold = cms.untracked.string('INFO'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
                          l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
-                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
+                         l1MuonAnalyzerOmtf = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
                        ),
-       debugModules = cms.untracked.vstring('simOmtfPhase2Digis') 
+       debugModules = cms.untracked.vstring('simOmtfPhase2Digis', 'L1MuonAnalyzerOmtf') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -73,31 +80,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2'
 chosenFiles = []
 
 cscBx = 8
+file_cnt = 100000
 
 if filesNameLike == 'mcWaw2023_iPt2_04_04_2023' :
     cscBx = 8
-    
-    file_cnt = 100000
-    # for iPt in [0, 1, 2] :
-    #     for charge in [0, 2] : 
-    #         path = "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch" + str(charge) + "_iPt" + str(iPt) + "_12_5_2_p1_04_04_2023/12_5_2_p1_04_04_2023/"
-    #         #path = '/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt1_12_5_2_p1_04_04_2023/12_5_2_p1_04_04_2023/230404_084317/0000/'
-    #
-    #         root_files = []
-    #         for root, dirs, files in os.walk(path):
-    #             for file in fnmatch.filter(files, 'SingleMu*.root'):
-    #                 root_files.append(os.path.join(root, file))
-    #
-    #         file_num = 0    
-    #         for root_file in root_files :
-    #             if isfile(root_file) :
-    #                 chosenFiles.append('file://' + root_file)
-    #                 file_num += 1
-    #             else :
-    #                 print("file not found!!!!!!!: " + root_file)   
-    #
-    #             if file_num >= file_cnt :
-    #                 break  
 
     paths = [#"/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch0_iPt0_12_5_2_p1_22_02_2023/", 100files
              #"/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch2_iPt0_12_5_2_p1_22_02_2023/",
@@ -107,30 +93,10 @@ if filesNameLike == 'mcWaw2023_iPt2_04_04_2023' :
              "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", #500 files
              ]
     
-    for path in paths :
-        root_files = []
-        for root, dirs, files in os.walk(path):
-            for file in fnmatch.filter(files, 'SingleMu*.root'):
-                root_files.append(os.path.join(root, file))  
-                
-        file_num = 0    
-        for root_file in root_files :
-            if isfile(root_file) :
-                chosenFiles.append('file://' + root_file)
-                file_num += 1
-            else :
-                print("file not found!!!!!!!: " + root_file)   
-                
-            if file_num >= file_cnt :
-                break       
-
-if filesNameLike == 'mcWaw2023_OneOverPt_allfiles' or filesNameLike == 'mcWaw_2024_01_03_OneOverPt' :
-    cscBx = 8
-    
-    file_cnt = 100000 
+if filesNameLike == 'mcWaw2023_OneOverPt_allfiles':
     paths = [
-             #  "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
-             #  "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
              #
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_14_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_14_04_2023/", #500 files
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_14_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_14_04_2023/", #500 files
@@ -143,29 +109,57 @@ if filesNameLike == 'mcWaw2023_OneOverPt_allfiles' or filesNameLike == 'mcWaw_20
              #
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
-             
-             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_01_2024/", #1000 files
-             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_03_01_2024/" #1000 files
-             #"/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_04_01_2024/", #1000 files
-             #"/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_04_01_2024/" #1000 files
              ]
     
-    for path in paths :
-        root_files = []
-        for root, dirs, files in os.walk(path):
-            for file in fnmatch.filter(files, 'SingleMu*.root'):
-                root_files.append(os.path.join(root, file))  
-                
-        file_num = 0    
-        for root_file in root_files :
-            if isfile(root_file) :
-                chosenFiles.append('file://' + root_file)
-                file_num += 1
-            else :
-                print("file not found!!!!!!!: " + root_file)   
-                
-            if file_num >= file_cnt :
-                break                 
+if filesNameLike == 'mcWaw_2024_01_03_OneOverPt' :
+    paths = [    
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_01_2024/", #1000 files
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_03_01_2024/" #1000 files
+             ]
+    
+if filesNameLike == 'mcWaw_2024_01_04_OneOverPt' :
+    paths = [    
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_04_01_2024/", #1000 files
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_04_01_2024/" #1000 files
+             ]    
+
+if filesNameLike == 'Displaced_cTau5m_XTo2LLTo4Mu' :
+    paths = [    
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_cTau5m_XTo2LLTo4Mu_condPhase2_realistic/XTo2LLPTo4Mu_CTau5m_Phase2Exotic/231203_175643/0000/", #500 files
+             ]    
+
+if filesNameLike == 'Displaced_Dxy3m_pT0To1000_condPhase2_realistic' :
+    paths = [    
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch0_iPt0_Run2029_13_1_0_01_12_2023", #500 files
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch2_iPt0_Run2029_13_1_0_01_12_2023", #500 files
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch0_iPt1_Run2029_13_1_0_01_12_2023", #500 files
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch2_iPt1_Run2029_13_1_0_01_12_2023", #500 files
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch0_iPt2_Run2029_13_1_0_01_12_2023", #500 files
+             "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch2_iPt2_Run2029_13_1_0_01_12_2023", #500 files
+             ]   
+
+
+if test_mode :
+    file_cnt = 1
+
+print("input data paths", paths)        
+    
+for path in paths :
+    root_files = []
+    for root, dirs, files in os.walk(path):
+        for file in fnmatch.filter(files, '*.root'):
+            root_files.append(os.path.join(root, file))  
+            
+    file_num = 0    
+    for root_file in root_files :
+        if isfile(root_file) :
+            chosenFiles.append('file://' + root_file)
+            file_num += 1
+        else :
+            print("file not found!!!!!!!: " + root_file)   
+            
+        if file_num >= file_cnt :
+            break                 
     
 print("chosenFiles")
 for chFile in chosenFiles:
@@ -190,8 +184,11 @@ fileNames = cms.untracked.vstring(
         'drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT',
         'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
 )
-                    
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+         
+if test_mode : 
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500))
+else :                     
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
 #Calibrate Digis
@@ -256,7 +253,7 @@ analysisType = "efficiency" # or rate
 process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf", 
                                  etaCutFrom = cms.double(0.82), #OMTF eta range
                                  etaCutTo = cms.double(1.24),
-                                 L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
+                                 L1OMTFInputTag  = cms.InputTag("simOmtfPhase2Digis","OMTF"),
                                  #nn_pThresholds = cms.vdouble(nn_pThresholds), 
                                  analysisType = cms.string(analysisType),
                                  
@@ -269,7 +266,7 @@ process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf",
                                  phase = cms.int32(2)
                                  )
 
-#process.l1MuonAnalyzerOmtfPath = cms.Path(process.L1MuonAnalyzerOmtf)
+process.l1MuonAnalyzerOmtfPath = cms.Path(process.L1MuonAnalyzerOmtf)
 
 
 #process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
@@ -283,7 +280,7 @@ process.L1TMuonSeq = cms.Sequence( process.esProd
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
-#process.schedule = cms.Schedule(process.L1TMuonPath, process.l1MuonAnalyzerOmtfPath)
+process.schedule = cms.Schedule(process.L1TMuonPath, process.l1MuonAnalyzerOmtfPath)
 
 #process.out = cms.OutputModule("PoolOutputModule", 
 #   fileName = cms.untracked.string("l1tomtf_superprimitives1.root")

@@ -81,7 +81,11 @@ void EventCapture::observeProcesorEmulation(unsigned int iProcessor,
                                             const AlgoMuons& gbCandidates,
                                             const std::vector<l1t::RegionalMuonCand>& candMuons) {
   unsigned int procIndx = omtfConfig->getProcIndx(iProcessor, mtfType);
-
+  edm::LogImportant("l1tOmtfEventPrint") << "EventCapture::observeProcesorEmulation : iProcessor" << iProcessor
+      <<" mtfType " << mtfType << " procIndx " << procIndx
+      << " OmtfName(procIndx) " << OmtfName(procIndx, omtfConfig)
+      << " OmtfName(iProcessor, mtfType) " << OmtfName(iProcessor, mtfType, omtfConfig)
+      << std::endl;
   inputInProcs[procIndx] = input;
 
   algoMuonsInProcs[procIndx] = algoCandidates;
@@ -311,7 +315,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
       edm::LogVerbatim("l1tOmtfEventPrint") << "gbCandidates " << std::endl;
       for (auto& gbCandidate : gbCandidatesInProcs[iProc])
         if (gbCandidate->isValid())
-          edm::LogVerbatim("l1tOmtfEventPrint") << board.name() << " " << *gbCandidate << std::endl;
+          edm::LogVerbatim("l1tOmtfEventPrint") << board.name() << " iProc " << iProc<< " " << *gbCandidate << std::endl;
 
       {
         edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl << "\ngb_test " << board.name() << std::endl;
