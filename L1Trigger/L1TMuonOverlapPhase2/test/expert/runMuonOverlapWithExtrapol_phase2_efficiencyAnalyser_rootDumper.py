@@ -17,6 +17,8 @@ test_mode = False
 
 filesNameLike = sys.argv[2]
 
+matchUsingPropagation  = True 
+
 version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_d1_DTQ0_SingleMu_effAna_rootDump"
 
 if test_mode :
@@ -84,7 +86,7 @@ file_cnt = 100000
 
 if filesNameLike == 'mcWaw2023_iPt2_04_04_2023' :
     cscBx = 8
-
+    matchUsingPropagation  = False 
     paths = [#"/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch0_iPt0_12_5_2_p1_22_02_2023/", 100files
              #"/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch2_iPt0_12_5_2_p1_22_02_2023/",
              #"/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_iPt0_12_5_2_p1_15_02_2023/",
@@ -94,6 +96,7 @@ if filesNameLike == 'mcWaw2023_iPt2_04_04_2023' :
              ]
     
 if filesNameLike == 'mcWaw2023_OneOverPt_allfiles':
+    matchUsingPropagation  = False 
     paths = [
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
@@ -112,23 +115,27 @@ if filesNameLike == 'mcWaw2023_OneOverPt_allfiles':
              ]
     
 if filesNameLike == 'mcWaw_2024_01_03_OneOverPt' :
+    matchUsingPropagation  = False 
     paths = [    
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_01_2024/", #1000 files
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_03_01_2024/" #1000 files
              ]
     
 if filesNameLike == 'mcWaw_2024_01_04_OneOverPt' :
+    matchUsingPropagation  = False 
     paths = [    
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_04_01_2024/", #1000 files
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_04_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_04_01_2024/" #1000 files
              ]    
 
 if filesNameLike == 'Displaced_cTau5m_XTo2LLTo4Mu' :
+    matchUsingPropagation  = True 
     paths = [    
              "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_cTau5m_XTo2LLTo4Mu_condPhase2_realistic/XTo2LLPTo4Mu_CTau5m_Phase2Exotic/231203_175643/0000/", #500 files
              ]    
 
 if filesNameLike == 'Displaced_Dxy3m_pT0To1000_condPhase2_realistic' :
+    matchUsingPropagation  = True 
     paths = [    
              "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch0_iPt0_Run2029_13_1_0_01_12_2023", #500 files
              "/eos/user/a/almuhamm/ZMu_Test/simPrivateProduction/Displaced_Dxy3m_pT0To1000_condPhase2_realistic/DisplacedMu_ch2_iPt0_Run2029_13_1_0_01_12_2023", #500 files
@@ -170,7 +177,9 @@ print("number of chosen files:", len(chosenFiles))
 if len(chosenFiles) == 0 :
     print("no files selected!!!!!!!!!!!!!!! (argumetn should be e.g. 20_p")
     exit 
-                           
+
+print("running version", version)
+                                 
 # input files (up to 255 files accepted)
 process.source = cms.Source('PoolSource',
 fileNames = cms.untracked.vstring( 
@@ -260,7 +269,7 @@ process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf",
                                  simTracksTag = cms.InputTag('g4SimHits'),
                                  simVertexesTag = cms.InputTag('g4SimHits'),
                                  
-                                 matchUsingPropagation = cms.bool(True),
+                                 matchUsingPropagation = cms.bool(matchUsingPropagation),
                                  muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root"), #if you want to make this file, remove this entry#if you want to make this file, remove this entry
                                  #muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_noPropagation_t74.root")
                                  phase = cms.int32(2)

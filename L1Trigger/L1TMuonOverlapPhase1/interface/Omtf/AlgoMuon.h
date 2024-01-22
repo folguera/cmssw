@@ -55,10 +55,7 @@ public:
 
   int getPhiRHit() const { return gpResultConstr.getRefHitPhi(); }
 
-  unsigned int getPatternNum() const {
-    return (gpResultUnconstr.getPdfSumUnconstr() > gpResultConstr.getPdfSum() ? goldenPaternUnconstr->key().theNumber
-                                                                              : goldenPaternConstr->key().theNumber);
-  }
+  unsigned int getPatternNum() const ;
 
   unsigned int getPatternNumConstr() const {
     return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().theNumber;

@@ -12,16 +12,39 @@ import fnmatch
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
-#version = 't14_extrapolSimpl_displ_allfiles'
-#version = 't16_extrapolSimpl_displ_test'
-#version = 'ExtraplMB1nadMB2SimplifiedFP_t17_v11_test_valueP1Scale'
-#version = 'ExtraplMB1nadMB2SimplifiedFP_t19_v16_test_bits'
-version = 't21a__Patterns_0x00012__MH-1000_MFF-150_CTau-1000mm_allFiles'
-#version = 't21a__Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3__MH-1000_MFF-150_CTau-1000mm_allFiles_gpFinalize10'
+
+useExtraploationAlgo = False
+
+version = 't21a__'
+
+if useExtraploationAlgo :
+    version = version + 'Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3_gpFinalize10'
+else :
+    version = version + 'Patterns_0x00012'
 
 runDebug = "INFO" # or "INFO" DEBUG
 #useExtraploationAlgo = True
-useExtraploationAlgo = False
+
+
+analysisType = "efficiency" # or rate
+  
+for a in sys.argv :
+    if a == "efficiency" or a ==  "rate" or a == "withTrackPart" :
+        analysisType = a
+        break;
+    
+filesNameLike = sys.argv[2]
+    
+outFilesName = 'omtfAnalysis2_' 
+if analysisType == "efficiency" :
+    outFilesName = outFilesName + "eff_"
+elif analysisType == "rate" :
+    outFilesName = outFilesName + "rate_"    
+    
+outFilesName = outFilesName + version + "__" + filesNameLike
+
+if(runDebug == "DEBUG") :
+    outFilesName = outFilesName + "_test"
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -35,7 +58,7 @@ if verbose:
                     ),
        categories        = cms.untracked.vstring( 'OMTFReconstruction', 'l1tOmtfEventPrint', 'l1MuonAnalyzerOmtf'), #'l1tOmtfEventPrint', 'l1MuonAnalyzerOmtf'
        omtfEventPrint = cms.untracked.PSet(    
-                         filename  = cms.untracked.string('log_MuonOverlap_newPats_t' + version),
+                         filename  = cms.untracked.string(outFilesName),
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string("INFO"), #DEBUG
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -82,47 +105,69 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
-
-#path = '/eos/user/k/kbunkow/cms_data/SingleMuFullEta/721_FullEta_v4/' #old sample, but very big
-#path = '/eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/' #new sample, but small and more noisy
-#path = '/eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v1/'
-
-
-#path = '/afs/cern.ch/work/a/akalinow/public/MuCorrelator/Data/SingleMu/9_3_14_FullEta_v1/'
-#path = '/afs/cern.ch/work/k/kbunkow/public/data/SingleMuFullEta/721_FullEta_v4/'
-
-#onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-#print(onlyfiles)
-
-#filesNameLike = sys.argv[2]
-#chosenFiles = ['file://' + path + f for f in onlyfiles if (('_p_10_' in f) or ('_m_10_' in f))]
-#chosenFiles = ['file://' + path + f for f in onlyfiles if (('_10_p_10_' in f))]
-#chosenFiles = ['file://' + path + f for f in onlyfiles if (re.match('.*_._p_10.*', f))]
-#chosenFiles = ['file://' + path + f for f in onlyfiles if ((filesNameLike in f))]
-
-#print(onlyfiles)
-
 chosenFiles = []
 
-fileCnt = 1000 #1000 
+fileCnt = 100000 #1000 
+
+ 
+       
+if filesNameLike == "SingleMu_9_3_14_FullEta_v2" :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    cscBx = 6
+    matchUsingPropagation  = False 
+    paths = [
+        '/eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/'
+        ]  
+    # fileCnt = 10 #<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+if filesNameLike == 'mcWaw_2024_01_03_OneOverPt' :
+    cscBx = 8
+    matchUsingPropagation  = False 
+    paths = [    
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_01_2024/", #1000 files
+             "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_03_01_2024/" #1000 files
+             ]
+    fileCnt = 10 #<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+if filesNameLike == 'mcWaw2023_OneOverPt_and_iPt2':
+    cscBx = 8
+    matchUsingPropagation  = False 
+    paths = [
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_20_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_20_04_2023/", #500 files
+             #
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_14_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_14_04_2023/", #500 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_14_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_14_04_2023/", #500 files
+             #
+             {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_04_04_2023/", "fileCnt" : 300}, #500 files
+             {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_04_04_2023/", "fileCnt" : 300}, #500 files
+             #
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_22_02_2023/", #200 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_22_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_22_02_2023/", #200 files
+             #
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
+             # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+             ]
+
+if filesNameLike == "EfeMC_HTo2LongLivedTo2mu2jets" :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    cscBx = 8
+    matchUsingPropagation  = True 
+    paths = [
+        '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/'
+        ]   
+        
+print("input data paths", paths)        
+
 if(runDebug == "DEBUG") :
     fileCnt = 1;
-
-if True :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #path = '/eos/user/c/cericeci/forOMTF/OMTF_PhaseII_FixedTiming/'    
-    #path =  '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/HTo2LongLivedTo2mu2jets_MH-1000_MFF-150_CTau-1000mm_TuneCP5_13p6TeV_pythia8/231105_154703/0000/'
-    path =  '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/'
-    
+        
+for path in paths :
     root_files = []
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(path["path"]):
         for file in fnmatch.filter(files, '*.root'):
-            root_files.append(os.path.join(root, file))
-    
-    if(runDebug == "DEBUG") :
-        file_cnt = 1
-    else :
-        file_cnt = 1000000
-           
+            root_files.append(os.path.join(root, file))  
+            
     file_num = 0    
     for root_file in root_files :
         if isfile(root_file) :
@@ -131,41 +176,26 @@ if True :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!
         else :
             print("file not found!!!!!!!: " + root_file)   
             
-        if file_num >= file_cnt :
-            break  
-if False :    #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #path = '/eos/user/c/cericeci/forOMTF/OMTF_PhaseII_FixedTiming/'    
-    path =  '/eos/user/a/asotorod/Samples/OMTF-L1/OMTF_fixedTiming/'
-    firstFile = 1 #1001            
-    for i in range(firstFile, firstFile + fileCnt, 1):
-        filePathName = path + "custom_Displaced_" + str(i) + "_numEvent5000.root"
-        if isfile(filePathName) :
-            chosenFiles.append('file://' + filePathName)
-        else :
-            print("file not found!!!!!!!: " + filePathName) 
-# low pt
-if False :
-    path = '/eos/user/c/cericeci/forOMTF/OMTF_Run3_FixedTiming_FullOutput/'
-    firstFile = 1001            
-    for i in range(firstFile, firstFile + fileCnt, 1):
-        #filePathName = path + "custom_Displaced_" + str(i) + "_numEvent5000.root"
-        #chosenFiles.append('file://' + path + "custom_Displaced_Run3_" + str(i) + "_numEvent1000.root") 
-        filePathName = path + "custom_Displaced_Run3_" + str(i) + "_numEvent2000.root" 
-        if isfile(filePathName) :
-            chosenFiles.append('file://' + filePathName)
-        else :
-            print("file not found!!!!!!!: " + filePathName)    
-
+        if file_num >= path["fileCnt"] :
+            break         
+        if file_num >= fileCnt :
+            break            
 
 print("chosenFiles")
 for chFile in chosenFiles:
     print(chFile)
+
+
+print("chosen file count", len(chosenFiles) )
 
 if len(chosenFiles) == 0 :
     print("no files selected!!!!!!!!!!!!!!!")
     exit
 
 print("running version", version)
+print("analysisType", analysisType)
+print("outFilesName", outFilesName)
+
 
 firstEv = 0#40000
 #nEvents = 1000
@@ -187,7 +217,7 @@ fileNames = cms.untracked.vstring(
 )
 	                    
 if(runDebug == "DEBUG") :
-    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000))
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200))
 else :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
@@ -205,16 +235,7 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(False)
 )
 
-analysisType = "efficiency" # or rate
-  
-for a in sys.argv :
-    if a == "efficiency" or a ==  "rate" or a == "withTrackPart" :
-        analysisType = a
-        break;
-    
-print("analysisType=" + analysisType)
-
-process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis2_eff_SingleMu_t' + version + '.root'), closeFileFast = cms.untracked.bool(True) )
+process.TFileService = cms.Service("TFileService", fileName = cms.string(outFilesName + '.root'), closeFileFast = cms.untracked.bool(True) )
                                    
 ####OMTF Emulator
 if useExtraploationAlgo :
@@ -224,7 +245,7 @@ else :
 
 if(runDebug == "DEBUG") :
     process.simOmtfDigis.dumpResultToXML = cms.bool(True)
-    process.simOmtfDigis.XMLDumpFileName = cms.string("TestEvents_" + version + ".xml")
+    process.simOmtfDigis.XMLDumpFileName = cms.string("TestEvents__" + outFilesName + ".xml")
 else :
     process.simOmtfDigis.dumpResultToXML = cms.bool(False)
 
@@ -264,8 +285,9 @@ if useExtraploationAlgo :
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_layerStat_ExtraplMB1nadMB2_t10_classProb17_recalib2_test.xml")
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2Simplified_t14_classProb17_recalib2.xml")
     #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2FullAlgo_t16_classProb17_recalib2.xml")
-    process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2.xml")
-    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0.xml")
+    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2.xml")
+    #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3.xml")
+    process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ExtraplMB1nadMB2SimplifiedFP_t17_classProb17_recalib2_minDP0_v3.xml")
 else :
     process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")
 
@@ -280,7 +302,7 @@ process.simOmtfDigis.noHitValueInPdf = cms.bool(True)
 process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
 process.simOmtfDigis.minDtPhiBQuality = cms.int32(4)
 
-process.simOmtfDigis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+process.simOmtfDigis.lctCentralBx = cms.int32(cscBx);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 if useExtraploationAlgo :
     process.simOmtfDigis.dtRefHitMinQuality =  cms.int32(4)
@@ -324,7 +346,7 @@ process.L1MuonAnalyzerOmtf= cms.EDAnalyzer("L1MuonAnalyzerOmtf",
                                  simTracksTag = cms.InputTag('g4SimHits'),
                                  simVertexesTag = cms.InputTag('g4SimHits'),
                                  
-                                 matchUsingPropagation = cms.bool(True),
+                                 matchUsingPropagation = cms.bool(matchUsingPropagation),
                                  muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_100files_smoothStdDev_withOvf.root") #if you want to make this file, remove this entry#if you want to make this file, remove this entry
                                  #muonMatcherFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muonMatcherHists_noPropagation_t74.root")
                                         )
