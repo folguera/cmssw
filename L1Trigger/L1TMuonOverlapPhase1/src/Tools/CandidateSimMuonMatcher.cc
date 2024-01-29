@@ -458,6 +458,13 @@ MatchingResult CandidateSimMuonMatcher::match(const l1t::RegionalMuonCand* muonC
     if (simTrack.momentum().pt() > 100)
       treshold = 20. * sigma;
 
+    //for displaced muons in H2ll
+    treshold = 0.15; //pt > 30
+    if(simTrack.momentum().pt() < 10) //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
+      treshold = 0.3;
+    else if(simTrack.momentum().pt() < 30) //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
+      treshold = 0.2;
+
     if (std::abs(result.deltaPhi - mean) < treshold && std::abs(result.deltaEta) < 0.3)
       result.result = MatchingResult::ResultType::matched;
 
@@ -644,7 +651,7 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::match(std::vector<const l1t
     if (!tsof.isValid()) { //no sense to do matching
       MatchingResult result(simTrack);
       result.result = MatchingResult::ResultType::propagationFailed;
-      edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__
+      LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__
           << " propagation failed: genPt " << result.genPt << " genEta " << result.genEta
           << " eventId " <<simTrack.eventId().event()<<std::endl;
 
