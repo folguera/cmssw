@@ -168,10 +168,10 @@ public:
   //problem with propagation is the it does not work for low pt muons (pt < ~3GeV)
   //which is not good for dumping the data for the NN training. So for that purpose it is better to use the matchSimple
   std::vector<MatchingResult> matchSimple(std::vector<const l1t::RegionalMuonCand*>& muonCands,
-                                    AlgoMuons& ghostBustedProcMuons,
-                                    const edm::SimTrackContainer* simTracks,
-                                    const edm::SimVertexContainer* simVertices,
-                                    std::function<bool(const SimTrack&)> const& simTrackFilter);
+                                          AlgoMuons& ghostBustedProcMuons,
+                                          const edm::SimTrackContainer* simTracks,
+                                          const edm::SimVertexContainer* simVertices,
+                                          std::function<bool(const SimTrack&)> const& simTrackFilter);
 
   std::vector<MatchingResult> getMatchingResults() { return matchingResults; }
 
@@ -192,7 +192,7 @@ private:
   TH1D* deltaPhiPropCandMean = nullptr;
   TH1D* deltaPhiPropCandStdDev = nullptr;
 
-  bool usePropagation =  false;
+  bool usePropagation = false;
 };
 
 #endif /* L1T_OmtfP1_TOOLS_MUONCANDIDATEMATCHER_H_ */

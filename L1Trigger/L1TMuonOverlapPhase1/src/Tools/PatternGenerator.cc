@@ -486,14 +486,15 @@ void PatternGenerator::upadatePdfs() {
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
 
         //for phase1
-        if ((gp->key().thePt <= 8) && (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
+        if ((gp->key().thePt <= 8) &&
+            (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        } else if ((gp->key().thePt <= 10) && (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
+        } else if ((gp->key().thePt <= 10) &&
+                   (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
-        }
-        else if ((gp->key().thePt <= 17) && (iLayer == 1)) {  //MB1 phiB
+        } else if ((gp->key().thePt <= 17) && (iLayer == 1)) {  //MB1 phiB
           //due to grouping the patterns 4-7, the pdfs for the layer 1 in the pattern go outside of the range
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);

@@ -410,10 +410,10 @@ void GoldenPatternResult::finalise11() {
       } else {
         //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
         if (stubResults[iLogicLayer].getPdfVal() == 0) {
-          pdfSum -= 63; //high penalty, we set the pdf value in the  stubResults[iLogicLayer], so that this penalty is removed from pdfSumUnconstr
+          //high penalty, we set the pdf value in the  stubResults[iLogicLayer], so that this penalty is removed from pdfSumUnconstr
+          pdfSum -= 63;
           stubResults[iLogicLayer].setPdfVal(-63);
-        }
-        else
+        } else
           pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
       }
     } else {
@@ -444,8 +444,8 @@ void GoldenPatternResult::finalise11() {
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const GoldenPatternResult& gpResult) {
-  if(gpResult.omtfConfig == nullptr) {
-    out<<"empty GoldenPatternResult"<<std::endl;
+  if (gpResult.omtfConfig == nullptr) {
+    out << "empty GoldenPatternResult" << std::endl;
     return out;
   }
   unsigned int refLayerLogicNum = gpResult.omtfConfig->getRefToLogicNumber()[gpResult.getRefLayer()];

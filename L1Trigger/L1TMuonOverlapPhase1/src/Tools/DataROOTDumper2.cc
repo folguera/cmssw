@@ -37,7 +37,8 @@ DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
     else if (edmCfg.getParameter<std::string>("candidateSimMuonMatcherType") == "matchSimple")
       usePropagation = false;
 
-    edm::LogImportant("l1tOmtfEventPrint") << " CandidateSimMuonMatcher: candidateSimMuonMatcherType "
+    edm::LogImportant("l1tOmtfEventPrint")
+        << " CandidateSimMuonMatcher: candidateSimMuonMatcherType "
         << edmCfg.getParameter<std::string>("candidateSimMuonMatcherType") << std::endl;
   }
 
@@ -140,17 +141,18 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
   //So we assume here that when the propagation is not used it is a single mu sample and this filter has sense
   //the propagation is used for multi-muon sample, so then this fitler cannot be used
   //TODO add a flag to enable this filter? Disable it if not needed
-  if (!usePropagation && matchingResults.size() > 1) { //omtfConfig->cleanStubs() &&
-    edm::LogVerbatim("l1tOmtfEventPrint") << "\nDataROOTDumper2::observeEventEnd matchingResults.size() "<< matchingResults.size()<< std::endl;
+  if (!usePropagation && matchingResults.size() > 1) {  //omtfConfig->cleanStubs() &&
+    edm::LogVerbatim("l1tOmtfEventPrint")
+        << "\nDataROOTDumper2::observeEventEnd matchingResults.size() " << matchingResults.size() << std::endl;
 
     for (auto& matchingResult : matchingResults) {
-      edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResult: genPt "<<matchingResult.genPt;
-      if(matchingResult.procMuon)
-        edm::LogVerbatim("l1tOmtfEventPrint")<<" procMuon.PtConstr " << matchingResult.procMuon->getPtConstr();
+      edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResult: genPt " << matchingResult.genPt;
+      if (matchingResult.procMuon)
+        edm::LogVerbatim("l1tOmtfEventPrint") << " procMuon.PtConstr " << matchingResult.procMuon->getPtConstr();
       else
-        edm::LogVerbatim("l1tOmtfEventPrint") <<" no procMuon"<< std::endl;
+        edm::LogVerbatim("l1tOmtfEventPrint") << " no procMuon" << std::endl;
     }
-    edm::LogVerbatim("l1tOmtfEventPrint") <<"dropping the event!!!\n"<< std::endl;
+    edm::LogVerbatim("l1tOmtfEventPrint") << "dropping the event!!!\n" << std::endl;
     return;
   }
 

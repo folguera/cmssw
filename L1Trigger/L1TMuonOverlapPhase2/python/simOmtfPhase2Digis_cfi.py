@@ -38,13 +38,16 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   
   noHitValueInPdf = cms.bool(True),
   minDtPhiQuality = cms.int32(2),
-  minDtPhiBQuality = cms.int32(4), #/TODO change to 4
+  minDtPhiBQuality = cms.int32(4),
   
-  dtRefHitMinQuality =  cms.int32(4), #/TODO change to 4
+  dtRefHitMinQuality =  cms.int32(4),
   
-  dtPhiBUnitsRad = cms.int32(1024), #2048 is the orginal phase2 scale, 512 is the phase1 scale
+  #dtPhiBUnitsRad is [unit/rad] for DT segment phiB at the level of the OMTF pattern algorithm
+  #in the link data the scale can be different, and it is converted to the OMTF scale in the DtDigiToStubsConverterOmtf::addDTphiDigi
+  #in the phase2 DT lnk data the scale is 2048 units/rad, so with  dtPhiBUnitsRad = 1024 we drop one LSB
+  dtPhiBUnitsRad = cms.int32(1024),
     
-  stubEtaEncoding = cms.string("valueP1Scale"), #/bits TODO change to valueP1Scale when InputMakerPhase2 is modifiwed
+  stubEtaEncoding = cms.string("valueP1Scale"), #/bits TODO change to valueP1Scale when InputMakerPhase2 is modified
   
   usePhiBExtrapolationFromMB1 = cms.bool(False),
   usePhiBExtrapolationFromMB2 = cms.bool(False),

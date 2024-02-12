@@ -119,6 +119,7 @@ if filesNameLike == 'mcWaw2023_OneOverPt_allfiles':
     
 if filesNameLike == 'mcWaw_2024_01_03_OneOverPt' :
     matchUsingPropagationInAnlyzer  = False 
+    matchUsingPropagationInDumper  = False 
     paths = [    
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_01_2024/", #1000 files
              "/eos/user/a/akalinow/Data/SingleMu/13_1_0_03_01_2024/SingleMu_ch2_OneOverPt_Run2029_13_1_0_03_01_2024/" #1000 files

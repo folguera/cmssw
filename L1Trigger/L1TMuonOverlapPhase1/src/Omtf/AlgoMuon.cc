@@ -16,7 +16,7 @@ std::ostream &operator<<(std::ostream &out, const AlgoMuon &o) {
 }
 
 unsigned int AlgoMuon::getPatternNum() const {
-  if(goldenPaternUnconstr == nullptr)
+  if (goldenPaternUnconstr == nullptr)
     return goldenPaternConstr->key().theNumber;
 
   return (gpResultUnconstr.getPdfSumUnconstr() > gpResultConstr.getPdfSum() ? goldenPaternUnconstr->key().theNumber

@@ -64,6 +64,10 @@ AlgoMuons::value_type OMTFSorter<GoldenPatternType>::sortRefHitResults(
     //    <<" PdfSumUnconstr "<< itGP->getResults()[procIndx][iRefHit].getPdfSumUnconstr()<< std::endl;
   }
   if (bestGP) {
+    //this is needed to obtain the same results as in the firmware. for the actual performance it should not matter
+    if (bestGP->getResults()[procIndx][iRefHit].getPdfSum() == 0)
+      bestGP = gPatterns.at(0).get();
+
     AlgoMuons::value_type candidate(new AlgoMuon(bestGP->getResults()[procIndx][iRefHit], bestGP, iRefHit));
 
     if (bestGpUnconstr) {

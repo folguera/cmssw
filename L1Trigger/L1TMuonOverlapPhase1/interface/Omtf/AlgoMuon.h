@@ -40,10 +40,7 @@ public:
   int getBx() const { return m_bx; }
 
   //hardware pt
-  int getPtConstr() const {
-    //TODO maybe it should return 0 and not -1?
-    return goldenPaternConstr == nullptr ? -1 : goldenPaternConstr->key().thePt;
-  }
+  int getPtConstr() const { return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().thePt; }
 
   //hardware upt, in the phase1 the upt scale unit is 1 GeV, while for the pt the unit is 0.5GeV
   int getPtUnconstr() const {
@@ -55,7 +52,7 @@ public:
 
   int getPhiRHit() const { return gpResultConstr.getRefHitPhi(); }
 
-  unsigned int getPatternNum() const ;
+  unsigned int getPatternNum() const;
 
   unsigned int getPatternNumConstr() const {
     return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().theNumber;

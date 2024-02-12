@@ -142,9 +142,9 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
         }
       }
 
-      edm::LogVerbatim("OMTFReconstruction") << "OMTFProcessor constructed. processorType " << processorType
-                                             << ". GoldenPattern type: " << patternType
-                                             << " nProcessors " <<omtfConfig->nProcessors()<<std::endl;
+      edm::LogVerbatim("OMTFReconstruction")
+          << "OMTFProcessor constructed. processorType " << processorType << ". GoldenPattern type: " << patternType
+          << " nProcessors " << omtfConfig->nProcessors() << std::endl;
     } else if (patternType == "GoldenPatternWithStat") {
       //pattern generation is only possible if the processor is constructed only once per job
       //PatternGenerator modifies the patterns!!!

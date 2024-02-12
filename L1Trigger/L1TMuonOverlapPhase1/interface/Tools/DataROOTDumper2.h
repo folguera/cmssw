@@ -113,7 +113,7 @@ private:
 
   bool dumpKilledOmtfCands = false;
 
-  bool usePropagation =  false;
+  bool usePropagation = false;
 };
 
 #endif /* L1T_OmtfP1_TOOLS_DATAROOTDUMPER2_H_ */

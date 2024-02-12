@@ -13,7 +13,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 verbose = True
 
-useExtraploationAlgo = False
+useExtraploationAlgo = True
 
 version = 't21a__'
 
@@ -22,7 +22,7 @@ if useExtraploationAlgo :
 else :
     version = version + 'Patterns_0x00012'
 
-runDebug = "INFO" # or "INFO" DEBUG
+runDebug = "DEBUG" # or "INFO" DEBUG
 #useExtraploationAlgo = True
 
 
@@ -44,7 +44,7 @@ elif analysisType == "rate" :
 outFilesName = outFilesName + version + "__" + filesNameLike
 
 if(runDebug == "DEBUG") :
-    outFilesName = outFilesName + "_test"
+    outFilesName = outFilesName + "_test3"
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -154,13 +154,13 @@ if filesNameLike == "EfeMC_HTo2LongLivedTo2mu2jets" :    #<<<<<<<<<<<<<<<<<<<<<<
     cscBx = 8
     matchUsingPropagation  = True 
     paths = [
-        '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/'
+        {"path": '/eos/cms/store/user/eyigitba/dispDiMu/crabOut/CRAB_PrivateMC/', "fileCnt" : 10000},
         ]   
         
 print("input data paths", paths)        
 
 if(runDebug == "DEBUG") :
-    fileCnt = 1;
+    fileCnt = 2;
         
 for path in paths :
     root_files = []
@@ -217,7 +217,7 @@ fileNames = cms.untracked.vstring(
 )
 	                    
 if(runDebug == "DEBUG") :
-    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200))
+    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
 else :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
