@@ -33,7 +33,7 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
   return config->foldPhi(phiConverted);
 }
 
-int getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) {
+int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const{
 
   //const DTChamberId dTChamberId(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
   int dtThBins = 65536;  //65536. for [-6.3,6.3]
