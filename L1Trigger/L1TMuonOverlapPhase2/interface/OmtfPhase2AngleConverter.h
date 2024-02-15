@@ -12,8 +12,8 @@ public:
 
   // Convert DT phi to OMTF coordinate system.
   virtual int getProcessorPhi(int phiZero, l1t::tftype part, int dtScNum, int dtPhi) const override;
-  
-  virtual int getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const;
+
+  int getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const;
 
   
 };

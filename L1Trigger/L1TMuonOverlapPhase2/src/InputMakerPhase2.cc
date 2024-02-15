@@ -39,6 +39,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
       continue;
 
     // HACK for Phase-2  (DT TPs are centered in bX=20)
+    LogTrace("l1tOmtfEventPrint") << "DtPhase2DigiToStubsConverter::makeStubs -> DT BX = " <<digiIt.bxNum() << std::endl;
     if (digiIt.bxNum() - 20 >= bxFrom && digiIt.bxNum() - 20 <= bxTo) {
       addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis.product(), iProcessor, procTyp);
 
@@ -179,7 +180,7 @@ InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
           "is not true");
     //if the Phase2DTPrimitives are used, then the phase1 DT primitives should be dropped
     edm::LogImportant("OMTFReconstruction") << " using Phase2 DT trigger primitives" << std::endl;
-    
+
     digiToStubsConverters.emplace_back(std::make_unique<DtPhase2DigiToStubsConverterOmtf>(
 											  config, dynamic_cast<OmtfPhase2AngleConverter*>(this->angleConverter.get()), muStubsPhase2InputTokens.inputTokenDtPh, muStubsPhase2InputTokens.inputTokenDtTh));
   }
