@@ -39,7 +39,6 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
       continue;
 
     // HACK for Phase-2  (DT TPs are centered in bX=20)
-    LogTrace("l1tOmtfEventPrint") << "DtPhase2DigiToStubsConverter::makeStubs -> DT BX = " <<digiIt.bxNum() << std::endl;
     if (digiIt.bxNum() - 20 >= bxFrom && digiIt.bxNum() - 20 <= bxTo) {
       addDTphiDigi(muonStubsInLayers, digiIt, dtThDigis.product(), iProcessor, procTyp);
 
