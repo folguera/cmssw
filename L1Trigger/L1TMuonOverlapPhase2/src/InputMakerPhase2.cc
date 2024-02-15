@@ -14,6 +14,7 @@
 
 /////////////////////////////////////
 void DtPhase2DigiToStubsConverter::loadDigis(const edm::Event& event) {
+    
   event.getByToken(inputTokenDtPh, dtPhDigis);
   event.getByToken(inputTokenDtTh, dtThDigis);
 }
@@ -24,6 +25,7 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                              int bxFrom,
                                              int bxTo,
                                              std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
+
   if (!dtPhDigis)
     return;
 
