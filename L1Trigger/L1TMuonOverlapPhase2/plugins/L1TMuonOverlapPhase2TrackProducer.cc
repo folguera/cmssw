@@ -36,7 +36,7 @@ L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::
           edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
       omtfEmulation(edmParameterSet,
                     muStubsInputTokens,
-                    consumes<L1Phase2MuDTPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPhPhase2"))) {
+                    muStubsPhase2InputTokens) {
   produces<l1t::RegionalMuonCandBxCollection>("OMTF");
 
   //it is needed for pattern generation and RootDataDumper

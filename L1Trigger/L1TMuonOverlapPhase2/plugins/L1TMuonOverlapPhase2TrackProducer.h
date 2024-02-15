@@ -27,6 +27,7 @@ private:
   //edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit;  //TODO remove
 
   MuStubsInputTokens muStubsInputTokens;
+  MuStubsPhase2InputTokens muStubsPhase2InputTokens;
 
   edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> omtfParamsEsToken;
 
