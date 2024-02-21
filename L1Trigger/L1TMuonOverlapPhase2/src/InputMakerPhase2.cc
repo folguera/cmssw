@@ -108,7 +108,6 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 
   stub.type = MuonStub::DT_PHI_ETA;
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
   stub.phiHw = angleConverter->getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
   //stub.etaHw  =  angleConverter->getGlobalEta(digi, dtThDigis);
@@ -131,13 +130,16 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
 
   stub.logicLayer = iLayer;
   stub.detId = detid;
-
+  //stub.r = angleConverter>getGlobalR(detid, dtThDigis, digi.bxNum() - 20);
   OmtfName board(iProcessor, config);
   LogTrace("l1tOmtfEventPrint") << board.name() << " L1Phase2MuDTPhDigi: detid " << detid << " digi "
                                 << " whNum " << digi.whNum() << " scNum " << digi.scNum() << " stNum " << digi.stNum()
                                 << " slNum " << digi.slNum() << " quality " << digi.quality() << " rpcFlag "
                                 << digi.rpcFlag() << " phi " << digi.phi() << " phiBend " << digi.phiBend()
                                 << std::endl;
+  LogTrace("l1tOmtfEventPrint") << board.name() << " stub: detid " << detid << " phi " << stub.phiHw
+                                << " eta " << stub.etaHw << " phiB " << stub.phiBHw << " bx " << stub.bx
+                                << " quality " << stub.qualityHw << " logicLayer " << stub.logicLayer << std::endl;
   OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
 }
 

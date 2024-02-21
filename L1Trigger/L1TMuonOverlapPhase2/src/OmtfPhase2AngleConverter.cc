@@ -7,8 +7,7 @@ namespace {
 
   int etaVal2CodePhase2(float etaVal) {
       int sign = sgn(etaVal);
-      int code = fabs(etaVal) * 115 / 1.25;
-      LogTrace("l1tOmtfEventPrint") << "OmtfPhase2AngleConverter::etaVal2Code( " << etaVal << " ) --> " << code << std::endl;
+      int code = (int)round(fabs(etaVal) * 115 / 1.25);
       return sign * code;
   }
 }
@@ -34,25 +33,28 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
 }
 
 int OmtfPhase2AngleConverter::getGlobalEta(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const{
-
-  //const DTChamberId dTChamberId(aDigi.whNum(),aDigi.stNum(),aDigi.scNum()+1);
+  
   int dtThBins = 65536;  //65536. for [-6.3,6.3]
-  float zconv = 1/(dtThBins/1500.); 
   float kconv = 1/(dtThBins/2.);
 
   float eta = -999;
   // get the theta digi
+  bool foundeta = false;
   for (auto thetaDigi : (*(dtThDigis->getContainer()))) {
     if (thetaDigi.whNum() == dTChamberId.wheel() && thetaDigi.stNum() == dTChamberId.station() &&
-        thetaDigi.scNum() == dTChamberId.sector() - 1 && thetaDigi.bxNum() == bxNum) {
+        thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum() - 20) == bxNum) {
       
       // get the theta digi
-      float z = thetaDigi.z() * zconv;
-      float k = thetaDigi.k() * kconv;
-      eta = -pow(-1.,z<0)*log(tan(atan(1/k)/2.));
+      float k = thetaDigi.k() * kconv; //-pow(-1.,z<0)*log(tan(atan(1/k)/2.));
+      eta = -log(fabs(tan(atan(1/k)/2.)));
+      LogTrace("OMTFReconstruction") << "OmtfPhase2AngleConverter::getGlobalEta("<< dTChamberId << ") eta: " << eta << " k: " << k << " thetaDigi.k(): " << thetaDigi.k();
+      foundeta = true;
     }
   }
-
-  int iEta = etaVal2CodePhase2(eta);
-  return abs(iEta);
+  if (foundeta) {
+    return abs(etaVal2CodePhase2(eta));
+  } else {
+    return 0;
+  }
+  return -999;
 }
