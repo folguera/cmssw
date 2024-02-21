@@ -26,7 +26,6 @@ struct MuStubsPhase2InputTokens {
   edm::EDGetTokenT<L1Phase2MuDTThContainer> inputTokenDtTh;
 };
 
-
 class DtPhase2DigiToStubsConverter : public DigiToStubsConverterBase {
 public:
   DtPhase2DigiToStubsConverter(edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,

@@ -117,10 +117,10 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     } else {
       if (myCand->getPdfSumConstr() > 0)
         candidate.setHwPt(myCand->getPtConstr());
-      else if (myCand->getPtUnconstr() > 0)  
+      else if (myCand->getPtUnconstr() > 0)
         //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
         //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
-        candidate.setHwPt(1);  
+        candidate.setHwPt(1);
       else
         candidate.setHwPt(0);
 

@@ -77,7 +77,8 @@ namespace lutNN {
                                                  layer3_1_lut_I,
                                                  layer3_1_lut_F,
                                                  output1_I,
-                                                 output1_F> LutNetworkFP;
+                                                 output1_F>
+      LutNetworkFP;
 }  // namespace lutNN
 
 PtAssignmentNNRegression::PtAssignmentNNRegression(const edm::ParameterSet& edmCfg,

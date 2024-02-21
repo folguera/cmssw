@@ -14,7 +14,6 @@
 
 /////////////////////////////////////
 void DtPhase2DigiToStubsConverter::loadDigis(const edm::Event& event) {
-    
   event.getByToken(inputTokenDtPh, dtPhDigis);
   event.getByToken(inputTokenDtTh, dtThDigis);
 }
@@ -25,7 +24,6 @@ void DtPhase2DigiToStubsConverter::makeStubs(MuonStubPtrs2D& muonStubsInLayers,
                                              int bxFrom,
                                              int bxTo,
                                              std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
-
   if (!dtPhDigis)
     return;
 
@@ -137,9 +135,9 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
                                 << " slNum " << digi.slNum() << " quality " << digi.quality() << " rpcFlag "
                                 << digi.rpcFlag() << " phi " << digi.phi() << " phiBend " << digi.phiBend()
                                 << std::endl;
-  LogTrace("l1tOmtfEventPrint") << board.name() << " stub: detid " << detid << " phi " << stub.phiHw
-                                << " eta " << stub.etaHw << " phiB " << stub.phiBHw << " bx " << stub.bx
-                                << " quality " << stub.qualityHw << " logicLayer " << stub.logicLayer << std::endl;
+  LogTrace("l1tOmtfEventPrint") << board.name() << " stub: detid " << detid << " phi " << stub.phiHw << " eta "
+                                << stub.etaHw << " phiB " << stub.phiBHw << " bx " << stub.bx << " quality "
+                                << stub.qualityHw << " logicLayer " << stub.logicLayer << std::endl;
   OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
 }
 
@@ -162,7 +160,7 @@ InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
                                    MuStubsPhase2InputTokens& muStubsPhase2InputTokens,
                                    const OMTFConfiguration* config,
                                    std::unique_ptr<OmtfAngleConverter> angleConverter)
-  : OMTFinputMaker(edmParameterSet, muStubsInputTokens, config, std::move(angleConverter)) {
+    : OMTFinputMaker(edmParameterSet, muStubsInputTokens, config, std::move(angleConverter)) {
   edm::LogImportant("OMTFReconstruction") << "constructing InputMakerPhase2" << std::endl;
 
   /*  if(!edmParameterSet.getParameter<bool>("dropDTPrimitives"))
@@ -183,7 +181,10 @@ InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
     edm::LogImportant("OMTFReconstruction") << " using Phase2 DT trigger primitives" << std::endl;
 
     digiToStubsConverters.emplace_back(std::make_unique<DtPhase2DigiToStubsConverterOmtf>(
-											  config, dynamic_cast<OmtfPhase2AngleConverter*>(this->angleConverter.get()), muStubsPhase2InputTokens.inputTokenDtPh, muStubsPhase2InputTokens.inputTokenDtTh));
+        config,
+        dynamic_cast<OmtfPhase2AngleConverter*>(this->angleConverter.get()),
+        muStubsPhase2InputTokens.inputTokenDtPh,
+        muStubsPhase2InputTokens.inputTokenDtTh));
   }
 }
 
