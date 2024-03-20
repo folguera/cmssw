@@ -167,8 +167,7 @@ bool omtfHitWithQualToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsig
   rangeFactor *= 4;  //TODO !!!!!!!!!!!!!!!!!!!
 
   if (abs(hit.phiDist) >= ((rangeMiddle - 1) * rangeFactor)) {
-    cout  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
-        << " RefLayer " << omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "
+    edm::LogImportant("OMTFReconstruction") << " RefLayer " << omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "
         << ((short)hit.valid) << " quality " << ((short)hit.quality)
         << " hit.phiDist outside the range !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     hit.phiDist = copysign((rangeMiddle - 1) * rangeFactor, hit.phiDist);
@@ -216,7 +215,6 @@ bool omtfHitToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int 
     }
 
     rangeFactor *= 2;  //TODO !!!!!!!!!!!!!!!!!!!
-
     if (std::abs(hit.phiDist) >= (63 * rangeFactor)) {
       edm::LogImportant("OMTFReconstruction")  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
           << " RefLayer " << omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "

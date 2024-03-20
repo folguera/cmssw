@@ -53,7 +53,6 @@ namespace lutNN {
     LutNetworkFixedPointRegression2Outputs() {
       static_assert(layer2_neurons == (layer3_0_inputCnt + layer3_1_inputCnt));
 
-      std::cout << "LutNetworkFixedPoint" << std::endl;
       lutLayer1.setName("lutLayer1");
       lutLayer2.setName("lutLayer2");
       lutLayer3_0.setName("lutLayer3_0");
