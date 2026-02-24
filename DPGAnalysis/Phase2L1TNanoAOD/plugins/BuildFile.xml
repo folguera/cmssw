@@ -7,6 +7,7 @@
 <use name="DataFormats/L1TCorrelator"/>
 <use name="DataFormats/L1TMuonPhase2"/>
 <use name="DataFormats/L1TParticleFlow"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/ProtonReco"/>
@@ -19,6 +20,17 @@
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/CandAlgos"/>
+
+<!-- Si BuildFile.xml ya existe, añadir estas líneas -->
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="MuonAnalysis/MuonAssociators"/>
+
 <library file="*.cc" name="DPGAnalysisPhase2L1TNanoAOD_plugins">
   <flags EDM_PLUGIN="1"/>
 </library>
